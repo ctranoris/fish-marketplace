@@ -1,0 +1,125 @@
+<html>
+<head>
+    <script type="text/javascript" src="js/smoothie.js"></script>
+<script src="http://meemoo.org/meemoo/v1/meemoo-min.js"></script>
+    <script type="text/javascript">
+
+ 
+ 
+	var text = "";
+	var currentY = 10;
+    var options = {};
+    options.title = "Dynamic data";
+    options.interval = 500;
+    options.intervalid = 0;
+    
+    var rendered = false;
+    
+    Meemoo.setInfo({
+      title: "Graph Chart",
+      author: "forge",
+      description: "A graph chart based on smoothie.js"
+    }).addInputs({
+      
+      y: {
+        action: function (val) {
+        	currentY = val;
+
+            //Meemoo.send( "info", text + " " + JSON.stringify(options, null, " ") );
+            Meemoo.send( "info", text + " "+ val );
+            Meemoo.send( "yval", val );
+        },
+        min: -500,
+        max: 500,
+        default: 0,
+        type: "int",
+        description: "y value"
+      },	      
+      interval: {
+        action: function (val) {
+        	options.interval = val;
+        	
+        	clearInterval(options.intervalid);
+        	
+            options.intervalid =setInterval(function() {
+                	
+        			addRandomValueToDataSets(new Date().getTime(), cpuDataSets);
+        		}, options.interval);
+        	
+        },
+        min: 0,
+        max: 10000,
+        default: options.interval,
+        type: "int",
+        description: "The options interval"
+      }
+
+    }).addOutputs({
+     
+      info: {
+        type: "string"
+      },
+      yval: {
+          type: "int"
+        }
+    });
+	
+   
+    
+function getLatestY(){
+
+return currentY;
+
+
+} 
+
+
+		
+		// Initialize an empty TimeSeries for each CPU.
+		var cpuDataSets = [new TimeSeries(), new TimeSeries(), new TimeSeries(), new TimeSeries()];
+		var seriesOptions = [
+			{ strokeStyle: 'rgba(255, 0, 0, 1)', fillStyle: 'rgba(255, 0, 0, 0.1)', lineWidth: 3 },
+			{ strokeStyle: 'rgba(0, 255, 0, 1)', fillStyle: 'rgba(0, 255, 0, 0.1)', lineWidth: 3 },
+			{ strokeStyle: 'rgba(0, 0, 255, 1)', fillStyle: 'rgba(0, 0, 255, 0.1)', lineWidth: 3 },
+			{ strokeStyle: 'rgba(255, 255, 0, 1)', fillStyle: 'rgba(255, 255, 0, 0.1)', lineWidth: 3 }
+		];
+		
+options.intervalid =setInterval(function() {
+
+		addRandomValueToDataSets(new Date().getTime(), cpuDataSets);
+}, options.interval);
+      
+      
+      function createTimeline() {
+        var chart = new SmoothieChart({millisPerPixel:100,grid:{sharpLines:true,millisPerLine:9000,verticalSections:6},labels:{fontSize:14,precision:1},minValue:-0,maxValue:100,timestampFormatter:SmoothieChart.timeFormatter,horizontalLines:[{color:'#ffffff',lineWidth:1,value:0},{color:'#880000',lineWidth:2,value:3333},{color:'#880000',lineWidth:2,value:-3333}]});
+		canvas = document.getElementById('smoothie-chart');
+		//series = new TimeSeries();
+		for (var i = 0; i < cpuDataSets.length; i++) {
+			chart.addTimeSeries(cpuDataSets[i], seriesOptions[i]);
+		}
+		//chart.addTimeSeries(series, {strokeStyle:'#00ff00',fillStyle:'rgba(68,102,85,0.55)'});
+		chart.streamTo(canvas, 0);
+      }
+      
+	  
+	function addRandomValueToDataSets(time, dataSets) {
+		//for (var i = 0; i < dataSets.length-1; i++) {
+		//	dataSets[i].append(time, Math.floor((Math.random()*10)+10*i)  );
+		//}
+
+		dataSets[0].append(time, Math.floor((Math.random()*10))  );
+		dataSets[1].append(time, Math.floor((Math.random()*10)+10)  );
+		dataSets[2].append(time, Math.floor((Math.random()*10)+30)  );
+		dataSets[3].append(time, getLatestY()  );
+		
+	}
+    </script>
+  </head>
+  <body onload="createTimeline()">
+<canvas id="smoothie-chart" width="400px" height="200px">
+
+
+    
+ 
+</body>
+</html>

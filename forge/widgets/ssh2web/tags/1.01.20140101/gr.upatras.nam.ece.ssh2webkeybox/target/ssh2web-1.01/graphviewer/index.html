@@ -1,0 +1,43 @@
+<html>
+<head>
+    <script type="text/javascript" src="js/smoothie.js"></script>
+    <script type="text/javascript">
+
+		// Randomly add a data point every 500ms
+		var series = new TimeSeries();
+		// Initialize an empty TimeSeries for each CPU.
+		var cpuDataSets = [new TimeSeries(), new TimeSeries(), new TimeSeries(), new TimeSeries()];
+		var seriesOptions = [
+			{ strokeStyle: 'rgba(255, 0, 0, 1)', fillStyle: 'rgba(255, 0, 0, 0.1)', lineWidth: 3 },
+			{ strokeStyle: 'rgba(0, 255, 0, 1)', fillStyle: 'rgba(0, 255, 0, 0.1)', lineWidth: 3 },
+			{ strokeStyle: 'rgba(0, 0, 255, 1)', fillStyle: 'rgba(0, 0, 255, 0.1)', lineWidth: 3 },
+			{ strokeStyle: 'rgba(255, 255, 0, 1)', fillStyle: 'rgba(255, 255, 0, 0.1)', lineWidth: 3 }
+		];
+      setInterval(function() {
+        series.append(new Date().getTime(), Math.floor((Math.random()*10)+40)  );
+		addRandomValueToDataSets(new Date().getTime(), cpuDataSets);
+      }, 500);
+      
+      function createTimeline() {
+        var chart = new SmoothieChart({millisPerPixel:100,grid:{sharpLines:true,millisPerLine:9000,verticalSections:6},labels:{fontSize:14,precision:1},minValue:-0,maxValue:100,timestampFormatter:SmoothieChart.timeFormatter,horizontalLines:[{color:'#ffffff',lineWidth:1,value:0},{color:'#880000',lineWidth:2,value:3333},{color:'#880000',lineWidth:2,value:-3333}]});
+		canvas = document.getElementById('smoothie-chart');
+		//series = new TimeSeries();
+		for (var i = 0; i < cpuDataSets.length; i++) {
+			chart.addTimeSeries(cpuDataSets[i], seriesOptions[i]);
+		}
+		chart.addTimeSeries(series, {strokeStyle:'#00ff00',fillStyle:'rgba(68,102,85,0.55)'});
+		chart.streamTo(canvas, 0);
+      }
+	  
+	function addRandomValueToDataSets(time, dataSets) {
+		for (var i = 0; i < dataSets.length; i++) {
+			dataSets[i].append(time, Math.floor((Math.random()*10)+10*i)  );
+		}
+	}
+    </script>
+  </head>
+  <body onload="createTimeline()">
+<canvas id="smoothie-chart" width="879" height="200">
+
+</body>
+</html>

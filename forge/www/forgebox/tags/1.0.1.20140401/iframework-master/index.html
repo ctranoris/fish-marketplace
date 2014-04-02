@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<!-- 
+
+    Thanks for viewing source! 
+Try debug.html if you want to poke the insides.
+
+        _________________
+       /\  _____________ \
+      /  \ \___________/\ \
+     / /\ \ \       / /\ \ \  w
+    / / /\ \ \_____/ / /\ \ \  a
+   / /_/__\ \ \____\/_/  \ \ \  t
+   \ \ \___\ \ \___/\ \   \ \ \
+    \ \ \   \ \ \__\ \ \___\_\ \
+     \ \ \   \ \____\ \ \_______\
+      \ \ \  / / ____\ \ \____  /
+       \ \ \/ / /     \ \ \/ / /
+        \ \/ / /_______\_\/ / /
+         \  / /___________\/ /
+          \/________________/
+                              meemoo.org
+
+-->
+
+
+<!-- <html manifest="iframework.appcache"> -->
+<head>
+  <meta charset="utf-8" />
+  <title>meemoo: use, build, share, and hack creative apps in the browser</title>
+
+  <script type="text/javascript">
+  (function(){
+    "use strict";
+
+    window._meemooInitialize = function(compatible) {
+      if (!document.getElementById("iframework-info")) {
+        // Wait for DOM
+        window.setTimeout(function(){
+          _meemooInitialize(compatible);
+        }, 100);
+        return false;
+      }
+      if (window.Iframework){
+        // Already initialized
+        return false;
+      }
+      if (!compatible) {
+        document.getElementById("iframework-info").innerHTML = "&raquo; You need a modern browser to run this. ";
+        document.getElementById("iframework-info").innerHTML += '<a href="#" onclick="_meemooInitialize(true);return false;">Try anyway?</a>';
+        return false;
+      } else {
+        document.getElementById("iframework-info").innerHTML = "";
+      }
+
+    }
+
+    // This tests to see if the browser can do data clone for postMessage
+    // We'll assume that if it can do that it can handle the rest
+    // Adapted from http://thecssninja.com/demo/sclones/
+    if(!!window.postMessage) {
+      try {
+        // Safari 5.1 will sometimes throw an exception and sometimes won't, lolwut?
+        // When it doesn't we capture the message event and check the
+        // internal [[Class]] property of the message being passed through.
+        // Safari will pass through DOM nodes as Null
+        // iOS Safari on the other hand passes it through as DOMWindow
+        window.onmessage = function(e){
+          var type = Object.prototype.toString.call(e.data);
+          var safariCompatible = (type.indexOf("Null") != -1 || type.indexOf("DOMWindow") != -1) ? true : false;
+          if (!window.Iframework) {
+            _meemooInitialize(safariCompatible);
+          }
+          // Only keep the onmessage function for the one test
+          window.onmessage = null;
+        };
+        // Spec states you can't transmit DOM nodes and it will throw an error
+        // postMessage implimentations that support cloned data will throw.
+        window.postMessage(document.createElement("a"),"*");
+      } catch(e) {
+        // BBOS6 throws but doesn't pass through the correct exception
+        // so check error message
+        var validCompatible = (e.DATA_CLONE_ERR || e.message == "Cannot post cyclic structures.") ? true : false;
+        _meemooInitialize(validCompatible);
+      }
+    } else {
+      _meemooInitialize(false);
+    }
+
+  })();
+  </script>  
+
+</head>
+<body>
+  <footer style="font-size: 10px; font-family: Monaco, monospace;">
+    <span id="debug-info"></span>
+    <a href="http://meemoo.org/" target="_blank">meemoo</a> &raquo; 
+    <a href="https://github.com/meemoo/iframework" target="_blank">source</a>
+    <span id="iframework-info"></span>
+    <noscript>&raquo; This web app uses JavaScript (and plenty of it).</noscript>
+  </footer>
+
+  <!-- Libs -->
+  <script src="libs/yepnope.min.js"></script>
+  <script src="libs/jquery.js"></script>
+  <script src="libs/jquery-ui/jquery-ui.js"></script>
+
+  <!-- Iframework packaged -->
+  <script src="build/meemoo-iframework.min.js"></script>
+
+  <!-- Examples -->
+  <script src="src/examples/module-library.js"></script>
+  <script src="src/examples/apps.js"></script>
+
+  <!-- Style -->
+  <link href="libs/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"></link>
+  <link href='http://fonts.googleapis.com/css?family=Noto+Sans' rel='stylesheet' type='text/css'>
+  <link href="libs/spectrum/spectrum.css" rel="stylesheet" type="text/css"></link>
+  <link href="iframework.css" rel="stylesheet" type="text/css"></link>
+
+</body>
+</html>

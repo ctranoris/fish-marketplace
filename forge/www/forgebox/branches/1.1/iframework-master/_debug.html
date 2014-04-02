@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+
+<!-- 
+
+    Thanks for viewing source! 
+
+        _________________
+       /\  _____________ \
+      /  \ \___________/\ \
+     / /\ \ \       / /\ \ \  w
+    / / /\ \ \_____/ / /\ \ \  a
+   / /_/__\ \ \____\/_/  \ \ \  t
+   \ \ \___\ \ \___/\ \   \ \ \
+    \ \ \   \ \ \__\ \ \___\_\ \
+     \ \ \   \ \____\ \ \_______\
+      \ \ \  / / ____\ \ \____  /
+       \ \ \/ / /     \ \ \/ / /
+        \ \/ / /_______\_\/ / /
+         \  / /___________\/ /
+          \/________________/
+                              meemoo.org
+
+-->
+
+<!-- <html manifest="iframework.appcache"> -->
+<head>
+  <meta charset="utf-8" />
+  <title>meemoo: use, build, share, and hack creative apps in the browser</title>
+
+  <script type="text/javascript">
+
+  (function(){
+    "use strict";
+
+    window._meemooInitialize = function(compatible) {
+      if (!document.getElementById("iframework-info")) {
+        // Wait for DOM
+        window.setTimeout(function(){
+          _meemooInitialize(compatible);
+        }, 100);
+        return false;
+      }
+      if (window.Iframework){
+        // Already initialized
+        return false;
+      }
+      if (!compatible) {
+        document.getElementById("iframework-info").innerHTML = "&raquo; You need a modern browser to run this. ";
+        document.getElementById("iframework-info").innerHTML += '<a href="#" onclick="_meemooInitialize(true);return false;">Try anyway?</a>';
+        return false;
+      } else {
+        document.getElementById("iframework-info").innerHTML = "";
+      }
+
+      // yepnope([
+      //   {
+      //     // Try the CDN stuff first
+      //     load: (debug ? debugLibs : buildLibs),
+      //     complete: function(){
+      //       if (!window.jQuery) {
+      //         // CDN offline?
+      //         yepnope("libs/jquery.js");
+      //         yepnope("libs/jquery-ui/jquery-ui.js");
+      //         yepnope("libs/jquery-ui/jquery-ui.css");
+      //       }
+      //       document.getElementById("iframework-info").innerHTML = "&raquo; 2/2: Loading Meemoo...";
+      //     }
+      //   },
+      //   {
+      //     // Load all of the src/ files, or just the minified one
+      //     load: (debug ? debugFiles : buildFiles),
+      //     complete: function(){
+      //       // All loaded
+      //       if (window.Iframework) {
+      //         document.getElementById("iframework-info").innerHTML = "&raquo; Loaded!";
+      //         window.setTimeout(function(){
+      //           document.getElementById("iframework-info").innerHTML = "";
+      //         }, 1500);
+      //       } else {
+      //         document.getElementById("iframework-info").innerHTML = "";
+      //         // document.getElementById("iframework-info").innerHTML = "&raquo; Something didn't work (;_;)";
+      //       }
+      //     }
+      //   }
+      // ]);
+    }
+
+    // This tests to see if the browser can do data clone for postMessage
+    // We'll assume that if it can do that it can handle the rest
+    // Adapted from http://thecssninja.com/demo/sclones/
+    if(!!window.postMessage) {
+      try {
+        // Safari 5.1 will sometimes throw an exception and sometimes won't, lolwut?
+        // When it doesn't we capture the message event and check the
+        // internal [[Class]] property of the message being passed through.
+        // Safari will pass through DOM nodes as Null
+        // iOS Safari on the other hand passes it through as DOMWindow
+        window.onmessage = function(e){
+          var type = Object.prototype.toString.call(e.data);
+          var safariCompatible = (type.indexOf("Null") != -1 || type.indexOf("DOMWindow") != -1) ? true : false;
+          if (!window.Iframework) {
+            _meemooInitialize(safariCompatible);
+          }
+          // Only keep the onmessage function for the one test
+          window.onmessage = null;
+        };
+        // Spec states you can't transmit DOM nodes and it will throw an error
+        // postMessage implimentations that support cloned data will throw.
+        window.postMessage(document.createElement("a"),"*");
+      } catch(e) {
+        // BBOS6 throws but doesn't pass through the correct exception
+        // so check error message
+        var validCompatible = (e.DATA_CLONE_ERR || e.message == "Cannot post cyclic structures.") ? true : false;
+        _meemooInitialize(validCompatible);
+      }
+    } else {
+      _meemooInitialize(false);
+    }
+
+  })();
+  </script>  
+
+</head>
+<body>
+  
+  <footer style="font-size: 10px; font-family: Monaco, monospace;">
+    <span id="debug-info">DEBUG &raquo; </span>
+    <a href="http://meemoo.org/" target="_blank">meemoo</a> &raquo; 
+    <a href="https://github.com/meemoo/iframework" target="_blank">source</a>
+    <span id="iframework-info"></span>
+    <noscript>&raquo; use, build, share, and hack creative apps in the browser.</noscript>
+  </footer>
+
+
+  <!-- Libs -->
+  <script src="libs/yepnope.min.js"></script>
+  <script src="libs/jquery.js"></script>
+  <script src="libs/jquery-ui/jquery-ui.js"></script>
+
+  <!-- Packaged libs -->
+  <script src="libs/underscore.js"></script>
+  <script src="libs/backbone.js"></script>
+  <script src="libs/backbone.localStorage.js"></script>
+  <script src="libs/mousetrap.js"></script>
+  <script src="libs/spectrum/spectrum.js"></script>
+  <script src="libs/jquery.ui.touch-punch.js"></script>
+  <script src="libs/js-expression-eval/parser.js"></script>
+
+  <!-- Iframework -->
+  <script src="src/iframework.js"></script>
+  <script src="src/iframework-utils.js"></script>
+  <script src="src/eventshistory.js"></script>
+  <script src="src/local-app.js"></script>
+  <script src="src/local-app-view.js"></script>
+  <script src="src/graph.js"></script>
+  <script src="src/graph-view.js"></script>
+  <script src="src/node.js"></script>
+  <script src="src/node-view.js"></script>
+  <script src="src/node-box.js"></script>
+  <script src="src/node-box-view.js"></script>
+  <script src="src/node-box-native-view.js"></script>
+  <script src="src/node-box-iframe.js"></script>
+  <script src="src/node-box-iframe-view.js"></script>
+  <script src="src/port.js"></script>
+  <script src="src/port-view.js"></script>
+  <script src="src/port-in.js"></script>
+  <script src="src/port-in-view.js"></script>
+  <script src="src/port-out.js"></script>
+  <script src="src/port-out-view.js"></script>
+  <script src="src/module.js"></script>
+  <script src="src/module-view.js"></script>
+  <script src="src/edge.js"></script>
+  <script src="src/edge-view.js"></script>
+  <script src="src/router.js"></script>
+  <script src="src/nodes/image.js"></script>
+
+  <!-- Plugins -->
+  <script src="src/plugins/source.js"></script>
+  <script src="src/plugins/library.js"></script>
+  <script src="src/plugins/images.js"></script>
+
+  <!-- Last -->
+  <script src="src/iframework-last.js"></script>
+
+  <!-- Examples -->
+  <script src="src/examples/module-library.js"></script>
+  <script src="src/examples/apps.js"></script>
+
+  <!-- Style -->
+  <link href="libs/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"></link>
+  <link href='http://fonts.googleapis.com/css?family=Noto+Sans' rel='stylesheet' type='text/css'>
+  <link href="libs/spectrum/spectrum.css" rel="stylesheet" type="text/css"></link>
+  <link href="iframework.css" rel="stylesheet" type="text/css"></link>
+
+</body>
+</html>

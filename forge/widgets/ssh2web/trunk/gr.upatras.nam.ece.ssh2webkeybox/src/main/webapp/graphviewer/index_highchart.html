@@ -1,0 +1,173 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Highcharts Example</title>
+
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+	<script src="http://meemoo.org/meemoo/v1/meemoo-min.js"></script>
+		<script type="text/javascript">
+		
+
+		var text = "";
+		var currentY = 10;
+	    var options = {};
+	    options.title = "Dynamic data";
+	    options.interval = 1000;
+	    options.intervalid = 0;
+	    
+	    var rendered = false;
+	    
+	    Meemoo.setInfo({
+	      title: "Dynamic Chart",
+	      author: "forge",
+	      description: "A dynamic chart based on highchart"
+	    }).addInputs({
+	      title: {
+	        action: function (_text) {
+	          if (text != _text) {
+	            text = _text;
+	            rendered = false;
+	            options.title = _text;
+	            $('#container').highcharts().title = options.title;
+	          }
+	        },
+
+	        default: options.title,
+	        type: "string"
+	      },
+	      y: {
+	        action: function (val) {
+	        	currentY = val;
+	        },
+	        min: -500,
+	        max: 500,
+	        default: 0,
+	        type: "int",
+	        description: "y value"
+	      },	      
+	      interval: {
+	        action: function (val) {
+	        	options.interval = val;
+	        	
+	        	clearInterval(options.intervalid);
+	        	
+                var series = $('#container').highcharts().series[0];
+                options.intervalid = setInterval(function() {
+                    var x = (new Date()).getTime(), // current time
+                        y = getLatestY(); //Math.random();
+                    series.addPoint([x, y], true, true);
+                }, options.interval);
+	        	
+	        },
+	        min: 0,
+	        max: 10000,
+	        default: options.interval,
+	        type: "int",
+	        description: "The options interval"
+	      }
+
+	    }).addOutputs({
+	     
+	      info: {
+	        type: "string"
+	      }
+	    });
+		
+	   
+	    
+function getLatestY(){
+	
+	return currentY;
+	
+	
+} 
+		
+$(function () {
+    $(document).ready(function() {
+        Highcharts.setOptions({
+            global: {
+                useUTC: false
+            }
+        });
+    
+        var chart;
+        $('#container').highcharts({
+            chart: {
+                type: 'spline',
+                animation: Highcharts.svg, // don't animate in old IE
+                marginRight: 10,
+                events: {
+                    load: function() {
+    
+                        // set up the updating of the chart each second
+                        var series = this.series[0];
+                        options.intervalid = setInterval(function() {
+                            var x = (new Date()).getTime(), // current time
+                                y = getLatestY(); //Math.random();
+                            series.addPoint([x, y], true, true);
+                        }, 1000);
+                    }
+                }
+            },
+            title: {
+                text: options.title
+            },
+            xAxis: {
+                type: 'datetime',
+                tickPixelInterval: 150
+            },
+            yAxis: {
+                title: {
+                    text: 'Value'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+           },
+            tooltip: {
+                formatter: function() {
+                        return '<b>'+ this.series.name +'</b><br/>'+
+                        Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) +'<br/>'+
+                        Highcharts.numberFormat(this.y, 2);
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            exporting: {
+                enabled: false
+            },
+            series: [{
+                name: 'Data',
+                data: (function() {
+                    // generate an array of random data
+                    var data = [],
+                        time = (new Date()).getTime(),
+                        i;
+    
+                    for (i = -5; i <= 0; i++) {
+                        data.push({
+                            x: time + i * 1000,
+                            y: 0 //Math.random()
+                        });
+                    }
+                    return data;
+                })()
+            }]
+        });
+    });
+    
+});
+		</script>
+	</head>
+	<body>
+<script src="highcharts/js/highcharts.js"></script>
+<script src="highcharts/js/modules/exporting.js"></script>
+
+<div id="container" style="min-width: 310px; min-height: 200px; margin: 0 auto"></div>
+
+	</body>
+</html>
