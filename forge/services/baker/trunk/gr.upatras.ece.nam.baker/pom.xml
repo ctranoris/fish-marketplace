@@ -77,7 +77,7 @@
 		<profile>
 		<!-- Run profile for continuous running: 
 				mvn clean -Pjetty.integration jetty:run 
-				and access to http://127.0.0.1:8080/jaxrs-srvtest/hello/echo/SierraTangoNevadaxx 
+				and access to http://127.0.0.1:13000/jaxrs-srvtest/hello/echo/SierraTangoNevadaxx 
 				For jetty integration test: mvn clean -Pjetty.integration verify -->
 			<id>jetty.integration</id>
 			<build>
@@ -93,7 +93,7 @@
 									<jettyXml>${basedir}/src/test/resources/jetty.xml,${basedir}/src/test/resources/jetty-ssl.xml,${basedir}/src/test/resources/jetty-https.xml</jettyXml> -->
 
 								<httpConnector>
-									<port>8080</port>
+									<port>13000</port>
 								</httpConnector>
 								<scanIntervalSeconds>2</scanIntervalSeconds>
 								<webApp>
@@ -195,7 +195,7 @@
 
 		<profile>
 			<!-- Run profile for continuous running: mvn clean -Ptomcat.integration	org.apache.tomcat.maven:tomcat7-maven-plugin:run 
-				and access to http://127.0.0.1:8080/jaxrs-service/hello/echo/SierraTangoNevadaxx 
+				and access to http://127.0.0.1:13000/jaxrs-service/hello/echo/SierraTangoNevadaxx 
 				For tomcat integration test: mvn clean -Ptomcat.integration verify -->
 			<id>tomcat.integration</id>
 			<build>
@@ -212,7 +212,7 @@
 										<goal>run</goal>
 									</goals>
 									<configuration>
-										<port>8080</port>
+										<port>13000</port>
 										<path>/jaxrs-service</path>
 										<useSeparateTomcatClassLoader>true</useSeparateTomcatClassLoader>
 									</configuration>
