@@ -22,7 +22,7 @@ public class HelloWorld {
     @Consumes("application/json")
     @Path("/jsonBean")
     public Response modifyJson(JsonBean input) {
-        input.setVal2(input.getVal1());
+        input.setVal2(input.getVal1()+"modified");
         return Response.ok().entity(input).build();
     }
     
