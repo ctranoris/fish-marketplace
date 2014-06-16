@@ -8,6 +8,8 @@ import java.util.List;
 
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codehaus.jackson.JsonParser;
@@ -15,8 +17,10 @@ import org.codehaus.jackson.map.MappingJsonFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+
 public class HelloWorldIT {
     private static String endpointUrl;
+	private static final transient Log logger = LogFactory.getLog(HelloWorldIT.class.getName());
 
     @BeforeClass
     public static void beforeClass() {
@@ -25,8 +29,8 @@ public class HelloWorldIT {
 
     @Test
     public void testPing() throws Exception {
-    	System.out.println("=============== Executing testPing =============== ");
-    	System.out.println("=============== endpointUrl = "+endpointUrl);
+    	logger.info("=============== Executing testPing =============== ");
+    	logger.info("=============== endpointUrl = "+endpointUrl);
         WebClient client = WebClient.create(endpointUrl + "/hello/echo/SierraTangoNevada");
         Response r = client.accept("text/plain").get();
         assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
