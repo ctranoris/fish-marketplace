@@ -155,4 +155,75 @@
 			</plugin>
 		</plugins>
 	</build>
+	
+	<profiles>
+		<profile>
+			<id>cargo.run</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.cargo</groupId>
+						<artifactId>cargo-maven2-plugin</artifactId>
+						<version>1.4.8</version>
+
+						<configuration>
+							<container>
+								<containerId>jetty9x</containerId>
+								<zipUrlInstaller>
+									<url>http://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.2.1.v20140609/jetty-distribution-9.2.1.v20140609.tar.gz</url>
+								</zipUrlInstaller>
+							</container>
+							<configuration>
+								<home>${project.build.directory}/jetty</home>
+								<properties>
+									<cargo.servlet.port>8080</cargo.servlet.port>
+								</properties>
+								<configfiles>
+								
+								</configfiles>
+								<files>
+									
+								</files>
+							</configuration>
+							<deployables>
+								<deployable>
+									<location>../gr.upatras.ece.nam.baker-0.0.1-SNAPSHOT.war</location>
+									<type>war</type>
+									<properties>
+										<context>/baker</context>
+									</properties>
+								</deployable>
+							</deployables>
+							<packager>
+								<outputLocation>${project.build.directory}/jetty-packaged</outputLocation>
+							</packager>
+						</configuration>
+						<executions>
+							<execution>
+								<id>start</id>
+								<phase>pre-integration-test</phase>
+								<goals>
+									<goal>start</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>stop</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>stop</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>package</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>package</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

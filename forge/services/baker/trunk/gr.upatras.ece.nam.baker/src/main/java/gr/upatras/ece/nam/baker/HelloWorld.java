@@ -25,5 +25,15 @@ public class HelloWorld {
         input.setVal2(input.getVal1());
         return Response.ok().entity(input).build();
     }
+    
+    @GET
+    @Path("/jsonBean")
+    @Produces("application/json")
+    public Response getJson() {
+    	JsonBean input = new JsonBean();
+    	input.setVal1("value1");
+        input.setVal2("value2");
+        return Response.ok().entity(input).build();
+    }
 }
 
