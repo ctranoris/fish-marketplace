@@ -25,6 +25,8 @@ public class HelloWorldIT {
 
     @Test
     public void testPing() throws Exception {
+    	System.out.println("=============== Executing testPing =============== ");
+    	System.out.println("=============== endpointUrl = "+endpointUrl);
         WebClient client = WebClient.create(endpointUrl + "/hello/echo/SierraTangoNevada");
         Response r = client.accept("text/plain").get();
         assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
@@ -46,6 +48,6 @@ public class HelloWorldIT {
         MappingJsonFactory factory = new MappingJsonFactory();
         JsonParser parser = factory.createJsonParser((InputStream)r.getEntity());
         JsonBean output = parser.readValueAs(JsonBean.class);
-        assertEquals("Maple", output.getVal2());
+        assertEquals("Maplemodified", output.getVal2());
     }
 }
