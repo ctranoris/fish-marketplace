@@ -62,12 +62,12 @@
 						<target>1.7</target>
 					</configuration>
 				</plugin>
-				
+
 			</plugins>
 		</pluginManagement>
 		<plugins>
-			
-			
+
+
 		</plugins>
 	</build>
 
@@ -75,15 +75,14 @@
 
 	<profiles>
 		<profile>
-		<!-- Run profile for continuous running: 
-				mvn clean -Pjetty.integration jetty:run 
-				and access to http://127.0.0.1:13000/jaxrs-srvtest/hello/echo/SierraTangoNevadaxx 
+			<!-- Run profile for continuous running: mvn clean -Pjetty.integration 
+				jetty:run and access to http://127.0.0.1:13000/jaxrs-srvtest/hello/echo/SierraTangoNevadaxx 
 				For jetty integration test: mvn clean -Pjetty.integration verify -->
 			<id>jetty.integration</id>
 			<build>
 				<pluginManagement>
 					<plugins>
-						
+
 						<plugin>
 							<groupId>org.eclipse.jetty</groupId>
 							<artifactId>jetty-maven-plugin</artifactId>
@@ -145,6 +144,9 @@
 									<httpConnector>
 										<port>${test.server.port}</port>
 									</httpConnector>
+									<webApp>
+										<contextPath>/jaxrs-srvtest</contextPath>
+									</webApp>
 									<stopPort>9999</stopPort>
 									<stopKey>STOP</stopKey>
 									<daemon>true</daemon>
@@ -194,8 +196,8 @@
 
 
 		<profile>
-			<!-- Run profile for continuous running: mvn clean -Ptomcat.integration	org.apache.tomcat.maven:tomcat7-maven-plugin:run 
-				and access to http://127.0.0.1:13000/jaxrs-service/hello/echo/SierraTangoNevadaxx 
+			<!-- Run profile for continuous running: mvn clean -Ptomcat.integration 
+				org.apache.tomcat.maven:tomcat7-maven-plugin:run and access to http://127.0.0.1:13000/jaxrs-service/hello/echo/SierraTangoNevadaxx 
 				For tomcat integration test: mvn clean -Ptomcat.integration verify -->
 			<id>tomcat.integration</id>
 			<build>
