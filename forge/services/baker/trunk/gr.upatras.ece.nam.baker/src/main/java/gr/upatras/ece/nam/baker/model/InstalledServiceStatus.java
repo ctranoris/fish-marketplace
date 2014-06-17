@@ -2,13 +2,16 @@ package gr.upatras.ece.nam.baker.model;
 
 public enum InstalledServiceStatus {
 
-	VERIFIED,
+	INIT,
+	DOWNLOADING,
+	DOWNLOADED,
 	INSTALLING,
 	INSTALLED,
 	STARTING,
 	STARTED,
 	STOPPING,
 	STOPPED,
-	UNINSTALLING
+	UNINSTALLING,
+	FAILED
 	
 }

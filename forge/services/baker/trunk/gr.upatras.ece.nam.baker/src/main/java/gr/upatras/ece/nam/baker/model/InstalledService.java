@@ -8,7 +8,7 @@ public class InstalledService {
 	private String repoUrl;
 	private String installedVersion;
 	private String name;
-	private InstalledServiceStatus status = InstalledServiceStatus.VERIFIED;
+	private InstalledServiceStatus status = InstalledServiceStatus.INIT;
 	
 	
 	public InstalledService() {

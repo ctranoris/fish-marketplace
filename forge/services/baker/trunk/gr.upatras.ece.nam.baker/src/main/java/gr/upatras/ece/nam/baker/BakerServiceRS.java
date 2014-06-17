@@ -23,61 +23,81 @@ public class BakerServiceRS {
 	private static final transient Log logger = LogFactory
 			.getLog(BakerServiceRS.class.getName());
 
+
+	private BakerService bakerServiceRef ;
+	
+	
+	public BakerService getBakerServiceRef() {
+		return bakerServiceRef;
+	}
+
+	public void setBakerServiceRef(BakerService bakerServiceRef) {
+		this.bakerServiceRef = bakerServiceRef;
+	}
+
+	// just to get an example json!
+	@GET
+	@Path("/iservices/example")
+	@Produces("application/json")
+	public Response getJsonInstalledServiceExample() {
+		InstalledService installedService = new InstalledService(
+				UUID.randomUUID(), "ServiceName",
+				"www.ExampleRepoUrl.com/example", "1.0.1 rc1");
+		return Response.ok().entity(installedService).build();
+	}
+
 	@GET
 	@Path("/iservices/{uuid}")
 	@Produces("application/json")
-	public Response getJsonInstalledService( @PathParam("uuid") String uuid ) {
+	public Response getJsonInstalledService(@PathParam("uuid") String uuid) {
+
+		logger.info("Received GET for uuid: "+uuid);
 		
-		BakerService bs = new BakerService();
-		
-		InstalledService installedService = bs.getService(UUID.fromString(uuid)  );
+		InstalledService installedService = bakerServiceRef.getService(UUID.fromString(uuid));
 
 		if (installedService != null) {
 			return Response.ok().entity(installedService).build();
 		} else {
-			ResponseBuilder builder = Response.status(Status.NOT_FOUND );
-			builder.entity("Installed service with uuid=" + uuid + " not found in baker resgistry");
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("Installed service with uuid=" + uuid
+					+ " not found in baker registry");
 			throw new WebApplicationException(builder.build());
 		}
 
 	}
 	
 	@GET
-	@Path("/iservices/example")
+	@Path("/iservices/")
 	@Produces("application/json")
-	public Response getJsonInstalledServiceExample(  ) {
-		
-		
-		InstalledService installedService = new InstalledService(UUID.randomUUID(), 
-				"ServiceName", "www.ExampleRepoUrl.com/example", "1.0.1 rc1");
+	public Response getJsonInstalledServices() {
 
-			return Response.ok().entity(installedService).build();
-
+		//for (int i = 0; i < 20; i++) { //add 20 more random
+		//	bakerServiceRef.installService( UUID.randomUUID() ,  "www.repoexample.comRANDOM", "1.1.1RANDOM"+i);
+		//}		
+		return Response.ok().entity(bakerServiceRef.getManagedServices().values()).build();
+		
 	}
-	
+
 	@POST
 	@Path("/iservices/")
 	@Produces("application/json")
 	public Response jsonInstallService(InstalledService reqInstallService) {
-		
-		BakerService bs = new BakerService();
-		
-		InstalledService installedService = bs.installService(
-				reqInstallService.getUuid(),
-				reqInstallService.getRepoUrl(),
-				reqInstallService.getInstalledVersion()
-				);
+
+		logger.info("Received POST for uuid: "+ reqInstallService.getUuid());
+
+		InstalledService installedService = bakerServiceRef.installService(
+				reqInstallService.getUuid(), reqInstallService.getRepoUrl(),
+				reqInstallService.getInstalledVersion());
 
 		if (installedService != null) {
 			return Response.ok().entity(installedService).build();
 		} else {
-			ResponseBuilder builder = Response.status(Status.NOT_FOUND );
-			builder.entity("Requested Service with uuid=" + reqInstallService.getUuid() + " cannot be installed");
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("Requested Service with uuid="
+					+ reqInstallService.getUuid() + " cannot be installed");
 			throw new WebApplicationException(builder.build());
 		}
 
 	}
-	
-	
-	
+
 }

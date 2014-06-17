@@ -99,7 +99,7 @@
 								<httpConnector>
 									<port>13000</port>
 								</httpConnector>
-								<scanIntervalSeconds>10</scanIntervalSeconds>
+								<scanIntervalSeconds>4</scanIntervalSeconds>
 								<webApp>
 									<contextPath>/jaxrs-service</contextPath>
 								</webApp>
