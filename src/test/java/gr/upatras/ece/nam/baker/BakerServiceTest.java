@@ -35,7 +35,7 @@ public class BakerServiceTest {
 		assertEquals(uuid, istest.getUuid());
 		assertEquals(is.getUuid(), istest.getUuid());
 		assertEquals("www.repoexample.com", istest.getRepoUrl());
-		assertEquals("NameMustComeFromRepo", istest.getName());
+		assertEquals("(pending)", istest.getName());
 		assertEquals("1.1.1", istest.getInstalledVersion());
 	}
 
