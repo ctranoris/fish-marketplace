@@ -8,6 +8,7 @@
     <jaxrs:server id="services" address="/">
         <jaxrs:serviceBeans>
             <bean class="gr.upatras.ece.nam.baker.HelloWorld"/>
+            <bean class="gr.upatras.ece.nam.baker.BakerServiceRS"/>
         </jaxrs:serviceBeans>
         <jaxrs:providers>
             <bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/>

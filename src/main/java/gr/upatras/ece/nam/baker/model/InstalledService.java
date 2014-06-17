@@ -8,6 +8,7 @@ public class InstalledService {
 	private String repoUrl;
 	private String installedVersion;
 	private String name;
+	private InstalledServiceStatus status = InstalledServiceStatus.VERIFIED;
 	
 	
 	public InstalledService() {
@@ -48,6 +49,14 @@ public class InstalledService {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public InstalledServiceStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(InstalledServiceStatus status) {
+		this.status = status;
 	}
 
 	
