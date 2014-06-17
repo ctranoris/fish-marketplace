@@ -10,7 +10,7 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j
     <listener>
         <listener-class>
                         org.springframework.web.context.ContextLoaderListener
-                </listener-class>
+		</listener-class>
     </listener>
     <servlet>
         <servlet-name>CXFServlet</servlet-name>
