@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.util.UUID;
 
 import gr.upatras.ece.nam.baker.model.InstalledService;
+import gr.upatras.ece.nam.baker.model.InstalledServiceStatus;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,6 +58,14 @@ public class InstalledServiceTest {
 		String version= "2.2vv2";
 		is.setInstalledVersion(version);
 		assertEquals(version, is.getInstalledVersion());
+	}
+	
+	@Test
+	public void testSetStatus() {
+		InstalledService is = installedServiceInit();
+		
+		is.setStatus( InstalledServiceStatus.INSTALLING ); 
+		assertEquals(InstalledServiceStatus.INSTALLING, is.getStatus());
 	}
 	
 	
