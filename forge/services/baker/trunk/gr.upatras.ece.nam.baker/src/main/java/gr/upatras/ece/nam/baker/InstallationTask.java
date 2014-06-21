@@ -41,7 +41,7 @@ public class InstallationTask implements Runnable {
 	public void run() {
 
 		while (
-				//(installService.getStatus() != InstalledServiceStatus.INSTALLED) && 
+				(installService.getStatus() != InstalledServiceStatus.STARTED) && 
 				(installService.getStatus() != InstalledServiceStatus.FAILED)) {
 			logger.info("task for uuid:" + installService.getUuid() + " is:"+ installService.getStatus());
 
