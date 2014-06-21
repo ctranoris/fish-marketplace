@@ -1,6 +1,8 @@
 package gr.upatras.ece.nam.baker.model;
 
 import gr.upatras.ece.nam.baker.InstallationTask;
+import gr.upatras.ece.nam.baker.impl.RepositoryWebClient;
+import gr.upatras.ece.nam.baker.testclasses.MockRepositoryWebClient;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,6 +19,7 @@ public class BakerService {
 
 	public BakerService() {
 		managedServices = new ConcurrentHashMap<>();
+		this.setRepoWebClient( new RepositoryWebClient() );
 	}
 
 	public ConcurrentHashMap<UUID, InstalledService> getManagedServices() {
