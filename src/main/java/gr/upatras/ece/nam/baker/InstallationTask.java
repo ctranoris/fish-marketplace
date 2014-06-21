@@ -1,5 +1,14 @@
 package gr.upatras.ece.nam.baker;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.file.Path;
+
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.ExecuteException;
+import org.apache.commons.exec.Executor;
+import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -17,6 +26,8 @@ public class InstallationTask implements Runnable {
 	InstalledService installService;
 	IRepositoryWebClient repoWebClient;
 
+	private Path packageLocalPath;
+
 	public InstallationTask(InstalledService s, IRepositoryWebClient rwc) {
 		installService = s;
 		repoWebClient = rwc;
@@ -29,30 +40,15 @@ public class InstallationTask implements Runnable {
 	@Override
 	public void run() {
 
-		while ((installService.getStatus() != InstalledServiceStatus.INSTALLED)
-				&& (installService.getStatus() != InstalledServiceStatus.FAILED)) {
-			logger.info("task for uuid:" + installService.getUuid() + " from:"
-					+ installService.getStatus());
+		while (
+				//(installService.getStatus() != InstalledServiceStatus.INSTALLED) && 
+				(installService.getStatus() != InstalledServiceStatus.FAILED)) {
+			logger.info("task for uuid:" + installService.getUuid() + " is:"+ installService.getStatus());
 
 			switch (installService.getStatus()) {
 
 			case INIT:
-				logger.info("Downloading metadata info...");
-
-				ServiceMetadata smetadata = null;
-				if (repoWebClient != null)
-					smetadata = repoWebClient.fetchMetadata(
-							installService.getUuid(),
-							installService.getRepoUrl());
-
-				if (smetadata != null) {
-					installService.setServiceMetadata(smetadata);
-					installService
-							.setStatus(InstalledServiceStatus.DOWNLOADING);
-				} else {
-					installService.setStatus(InstalledServiceStatus.FAILED);
-				}
-
+				downLoadMetadataInfo();
 				break;
 
 			case DOWNLOADING:
@@ -67,6 +63,16 @@ public class InstallationTask implements Runnable {
 
 				break;
 
+			case INSTALLED:
+				execInstalledPhase();
+				break;
+				
+			case CONFIGURING:
+				execConfiguringPhase();
+				break;
+			case STARTING:
+				execStartingPhase();
+				break;
 			default:
 				break;
 			}
@@ -82,17 +88,34 @@ public class InstallationTask implements Runnable {
 
 	}
 
+	private void downLoadMetadataInfo() {
+		logger.info("Downloading metadata info...");
+		ServiceMetadata smetadata = null;
+		if (repoWebClient != null)
+			smetadata = repoWebClient.fetchMetadata(installService.getUuid(),
+					installService.getRepoUrl());
+
+		if (smetadata != null) {
+			installService.setServiceMetadata(smetadata);
+			installService.setStatus(InstalledServiceStatus.DOWNLOADING);
+		} else {
+			installService.setStatus(InstalledServiceStatus.FAILED);
+		}
+
+	}
+
 	private void startPackageDownloading() {
 		logger.info("Downloading installation package: "
 				+ installService.getServiceMetadata().getPackageLocation());
 
-		String filename = repoWebClient.fetchPackageFromLocation(installService
+		Path destFile = repoWebClient.fetchPackageFromLocation(installService
 				.getUuid(), installService.getServiceMetadata()
 				.getPackageLocation());
 
-		if (filename != null)
+		if ((destFile != null) && (extractPackage(destFile) == 0)) {
 			installService.setStatus(InstalledServiceStatus.DOWNLOADED);
-		else
+			packageLocalPath = destFile.getParent();
+		} else
 			installService.setStatus(InstalledServiceStatus.FAILED);
 
 	}
@@ -102,11 +125,86 @@ public class InstallationTask implements Runnable {
 		installService.setStatus(InstalledServiceStatus.INSTALLING);
 		logger.info("Installing...");
 
-		// if installation was OK
-		installService.setInstalledVersion(installService.getServiceMetadata()
-				.getVersion());
+		String cmdStr = packageLocalPath + "/recipes/onInstall";
+		logger.info("Will execute recipe 'onInstall' of:" + cmdStr);
+
+		if (executeSystemCommand(cmdStr) == 0) {
+
+			installService.setStatus(InstalledServiceStatus.INSTALLED);
+		} else
+			installService.setStatus(InstalledServiceStatus.FAILED);
+
+	}
+
+	private void execInstalledPhase() {
+		logger.info("execInstalledPhase...");
+		String cmdStr = packageLocalPath + "/recipes/onInstallFinish";
+		logger.info("Will execute recipe 'onInstallFinish' of:" + cmdStr);
+		
+		installService.setInstalledVersion(installService.getServiceMetadata().getVersion());
 		installService.setName(installService.getServiceMetadata().getName());
-		installService.setStatus(InstalledServiceStatus.INSTALLED);
+		executeSystemCommand(cmdStr); //we don't care for the exit code
+		installService.setStatus(InstalledServiceStatus.CONFIGURING);
+
+	}
+	
+	private void execConfiguringPhase(){
+		logger.info("execInstalledPhase...");
+		String cmdStr = packageLocalPath + "/recipes/onApplyConf";
+		logger.info("Will execute recipe 'onApplyConf' of:" + cmdStr);
+
+		executeSystemCommand(cmdStr); //we don't care for the exit code
+		installService.setStatus(InstalledServiceStatus.STARTING);
+		
+	}
+	
+	private void execStartingPhase(){
+		logger.info("execStartingPhase...");
+		String cmdStr = packageLocalPath + "/recipes/onStart";
+		logger.info("Will execute recipe 'onStart' of:" + cmdStr);
+		
+		if (executeSystemCommand(cmdStr) == 0) {			
+			installService.setStatus(InstalledServiceStatus.STARTED);
+		}else
+			installService.setStatus(InstalledServiceStatus.STOPPED);
+		
+	}
+	
+	
+	
+
+	public int extractPackage(Path targetPath) {
+		String cmdStr = "tar --strip-components=1 -xvzf " + targetPath + " -C "
+				+ targetPath.getParent() + "/";
+		return executeSystemCommand(cmdStr);
+	}
+
+	public int executeSystemCommand(String cmdStr) {
+
+		logger.info(" Execute :" + cmdStr);
+
+		CommandLine cmdLine = CommandLine.parse(cmdStr);
+		final Executor executor = new DefaultExecutor();
+		// create the executor and consider the exitValue '0' as success
+		executor.setExitValue(0);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		PumpStreamHandler streamHandler = new PumpStreamHandler(out);
+		executor.setStreamHandler(streamHandler);
+
+		int exitValue = -1;
+		try {
+			exitValue = executor.execute(cmdLine);
+
+		} catch (ExecuteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		logger.info("out>" + out);
+
+		return exitValue;
 
 	}
 

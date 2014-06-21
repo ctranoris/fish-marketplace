@@ -1,5 +1,6 @@
 package gr.upatras.ece.nam.baker.impl;
 
+import java.nio.file.Path;
 import java.util.UUID;
 
 import org.apache.commons.logging.Log;
@@ -18,7 +19,7 @@ public class RepositoryWebClient implements IRepositoryWebClient {
 		return null;
 	}
 	@Override
-	public String fetchPackageFromLocation(UUID uuid, String packageLocation) {
+	public Path fetchPackageFromLocation(UUID uuid, String packageLocation) {
 		// TODO Auto-generated method stub
 		return null;
 	}
