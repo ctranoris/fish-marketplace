@@ -21,6 +21,7 @@ public class MockRepositoryWebClient implements IRepositoryWebClient {
 
 	enum MockRepositoryBehavior {
 		NORMAL, RETURN_NULLMETADATA, RETURN_NULLPACKAGEFILE
+		
 
 	}
 
