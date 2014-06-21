@@ -15,12 +15,12 @@ public class InstalledService {
 		super();
 	}
 	
-	public InstalledService(UUID uuid, String name, String repoUrl, String installedVersion) {
+	public InstalledService(UUID uuid, String repoUrl, String installedVersion) {
 		super();
 		this.uuid = uuid;
 		this.repoUrl = repoUrl;
 		this.installedVersion = installedVersion;
-		this.name = name;
+		this.name = "(pending)";
 	}
 	
 	
