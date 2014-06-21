@@ -9,6 +9,7 @@ public enum InstalledServiceStatus {
 	INSTALLED,
 	STARTING,
 	STARTED,
+	CONFIGURING,
 	STOPPING,
 	STOPPED,
 	UNINSTALLING,

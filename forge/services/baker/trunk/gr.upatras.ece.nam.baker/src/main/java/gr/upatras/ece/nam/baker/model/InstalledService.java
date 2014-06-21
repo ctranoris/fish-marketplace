@@ -9,17 +9,20 @@ public class InstalledService {
 	private String installedVersion;
 	private String name;
 	private InstalledServiceStatus status = InstalledServiceStatus.INIT;
+	/**
+	 * this exist only after fetching metadata from repo. Otherwise is null whan service is installed.
+	 */
+	private ServiceMetadata serviceMetadata; 
 	
 	
 	public InstalledService() {
 		super();
 	}
 	
-	public InstalledService(UUID uuid, String repoUrl, String installedVersion) {
+	public InstalledService(UUID uuid, String repoUrl) {
 		super();
 		this.uuid = uuid;
 		this.repoUrl = repoUrl;
-		this.installedVersion = installedVersion;
 		this.name = "(pending)";
 	}
 	
@@ -57,6 +60,14 @@ public class InstalledService {
 
 	public void setStatus(InstalledServiceStatus status) {
 		this.status = status;
+	}
+
+	public ServiceMetadata getServiceMetadata() {
+		return serviceMetadata;
+	}
+
+	public void setServiceMetadata(ServiceMetadata sm) {
+		this.serviceMetadata = sm;
 	}
 
 	
