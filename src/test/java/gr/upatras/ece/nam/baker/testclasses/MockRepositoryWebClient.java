@@ -3,7 +3,6 @@ package gr.upatras.ece.nam.baker.testclasses;
 import gr.upatras.ece.nam.baker.model.IRepositoryWebClient;
 import gr.upatras.ece.nam.baker.model.ServiceMetadata;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -12,11 +11,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.ExecuteException;
-import org.apache.commons.exec.Executor;
-import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -39,8 +33,7 @@ public class MockRepositoryWebClient implements IRepositoryWebClient {
 
 	@Override
 	public ServiceMetadata fetchMetadata(UUID uuid, String url) {
-		logger.info("TEST fetchMetadata from: " + url + " uuid="
-				+ uuid);
+		logger.info("TEST fetchMetadata from: " + url + " , for uuid=" + uuid);
 
 		try {
 			Thread.sleep(1000);
@@ -52,6 +45,7 @@ public class MockRepositoryWebClient implements IRepositoryWebClient {
 		if (mockRepositoryBehavior != MockRepositoryBehavior.RETURN_NULLMETADATA) {
 			sm = new ServiceMetadata(uuid, "TemporaryServiceFromMockClass");
 			sm.setPackageLocation(url + "/examplepackages/examplebun.tar.gz");
+			
 			sm.setVersion("1.0.0.test");
 		}
 		return sm;

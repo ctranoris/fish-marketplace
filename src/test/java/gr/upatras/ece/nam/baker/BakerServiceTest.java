@@ -29,7 +29,7 @@ public class BakerServiceTest {
 	public void testReqInstall_toSTARTEDStatus() {
 		BakerService bs = BakerServiceInit();
 		bs.setRepoWebClient( new MockRepositoryWebClient( "NORMAL" )  );
-		
+				
 		UUID uuid = UUID.randomUUID();
 		InstalledService is = bs.installService(uuid,  "www.repoexample.com/repo");
 		assertNotNull(is);
@@ -55,6 +55,7 @@ public class BakerServiceTest {
 		assertEquals(is.getUuid(), istest.getUuid());
 		assertEquals( istest.getStatus(),  InstalledServiceStatus.STARTED );	
 		assertEquals("www.repoexample.com/repo", istest.getRepoUrl());
+		assertEquals("www.repoexample.com/repo/examplepackages/examplebun.tar.gz", istest.getServiceMetadata().getPackageLocation() );
 		assertEquals("TemporaryServiceFromMockClass", istest.getServiceMetadata().getName() );
 		assertEquals("1.0.0.test", istest.getServiceMetadata().getVersion() );
 		assertEquals("TemporaryServiceFromMockClass", istest.getName());
