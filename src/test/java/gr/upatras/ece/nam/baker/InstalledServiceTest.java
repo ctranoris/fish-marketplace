@@ -74,8 +74,7 @@ public class InstalledServiceTest {
 		UUID uuid =  UUID.randomUUID();		
 		String repoUrl="repourl";
 		String installedVersion="1.1v";
-		String name = "testServiceName";
-		InstalledService is = new InstalledService(uuid, name , repoUrl, installedVersion);
+		InstalledService is = new InstalledService(uuid , repoUrl, installedVersion);
 		return is;
 	}
 
