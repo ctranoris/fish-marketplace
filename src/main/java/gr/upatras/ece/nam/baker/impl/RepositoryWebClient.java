@@ -6,7 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import gr.upatras.ece.nam.baker.BakerServiceRS;
-import gr.upatras.ece.nam.baker.IRepositoryWebClient;
+import gr.upatras.ece.nam.baker.model.IRepositoryWebClient;
 import gr.upatras.ece.nam.baker.model.ServiceMetadata;
 
 public class RepositoryWebClient implements IRepositoryWebClient {
@@ -15,7 +15,12 @@ public class RepositoryWebClient implements IRepositoryWebClient {
 	@Override
 	public ServiceMetadata fetchMetadata(UUID uuid, String url) {
 		logger.info("fetchMetadata from: "+url+ " uuid="+uuid);
-		return new ServiceMetadata(UUID.randomUUID(), "TemporaryServiceForNow");
+		return null;
+	}
+	@Override
+	public String fetchPackageFromLocation(UUID uuid, String packageLocation) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

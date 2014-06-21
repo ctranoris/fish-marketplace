@@ -41,8 +41,9 @@ public class BakerServiceRS {
 	@Produces("application/json")
 	public Response getJsonInstalledServiceExample() {
 		InstalledService installedService = new InstalledService(
-				UUID.randomUUID(), "ServiceName",
-				"www.ExampleRepoUrl.com/example", "1.0.1 rc1");
+				UUID.randomUUID(),
+				"www.ExampleRepoUrl.com/example");
+		installedService.setName("ServiceName");
 		return Response.ok().entity(installedService).build();
 	}
 
@@ -86,13 +87,13 @@ public class BakerServiceRS {
 		logger.info("Received POST for uuid: "+ reqInstallService.getUuid());
 
 		InstalledService installedService = bakerServiceRef.installService(
-				reqInstallService.getUuid(), reqInstallService.getRepoUrl(),
-				reqInstallService.getInstalledVersion());
+				reqInstallService.getUuid(), 
+				reqInstallService.getRepoUrl());
 
 		if (installedService != null) {
 			return Response.ok().entity(installedService).build();
 		} else {
-			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			ResponseBuilder builder = Response.status(Status.INTERNAL_SERVER_ERROR);
 			builder.entity("Requested Service with uuid="
 					+ reqInstallService.getUuid() + " cannot be installed");
 			throw new WebApplicationException(builder.build());

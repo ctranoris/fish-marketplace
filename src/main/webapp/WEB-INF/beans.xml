@@ -16,7 +16,9 @@
 
 	<jaxrs:server id="services" address="/">
 		<jaxrs:serviceBeans>
+			<!-- 
 			<bean class="gr.upatras.ece.nam.baker.HelloWorld" />
+			 -->
 			<bean class="gr.upatras.ece.nam.baker.BakerServiceRS">
 				<property name="bakerServiceRef" ref="bakerServiceBean" />
 			</bean>

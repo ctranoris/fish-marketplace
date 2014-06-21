@@ -11,8 +11,9 @@ import org.apache.commons.logging.LogFactory;
 public class BakerService {
 
 	private ConcurrentHashMap<UUID, InstalledService> managedServices;
-	private static final transient Log logger = LogFactory
-			.getLog(BakerService.class.getName());
+	private IRepositoryWebClient repoWebClient;
+	
+	private static final transient Log logger = LogFactory.getLog(BakerService.class.getName());
 
 	public BakerService() {
 		managedServices = new ConcurrentHashMap<>();
@@ -32,11 +33,12 @@ public class BakerService {
 		return (is != null);
 	}
 
-	public InstalledService installService(UUID uuid, String repourl,
-			String version) {
-		InstalledService s = managedServices.get(uuid);
+	public InstalledService installService(UUID uuid, String repourl) {
+		
+		InstalledService s = managedServices.get(uuid); //return existing if found
+		
 		if (s == null) {
-			s = new InstalledService(uuid, repourl, version);
+			s = new InstalledService(uuid, repourl);			
 			addServiceToManagedServices(s);
 			handleInstallationJob(s);
 		}
@@ -44,7 +46,7 @@ public class BakerService {
 	}
 
 	private void handleInstallationJob(InstalledService s) {
-		Runnable run = new InstallationTask(s);
+		Runnable run = new InstallationTask(s, repoWebClient);
 		Thread thread = new Thread(run);
 		thread.start();
 
@@ -62,6 +64,14 @@ public class BakerService {
 	public InstalledService getService(UUID uuid) {
 		InstalledService is = managedServices.get(uuid);
 		return is;
+	}
+
+	public IRepositoryWebClient getRepoWebClient() {
+		return repoWebClient;
+	}
+
+	public void setRepoWebClient(IRepositoryWebClient repoWebClient) {
+		this.repoWebClient = repoWebClient;
 	}
 
 }

@@ -73,8 +73,8 @@ public class InstalledServiceTest {
 	private InstalledService installedServiceInit(){
 		UUID uuid =  UUID.randomUUID();		
 		String repoUrl="repourl";
-		String installedVersion="1.1v";
-		InstalledService is = new InstalledService(uuid , repoUrl, installedVersion);
+		InstalledService is = new InstalledService(uuid , repoUrl);
+		is.setInstalledVersion("1.1v");
 		return is;
 	}
 
