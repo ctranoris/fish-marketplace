@@ -15,7 +15,7 @@ public class RepositoryWebClient implements IRepositoryWebClient {
 	private static final transient Log logger = LogFactory.getLog(RepositoryWebClient.class.getName());
 	@Override
 	public ServiceMetadata fetchMetadata(UUID uuid, String url) {
-		logger.info("fetchMetadata from: "+url+ " uuid="+uuid);
+		logger.info("fetchMetadata from: "+url+ " , for uuid="+uuid);
 		return null;
 	}
 	@Override

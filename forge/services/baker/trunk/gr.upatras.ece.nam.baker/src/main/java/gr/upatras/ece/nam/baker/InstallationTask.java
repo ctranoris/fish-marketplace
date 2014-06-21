@@ -77,12 +77,12 @@ public class InstallationTask implements Runnable {
 				break;
 			}
 
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			try {
+//				Thread.sleep(1000);
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 
 		}
 
@@ -94,11 +94,14 @@ public class InstallationTask implements Runnable {
 		if (repoWebClient != null)
 			smetadata = repoWebClient.fetchMetadata(installService.getUuid(),
 					installService.getRepoUrl());
+		else
+			logger.info("repoWebClient == null...FAILED");
 
 		if (smetadata != null) {
 			installService.setServiceMetadata(smetadata);
 			installService.setStatus(InstalledServiceStatus.DOWNLOADING);
 		} else {
+			logger.info("smetadata == null...FAILED");
 			installService.setStatus(InstalledServiceStatus.FAILED);
 		}
 
