@@ -39,11 +39,11 @@ public class MockRepositoryWebClient implements IRepositoryWebClient {
 
 	@Override
 	public ServiceMetadata fetchMetadata(UUID uuid, String url) {
-		logger.info("TEST fetchMetadata after 2sec from: " + url + " uuid="
+		logger.info("TEST fetchMetadata from: " + url + " uuid="
 				+ uuid);
 
 		try {
-			Thread.sleep(2000);
+			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
