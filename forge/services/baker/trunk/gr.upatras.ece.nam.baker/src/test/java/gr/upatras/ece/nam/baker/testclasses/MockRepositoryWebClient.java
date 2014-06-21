@@ -58,7 +58,7 @@ public class MockRepositoryWebClient implements IRepositoryWebClient {
 	}
 
 	@Override
-	public String fetchPackageFromLocation(UUID uuid, String packageLocation) {
+	public Path fetchPackageFromLocation(UUID uuid, String packageLocation) {
 
 		logger.info("TEST fetchMetadata after 2sec from: " + packageLocation);
 
@@ -84,8 +84,9 @@ public class MockRepositoryWebClient implements IRepositoryWebClient {
 			logger.info( " to:" + targetPath);
 			
 			Files.copy(sourceFile.toPath(), targetPath );
-						
-			extractPackage(targetPath);
+			if (mockRepositoryBehavior != MockRepositoryBehavior.RETURN_NULLPACKAGEFILE) {
+				return targetPath;
+			}			
 			
 
 		} catch (IOException e) {
@@ -94,33 +95,12 @@ public class MockRepositoryWebClient implements IRepositoryWebClient {
 
 		}
 
-		if (mockRepositoryBehavior != MockRepositoryBehavior.RETURN_NULLPACKAGEFILE) {
-			return "/tmp/baker/examplebun.tar.gz";
-		}
+		
 
 		return null;
 
 	}
 	
-	public int extractPackage(Path targetPath) throws ExecuteException, IOException{
-		
-		String cmdStr="tar --strip-components=1 -xvzf "+targetPath+" -C " + targetPath.getParent()+"/";
-		logger.info( " Execute :" + cmdStr);
-		
-		CommandLine cmdLine = CommandLine.parse(cmdStr);
-		// create the executor and consider the exitValue '0' as success
-		final Executor executor = new DefaultExecutor();
-		executor.setExitValue(0);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        PumpStreamHandler streamHandler = new PumpStreamHandler(out);
-        executor.setStreamHandler(streamHandler);
-		
-
-		int exitValue = executor.execute(cmdLine);
-		logger.info( "out>" + out);
-		
-		return exitValue;
-		
-	}
+	
 
 }

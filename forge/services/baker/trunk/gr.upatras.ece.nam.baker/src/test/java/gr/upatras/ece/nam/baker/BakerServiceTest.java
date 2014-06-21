@@ -26,7 +26,7 @@ public class BakerServiceTest {
 
 
 	@Test
-	public void testReqInstall_toINSTALLEDStatus() {
+	public void testReqInstall_toSTARTEDStatus() {
 		BakerService bs = BakerServiceInit();
 		bs.setRepoWebClient( new MockRepositoryWebClient( "NORMAL" )  );
 		
@@ -37,9 +37,9 @@ public class BakerServiceTest {
 		assertEquals( is.getStatus(),  InstalledServiceStatus.INIT );		
 
 		
-		while (  (is.getStatus()  != InstalledServiceStatus.INSTALLED) &&
+		while (  (is.getStatus()  != InstalledServiceStatus.STARTED) &&
 				is.getStatus()  != InstalledServiceStatus.FAILED){
-			logger.info("Waiting for INSTALLED for test service UUID="+uuid+" .Now is="+ is.getStatus());
+			logger.info("Waiting for STARTED for test service UUID="+uuid+" . Now is: "+ is.getStatus());
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
@@ -53,7 +53,7 @@ public class BakerServiceTest {
 		assertNotNull( istest.getServiceMetadata() );
 		assertEquals(uuid, istest.getUuid());
 		assertEquals(is.getUuid(), istest.getUuid());
-		assertEquals( istest.getStatus(),  InstalledServiceStatus.INSTALLED );	
+		assertEquals( istest.getStatus(),  InstalledServiceStatus.STARTED );	
 		assertEquals("www.repoexample.com/repo", istest.getRepoUrl());
 		assertEquals("TemporaryServiceFromMockClass", istest.getServiceMetadata().getName() );
 		assertEquals("1.0.0.test", istest.getServiceMetadata().getVersion() );

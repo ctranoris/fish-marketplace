@@ -1,5 +1,6 @@
 package gr.upatras.ece.nam.baker.model;
 
+import java.nio.file.Path;
 import java.util.UUID;
 
 public interface IRepositoryWebClient {
@@ -11,11 +12,11 @@ public interface IRepositoryWebClient {
 	 */
 	public ServiceMetadata fetchMetadata(UUID uuid, String url);
 
+	
 	/**
 	 * @param uuid
 	 * @param packageLocation
 	 * @return the temporary fownload location of file
 	 */
-	public String fetchPackageFromLocation(UUID uuid, String packageLocation);
-
+	public Path fetchPackageFromLocation(UUID uuid, String packageLocation); 
 }
