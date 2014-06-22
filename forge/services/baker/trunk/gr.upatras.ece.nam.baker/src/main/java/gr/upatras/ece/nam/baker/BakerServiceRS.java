@@ -21,7 +21,7 @@ import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
-@Path("/baker")
+@Path("/api")
 public class BakerServiceRS {
 	private static final transient Log logger = LogFactory.getLog(BakerServiceRS.class.getName());
 

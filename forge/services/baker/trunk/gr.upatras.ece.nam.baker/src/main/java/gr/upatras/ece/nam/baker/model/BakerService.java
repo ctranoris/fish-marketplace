@@ -45,6 +45,7 @@ public class BakerService {
 			handleInstallationJob(s);
 		}else if (s.getStatus() == InstalledServiceStatus.FAILED  ) {
 			s.setStatus(InstalledServiceStatus.INIT);
+			s.setRepoUrl(repourl);
 			handleInstallationJob(s);
 		}
 		
