@@ -14,11 +14,11 @@
 
 	<bean id="bakerServiceBean" class="gr.upatras.ece.nam.baker.model.BakerService" />
 
-	<jaxrs:server id="services" address="/">
+	<jaxrs:server id="services" address="/baker/">
 		<jaxrs:serviceBeans>
-			<!-- 
-			<bean class="gr.upatras.ece.nam.baker.HelloWorld" />
-			 -->
+			
+			<bean class="gr.upatras.ece.nam.baker.localrepo.UploadDownloadFileService" />
+			 
 			<bean class="gr.upatras.ece.nam.baker.BakerServiceRS">
 				<property name="bakerServiceRef" ref="bakerServiceBean" />
 			</bean>
@@ -27,6 +27,5 @@
 			<bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" />
 		</jaxrs:providers>
 	</jaxrs:server>
-
 
 </beans>

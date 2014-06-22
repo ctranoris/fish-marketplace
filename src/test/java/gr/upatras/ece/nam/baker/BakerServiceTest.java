@@ -31,6 +31,7 @@ public class BakerServiceTest {
 		bs.setRepoWebClient( new MockRepositoryWebClient( "NORMAL" )  );
 				
 		UUID uuid = UUID.randomUUID();
+		//we don;t care about repo...we provide a local package hardcoded by MockRepositoryWebClient
 		InstalledService is = bs.installService(uuid,  "www.repoexample.com/repo");
 		assertNotNull(is);
 		assertEquals( 1 , bs.getManagedServices().size());

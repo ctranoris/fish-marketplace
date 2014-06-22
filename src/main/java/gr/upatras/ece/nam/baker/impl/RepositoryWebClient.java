@@ -40,10 +40,12 @@ public class RepositoryWebClient implements IRepositoryWebClient {
 			providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
 			WebClient client = WebClient.create(url, providers);
 			Response r = client.accept("application/json").type("application/json").get();
-			MappingJsonFactory factory = new MappingJsonFactory();
-			JsonParser parser  = factory.createJsonParser((InputStream) r.getEntity());
-			ServiceMetadata output = parser.readValueAs(ServiceMetadata.class);
-			return output;
+			if ( r.getStatus() == Response.Status.OK.getStatusCode() ){
+				MappingJsonFactory factory = new MappingJsonFactory();
+				JsonParser parser  = factory.createJsonParser((InputStream) r.getEntity());
+				ServiceMetadata output = parser.readValueAs(ServiceMetadata.class);
+				return output;
+			}
 			
 			
 		} catch (JsonParseException e) {
@@ -66,6 +68,7 @@ public class RepositoryWebClient implements IRepositoryWebClient {
 		try {
 			WebClient client = WebClient.create(packageLocation);
 			Response r = client.get();
+			
 			
 			InputStream inputStream = (InputStream) r.getEntity();
 			

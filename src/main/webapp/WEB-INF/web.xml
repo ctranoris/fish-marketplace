@@ -16,7 +16,9 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j
         <servlet-name>CXFServlet</servlet-name>
         <servlet-class>
                         org.apache.cxf.transport.servlet.CXFServlet
-                </servlet-class>
+		</servlet-class>
+                
+        <!-- 
         <init-param>
 	      <param-name>static-welcome-file</param-name>
 	      <param-value>/index.html</param-value>
@@ -25,11 +27,12 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j
 	      <param-name>static-resources-list</param-name>
 	      <param-value>/index.html</param-value>
 	   </init-param> 
-	   
+	    -->
+	    
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
         <servlet-name>CXFServlet</servlet-name>
-        <url-pattern>/*</url-pattern>
+        <url-pattern>services/*</url-pattern>
     </servlet-mapping>
 </web-app>
