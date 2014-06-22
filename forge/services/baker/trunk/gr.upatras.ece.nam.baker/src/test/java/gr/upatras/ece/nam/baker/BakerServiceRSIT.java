@@ -68,7 +68,7 @@ public class BakerServiceRSIT {
         assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
         
         //wait for 5 seconds
-        Thread.sleep(5000);
+        Thread.sleep(2000);
         
         //ask again about this task
         client = WebClient.create(endpointUrl + "/baker/iservices/"+uuid);

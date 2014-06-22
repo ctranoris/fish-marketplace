@@ -20,8 +20,7 @@ import gr.upatras.ece.nam.baker.model.ServiceMetadata;
 
 public class InstallationTask implements Runnable {
 
-	private static final transient Log logger = LogFactory
-			.getLog(InstallationTask.class.getName());
+	private static final transient Log logger = LogFactory.getLog(InstallationTask.class.getName());
 
 	InstalledService installService;
 	IRepositoryWebClient repoWebClient;
@@ -32,18 +31,14 @@ public class InstallationTask implements Runnable {
 		installService = s;
 		repoWebClient = rwc;
 
-		logger.info("new InstallationTask started for uuid:"
-				+ installService.getUuid() + " name:"
-				+ installService.getName());
+		logger.info("new InstallationTask started for uuid:" + installService.getUuid() + " name:" + installService.getName());
 	}
 
 	@Override
 	public void run() {
 
-		while (
-				(installService.getStatus() != InstalledServiceStatus.STARTED) && 
-				(installService.getStatus() != InstalledServiceStatus.FAILED)) {
-			logger.info("task for uuid:" + installService.getUuid() + " is:"+ installService.getStatus());
+		while ((installService.getStatus() != InstalledServiceStatus.STARTED) && (installService.getStatus() != InstalledServiceStatus.FAILED)) {
+			logger.info("task for uuid:" + installService.getUuid() + " is:" + installService.getStatus());
 
 			switch (installService.getStatus()) {
 
@@ -66,7 +61,7 @@ public class InstallationTask implements Runnable {
 			case INSTALLED:
 				execInstalledPhase();
 				break;
-				
+
 			case CONFIGURING:
 				execConfiguringPhase();
 				break;
@@ -77,12 +72,12 @@ public class InstallationTask implements Runnable {
 				break;
 			}
 
-//			try {
-//				Thread.sleep(1000);
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
+			// try {
+			// Thread.sleep(1000);
+			// } catch (InterruptedException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// }
 
 		}
 
@@ -92,8 +87,7 @@ public class InstallationTask implements Runnable {
 		logger.info("Downloading metadata info...");
 		ServiceMetadata smetadata = null;
 		if (repoWebClient != null)
-			smetadata = repoWebClient.fetchMetadata(installService.getUuid(),
-					installService.getRepoUrl());
+			smetadata = repoWebClient.fetchMetadata(installService.getUuid(), installService.getRepoUrl());
 		else
 			logger.info("repoWebClient == null...FAILED");
 
@@ -108,19 +102,23 @@ public class InstallationTask implements Runnable {
 	}
 
 	private void startPackageDownloading() {
-		logger.info("Downloading installation package: "
-				+ installService.getServiceMetadata().getPackageLocation());
+		logger.info("Downloading installation package: " + installService.getServiceMetadata().getPackageLocation());
 
-		Path destFile = repoWebClient.fetchPackageFromLocation(installService
-				.getUuid(), installService.getServiceMetadata()
-				.getPackageLocation());
+		Path destFile = repoWebClient.fetchPackageFromLocation(installService.getUuid(), installService.getServiceMetadata().getPackageLocation());
 
 		if ((destFile != null) && (extractPackage(destFile) == 0)) {
 			installService.setStatus(InstalledServiceStatus.DOWNLOADED);
 			packageLocalPath = destFile.getParent();
-		} else
+		} else {
+			logger.info("FAILED Downloading installation package: " + installService.getServiceMetadata().getPackageLocation());
 			installService.setStatus(InstalledServiceStatus.FAILED);
+		}
 
+	}
+
+	public int extractPackage(Path targetPath) {
+		String cmdStr = "tar --strip-components=1 -xvzf " + targetPath + " -C " + targetPath.getParent() + "/";
+		return executeSystemCommand(cmdStr);
 	}
 
 	private void startPackageInstallation() {
@@ -143,43 +141,34 @@ public class InstallationTask implements Runnable {
 		logger.info("execInstalledPhase...");
 		String cmdStr = packageLocalPath + "/recipes/onInstallFinish";
 		logger.info("Will execute recipe 'onInstallFinish' of:" + cmdStr);
-		
+
 		installService.setInstalledVersion(installService.getServiceMetadata().getVersion());
 		installService.setName(installService.getServiceMetadata().getName());
-		executeSystemCommand(cmdStr); //we don't care for the exit code
+		executeSystemCommand(cmdStr); // we don't care for the exit code
 		installService.setStatus(InstalledServiceStatus.CONFIGURING);
 
 	}
-	
-	private void execConfiguringPhase(){
+
+	private void execConfiguringPhase() {
 		logger.info("execInstalledPhase...");
 		String cmdStr = packageLocalPath + "/recipes/onApplyConf";
 		logger.info("Will execute recipe 'onApplyConf' of:" + cmdStr);
 
-		executeSystemCommand(cmdStr); //we don't care for the exit code
+		executeSystemCommand(cmdStr); // we don't care for the exit code
 		installService.setStatus(InstalledServiceStatus.STARTING);
-		
+
 	}
-	
-	private void execStartingPhase(){
+
+	private void execStartingPhase() {
 		logger.info("execStartingPhase...");
 		String cmdStr = packageLocalPath + "/recipes/onStart";
 		logger.info("Will execute recipe 'onStart' of:" + cmdStr);
-		
-		if (executeSystemCommand(cmdStr) == 0) {			
-			installService.setStatus(InstalledServiceStatus.STARTED);
-		}else
-			installService.setStatus(InstalledServiceStatus.STOPPED);
-		
-	}
-	
-	
-	
 
-	public int extractPackage(Path targetPath) {
-		String cmdStr = "tar --strip-components=1 -xvzf " + targetPath + " -C "
-				+ targetPath.getParent() + "/";
-		return executeSystemCommand(cmdStr);
+		if (executeSystemCommand(cmdStr) == 0) {
+			installService.setStatus(InstalledServiceStatus.STARTED);
+		} else
+			installService.setStatus(InstalledServiceStatus.STOPPED);
+
 	}
 
 	public int executeSystemCommand(String cmdStr) {
