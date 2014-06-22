@@ -14,6 +14,8 @@ public class ServiceMetadata {
 	private String packageLocation;
 
 
+	public ServiceMetadata() {
+	}
 	
 	public ServiceMetadata(UUID uuid, String name) {
 		super();

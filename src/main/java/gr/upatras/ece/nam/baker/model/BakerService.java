@@ -43,7 +43,12 @@ public class BakerService {
 			s = new InstalledService(uuid, repourl);			
 			addServiceToManagedServices(s);
 			handleInstallationJob(s);
+		}else if (s.getStatus() == InstalledServiceStatus.FAILED  ) {
+			s.setStatus(InstalledServiceStatus.INIT);
+			handleInstallationJob(s);
 		}
+		
+		
 		return s;
 	}
 
