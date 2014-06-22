@@ -18,68 +18,66 @@ import gr.upatras.ece.nam.baker.model.InstalledService;
 import gr.upatras.ece.nam.baker.model.InstalledServiceStatus;
 import gr.upatras.ece.nam.baker.model.ServiceMetadata;
 
-public class InstallationTask implements Runnable {
+public class ServiceLifecycleMgmt {
 
-	private static final transient Log logger = LogFactory.getLog(InstallationTask.class.getName());
+	private static final transient Log logger = LogFactory.getLog(ServiceLifecycleMgmt.class.getName());
 
 	InstalledService installService;
 	IRepositoryWebClient repoWebClient;
 
 	private Path packageLocalPath;
 
-	public InstallationTask(InstalledService s, IRepositoryWebClient rwc) {
+	public ServiceLifecycleMgmt(InstalledService s, IRepositoryWebClient rwc) {
 		installService = s;
 		repoWebClient = rwc;
 
-		logger.info("new InstallationTask started for uuid:" + installService.getUuid() + " name:" + installService.getName());
+		logger.info("ServiceLifecycleMgmt uuid:" + installService.getUuid() + " name:" + installService.getName());
+		processState();
 	}
 
-	@Override
-	public void run() {
+	public void processState() {
 
-		while ((installService.getStatus() != InstalledServiceStatus.STARTED) && (installService.getStatus() != InstalledServiceStatus.FAILED)) {
-			logger.info("task for uuid:" + installService.getUuid() + " is:" + installService.getStatus());
-
-			switch (installService.getStatus()) {
-
+		logger.info("task for uuid:" + installService.getUuid() + " is:" + installService.getStatus());
+		
+		InstalledServiceStatus entryState = installService.getStatus();
+		
+		switch ( entryState ) {
 			case INIT:
 				downLoadMetadataInfo();
 				break;
-
+	
 			case DOWNLOADING:
 				startPackageDownloading();
 				break;
-
+	
 			case DOWNLOADED:
 				startPackageInstallation();
 				break;
-
+	
 			case INSTALLING:
-
+	
 				break;
-
+	
 			case INSTALLED:
 				execInstalledPhase();
 				break;
-
+	
 			case CONFIGURING:
 				execConfiguringPhase();
 				break;
 			case STARTING:
 				execStartingPhase();
 				break;
+			case STARTED:
+				
+				break;
 			default:
 				break;
-			}
-
-			// try {
-			// Thread.sleep(1000);
-			// } catch (InterruptedException e) {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// }
-
 		}
+		
+		if (entryState != installService.getStatus())
+			processState();
+		
 
 	}
 
