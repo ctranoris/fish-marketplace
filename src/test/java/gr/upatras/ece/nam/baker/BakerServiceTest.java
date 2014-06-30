@@ -69,7 +69,7 @@ public class BakerServiceTest {
 		assertNotNull( istest.getServiceMetadata() );
 		assertEquals(uuid, istest.getUuid());
 		assertEquals(is.getUuid(), istest.getUuid());
-		assertEquals( istest.getStatus(),  InstalledServiceStatus.STARTED );	
+		assertEquals( InstalledServiceStatus.STARTED, istest.getStatus() );	
 		assertEquals("www.repoexample.com/repo", istest.getRepoUrl());
 		assertEquals("www.repoexample.com/repo/examplepackages/examplebun.tar.gz", istest.getServiceMetadata().getPackageLocation() );
 		assertEquals("TemporaryServiceFromMockClass", istest.getServiceMetadata().getName() );
