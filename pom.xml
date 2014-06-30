@@ -8,9 +8,13 @@
 	<packaging>war</packaging>
 	<name>Simple CXF JAX-RS webapp service using spring configuration</name>
 	<description>Simple CXF JAX-RS webapp service using spring configuration</description>
+
 	<properties>
 		<jackson.version>1.8.6</jackson.version>
+		<maven-license-plugin.version>1.2.5</maven-license-plugin.version>
 	</properties>
+
+
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
@@ -85,6 +89,27 @@
 		</pluginManagement>
 		<plugins>
 
+			<!-- license plugin -->
+
+			<plugin>
+				<groupId>com.google.code.maven-license-plugin</groupId>
+				<artifactId>maven-license-plugin</artifactId>
+				<version>${maven-license-plugin.version}</version>
+				<configuration>
+					<header>src/license/header.txt</header>
+					<includes>
+						<include>src/main/**/*.java</include>
+						<include>src/test/**/*.java</include>
+					</includes>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 
 		</plugins>
 	</build>
