@@ -29,6 +29,11 @@ import java.util.UUID;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * A test repository for mocking a repo
+ * @author ctranoris
+ * 
+ */
 public class MockRepositoryWebClient implements IRepositoryWebClient {
 
 	private static final transient Log logger = LogFactory
@@ -60,7 +65,10 @@ public class MockRepositoryWebClient implements IRepositoryWebClient {
 		ServiceMetadata sm = null;
 		if (mockRepositoryBehavior != MockRepositoryBehavior.RETURN_NULLMETADATA) {
 			sm = new ServiceMetadata(uuid, "TemporaryServiceFromMockClass");
-			sm.setPackageLocation(url + "/examplepackages/examplebun.tar.gz");
+			if (url.contains("EBUNID") )
+				sm.setPackageLocation("/files/examplebun.tar.gz");
+			else if (url.contains("EBUNERR"))
+				sm.setPackageLocation("/files/examplebunErrInstall.tar.gz");
 			
 			sm.setVersion("1.0.0.test");
 		}
@@ -70,7 +78,7 @@ public class MockRepositoryWebClient implements IRepositoryWebClient {
 	@Override
 	public Path fetchPackageFromLocation(UUID uuid, String packageLocation) {
 
-		logger.info("TEST fetchMetadata after 2sec from: " + packageLocation);
+		logger.info("TEST fetchMetadata after 2sec from (dummy): " + packageLocation);
 
 		try {
 			Thread.sleep(2000);
@@ -81,7 +89,7 @@ public class MockRepositoryWebClient implements IRepositoryWebClient {
 
 		try {
 
-			URL res = getClass().getResource("/files/examplebun.tar.gz");
+			URL res = getClass().getResource(packageLocation );
 			logger.info("TEST RESOURCE FILE: " + res );
 			
 			File sourceFile = new File(res.getFile());

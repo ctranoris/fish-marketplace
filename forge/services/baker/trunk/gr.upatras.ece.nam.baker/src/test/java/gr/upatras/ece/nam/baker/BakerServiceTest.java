@@ -17,6 +17,7 @@ package gr.upatras.ece.nam.baker;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import gr.upatras.ece.nam.baker.model.BakerService;
 import gr.upatras.ece.nam.baker.model.InstalledService;
 import gr.upatras.ece.nam.baker.model.InstalledServiceStatus;
@@ -47,11 +48,12 @@ public class BakerServiceTest {
 				
 		UUID uuid = UUID.randomUUID();
 		//we don;t care about repo...we provide a local package hardcoded by MockRepositoryWebClient
-		InstalledService is = bs.installService(uuid,  "www.repoexample.com/repo");
+		InstalledService is = bs.installService(uuid,  "www.repoexample.com/repo/EBUNID/"+uuid);
 		assertNotNull(is);
 		assertEquals( 1 , bs.getManagedServices().size());
 		assertEquals( is.getStatus(),  InstalledServiceStatus.INIT );		
 
+		logger.info(" test service UUID="+uuid+" . Now is: "+ is.getStatus());
 		
 		while (  (is.getStatus()  != InstalledServiceStatus.STARTED) &&
 				is.getStatus()  != InstalledServiceStatus.FAILED){
@@ -70,12 +72,55 @@ public class BakerServiceTest {
 		assertEquals(uuid, istest.getUuid());
 		assertEquals(is.getUuid(), istest.getUuid());
 		assertEquals( InstalledServiceStatus.STARTED, istest.getStatus() );	
-		assertEquals("www.repoexample.com/repo", istest.getRepoUrl());
-		assertEquals("www.repoexample.com/repo/examplepackages/examplebun.tar.gz", istest.getServiceMetadata().getPackageLocation() );
+		assertEquals("www.repoexample.com/repo/EBUNID/"+uuid, istest.getRepoUrl());
+		assertEquals("/files/examplebun.tar.gz", istest.getServiceMetadata().getPackageLocation() );
 		assertEquals("TemporaryServiceFromMockClass", istest.getServiceMetadata().getName() );
 		assertEquals("1.0.0.test", istest.getServiceMetadata().getVersion() );
 		assertEquals("TemporaryServiceFromMockClass", istest.getName());
 		assertEquals("1.0.0.test", istest.getInstalledVersion() );
+		assertEquals( 1 , bs.getManagedServices().size());
+		
+		
+		
+	}
+
+	@Test
+	public void testReqInstall_ErrScript() {
+		BakerService bs = BakerServiceInit();
+		bs.setRepoWebClient( new MockRepositoryWebClient( "NORMAL" )  );
+				
+		UUID uuid = UUID.randomUUID();
+		//we don;t care about repo...we provide a local package hardcoded by MockRepositoryWebClient
+		InstalledService is = bs.installService(uuid,  "www.repoexample.com/repo/EBUNERR/"+uuid);
+		assertNotNull(is);
+		assertEquals( 1 , bs.getManagedServices().size());
+		assertEquals( is.getStatus(),  InstalledServiceStatus.INIT );		
+
+		logger.info(" test service UUID="+uuid+" . Now is: "+ is.getStatus());
+		
+		while (  (is.getStatus()  != InstalledServiceStatus.STARTED) &&
+				is.getStatus()  != InstalledServiceStatus.FAILED){
+			logger.info("Waiting for STARTED for test service UUID="+uuid+" . Now is: "+ is.getStatus());
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+
+				e.printStackTrace();
+			}
+		}		
+		
+		InstalledService istest = bs.getService(uuid);
+		assertNotNull(istest);
+		assertNotNull( istest.getServiceMetadata() );
+		assertEquals(uuid, istest.getUuid());
+		assertEquals(is.getUuid(), istest.getUuid());
+		assertEquals( InstalledServiceStatus.FAILED, istest.getStatus() );	
+		assertEquals("www.repoexample.com/repo/EBUNERR/"+uuid, istest.getRepoUrl());
+		assertEquals("/files/examplebunErrInstall.tar.gz", istest.getServiceMetadata().getPackageLocation() );
+		assertEquals("TemporaryServiceFromMockClass", istest.getServiceMetadata().getName() );
+		assertEquals("1.0.0.test", istest.getServiceMetadata().getVersion() );
+		assertEquals("(pending)", istest.getName());
+		assertNull(  istest.getInstalledVersion() );
 		assertEquals( 1 , bs.getManagedServices().size());
 		
 		

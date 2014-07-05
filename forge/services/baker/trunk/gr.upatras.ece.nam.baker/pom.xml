@@ -6,12 +6,38 @@
 	<artifactId>gr.upatras.ece.nam.baker</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
-	<name>Simple CXF JAX-RS webapp service using spring configuration</name>
-	<description>Simple CXF JAX-RS webapp service using spring configuration</description>
+	<name>Baker</name>
+	<description>Baker is a simple CXF JAX-RS webapp service using spring configuration</description>
 
 	<properties>
 		<jackson.version>1.8.6</jackson.version>
 		<maven-license-plugin.version>1.2.5</maven-license-plugin.version>
+
+
+		<!-- repositories for distribution -->
+		<!-- snapshots -->
+		<repoMavenSnapshotId>repo-snapshot</repoMavenSnapshotId>
+		<repoMavenSnapshotName>repo-snapshot</repoMavenSnapshotName>
+		<repoMavenSnapshotUrl>${nexusRepositories}/snapshots</repoMavenSnapshotUrl>
+		<!-- releases -->
+		<repoMavenId>repo-release</repoMavenId>
+		<repoMavenName>repo-release</repoMavenName>
+		<repoMavenUrl>${nexusRepositories}/releases</repoMavenUrl>
+		<!-- thirdparty -->
+		<repoMavenThirdpartyId>repo-third-party-release</repoMavenThirdpartyId>
+		<repoMavenThirdpartyName>repo-third-party-release</repoMavenThirdpartyName>
+		<repoMavenThirdpartyUrl>${nexusRepositories}/thirdparty</repoMavenThirdpartyUrl>
+
+
+		<!-- encoding -->
+
+		<encoding>utf-8</encoding>
+		<encoding.build.source>${encoding}</encoding.build.source>
+		<encoding.report.out>${encoding}</encoding.report.out>
+		<project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>
+
+
 	</properties>
 
 
@@ -113,6 +139,52 @@
 
 		</plugins>
 	</build>
+
+
+	<repositories>
+		<!-- ci-cpr02 Nexus Repositories -->
+		<repository>
+			<id>${repoMavenSnapshotId}</id>
+			<name>${repoMavenSnapshotName}</name>
+			<url>${repoMavenSnapshotUrl}</url>
+		</repository>
+		<repository>
+			<id>${repoMavenId}</id>
+			<name>${repoMavenName}</name>
+			<url>${repoMavenUrl}</url>
+		</repository>
+		<repository>
+			<id>${repoMavenThirdpartyId}</id>
+			<name>${repoMavenThirdpartyName}</name>
+			<url>${repoMavenThirdpartyUrl}</url>
+		</repository>
+
+		<!-- Remote Repositories -->
+		<repository>
+			<id>central</id>
+			<name>central-repository</name>
+			<url>http://repo1.maven.org/maven2</url>
+		</repository>
+		<repository>
+			<id>central2</id>
+			<name>central2-repository</name>
+			<url>http://repo2.maven.org/maven2</url>
+		</repository>
+
+		<!-- SpringSource repositories -->
+		<repository>
+			<id>com.springsource.repository.libraries.release</id>
+			<name>SpringSource Enterprise Bundle Repository - SpringSource Library Releases</name>
+			<url>http://repository.springsource.com/maven/libraries/release</url>
+		</repository>
+		<repository>
+			<id>com.springsource.repository.libraries.external</id>
+			<name>SpringSource Enterprise Bundle Repository - External Library Releases</name>
+			<url>http://repository.springsource.com/maven/libraries/external</url>
+		</repository>
+
+
+	</repositories>
 
 
 
