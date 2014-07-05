@@ -33,13 +33,20 @@ public class BakerService {
 
 	public BakerService() {
 		managedServices = new ConcurrentHashMap<>();
-		this.setRepoWebClient(new RepositoryWebClient());
+		//this.setRepoWebClient(new RepositoryWebClient());
 	}
 
 	public ConcurrentHashMap<UUID, InstalledService> getManagedServices() {
 		return managedServices;
 	}
 
+	/**
+	 * Add installed service object to ManagedServices list
+	 * 
+	 * @param s
+	 *            InstalledService to add
+	 * @return the same service
+	 */
 	private InstalledService addServiceToManagedServices(InstalledService s) {
 		managedServices.put(s.getUuid(), s);
 		return s;
@@ -50,30 +57,51 @@ public class BakerService {
 		return (is != null);
 	}
 
+	/**
+	 * Starts the installation of a service. If found already in local registry (managedservices list) returns a ref to an existing instance if found. Otherwise
+	 * starts a new installation.
+	 * 
+	 * @param uuid
+	 *            The uuid of the requested Bun
+	 * @param repourl
+	 *            The endpoint of the repository
+	 * @return an InstalledService object
+	 */
 	public InstalledService installService(UUID uuid, String repourl) {
 
 		InstalledService s = managedServices.get(uuid); // return existing if
 														// found
+		if (( s!=null ) && (s.getStatus() != InstalledServiceStatus.FAILED) ){
+			return s;
+		}
+		
+
+		logger.info("will start installation");
 
 		if (s == null) {
 			s = new InstalledService(uuid, repourl);
 			addServiceToManagedServices(s);
-			processServiceLifecylceJob(s);
 		} else if (s.getStatus() == InstalledServiceStatus.FAILED) {
-			s.setStatus(InstalledServiceStatus.INIT);
+			s.setStatus(InstalledServiceStatus.INIT); //restart installation
 			s.setRepoUrl(repourl);
-			processServiceLifecylceJob(s);
 		}
 
+		processServiceLifecylceJob(s);
 		return s;
 	}
 
+	/**
+	 * It executes the installation of the bun in a thread job, following the bun installation state machine
+	 * 
+	 * @param s InstalledService object to manage the lifecycle
+	 */
 	private void processServiceLifecylceJob(final InstalledService s) {
 
+		logger.info("Creating new thread");
 		Thread t1 = new Thread(new Runnable() {
 			public void run() {
 
-				 new ServiceLifecycleMgmt(s, repoWebClient);
+				new ServiceLifecycleMgmt(s, repoWebClient);
 
 			}
 		});

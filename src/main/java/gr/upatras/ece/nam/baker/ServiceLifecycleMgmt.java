@@ -53,46 +53,45 @@ public class ServiceLifecycleMgmt {
 	public void processState() {
 
 		logger.info("task for uuid:" + installService.getUuid() + " is:" + installService.getStatus());
-		
+
 		InstalledServiceStatus entryState = installService.getStatus();
-		
-		switch ( entryState ) {
-			case INIT:
-				downLoadMetadataInfo();
-				break;
-	
-			case DOWNLOADING:
-				startPackageDownloading();
-				break;
-	
-			case DOWNLOADED:
-				startPackageInstallation();
-				break;
-	
-			case INSTALLING:
-	
-				break;
-	
-			case INSTALLED:
-				execInstalledPhase();
-				break;
-	
-			case CONFIGURING:
-				execConfiguringPhase();
-				break;
-			case STARTING:
-				execStartingPhase();
-				break;
-			case STARTED:
-				
-				break;
-			default:
-				break;
+
+		switch (entryState) {
+		case INIT:
+			downLoadMetadataInfo();
+			break;
+
+		case DOWNLOADING:
+			startPackageDownloading();
+			break;
+
+		case DOWNLOADED:
+			startPackageInstallation();
+			break;
+
+		case INSTALLING:
+
+			break;
+
+		case INSTALLED:
+			execInstalledPhase();
+			break;
+
+		case CONFIGURING:
+			execConfiguringPhase();
+			break;
+		case STARTING:
+			execStartingPhase();
+			break;
+		case STARTED:
+
+			break;
+		default:
+			break;
 		}
-		
+
 		if (entryState != installService.getStatus())
 			processState();
-		
 
 	}
 
@@ -158,7 +157,10 @@ public class ServiceLifecycleMgmt {
 		installService.setInstalledVersion(installService.getServiceMetadata().getVersion());
 		installService.setName(installService.getServiceMetadata().getName());
 		executeSystemCommand(cmdStr); // we don't care for the exit code
-		installService.setStatus(InstalledServiceStatus.CONFIGURING);
+		if (executeSystemCommand(cmdStr) == 0) {
+			installService.setStatus(InstalledServiceStatus.CONFIGURING);
+		} else
+			installService.setStatus(InstalledServiceStatus.FAILED);
 
 	}
 
@@ -168,7 +170,10 @@ public class ServiceLifecycleMgmt {
 		logger.info("Will execute recipe 'onApplyConf' of:" + cmdStr);
 
 		executeSystemCommand(cmdStr); // we don't care for the exit code
-		installService.setStatus(InstalledServiceStatus.STARTING);
+		if (executeSystemCommand(cmdStr) == 0) {
+			installService.setStatus(InstalledServiceStatus.STARTING);
+		} else
+			installService.setStatus(InstalledServiceStatus.FAILED);
 
 	}
 

@@ -62,7 +62,7 @@ public class UploadDownloadFileService {
 
 		logger.info("bunfile: " + bunfile);
 		logger.info("uuid: " + uuid);
-		URL res = getClass().getResource("/examplebun.tar.gz");
+		URL res = getClass().getResource("/"+bunfile);
 		logger.info("TEST RESOURCE FILE: " + res);
 
 		File file = new File(res.getFile());
@@ -89,6 +89,16 @@ public class UploadDownloadFileService {
 			URI endpointUrl = uri.getBaseUri();
 			
 			sm.setPackageLocation(endpointUrl + "localrepo/packages/12cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
+		}else if (uuid.equals("22cab8b8-668b-4c75-99a9-39b24ed3d8be")) {
+			sm = new ServiceMetadata(UUID.fromString(uuid), "Local example ErrInstall service");
+			sm.setShortDescription("An example ErrInstall local service");
+			sm.setVersion("1.0.0");
+			sm.setIconsrc("");
+			sm.setProvider("");
+			sm.setLongDescription("");
+			URI endpointUrl = uri.getBaseUri();
+			
+			sm.setPackageLocation(endpointUrl + "localrepo/packages/22cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebunErrInstall.tar.gz");
 		}
 
 		if (sm != null) {

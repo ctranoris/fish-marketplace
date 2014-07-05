@@ -12,7 +12,11 @@
 		class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer" />
 
 
-	<bean id="bakerServiceBean" class="gr.upatras.ece.nam.baker.model.BakerService" />
+	<bean id="repoWebClientBean" class="gr.upatras.ece.nam.baker.impl.RepositoryWebClient" />
+	
+	<bean id="bakerServiceBean" class="gr.upatras.ece.nam.baker.model.BakerService" >
+		<property name="repoWebClient" ref="repoWebClientBean" />
+	</bean>
 
 	<jaxrs:server id="services" address="/baker/">
 		<jaxrs:serviceBeans>

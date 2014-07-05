@@ -25,7 +25,7 @@ public class InstalledService {
 	private String name;
 	private InstalledServiceStatus status = InstalledServiceStatus.INIT;
 	/**
-	 * this exist only after fetching metadata from repo. Otherwise is null whan service is installed.
+	 * this exist only after fetching metadata from repo. Otherwise is null when service is installed.
 	 */
 	private ServiceMetadata serviceMetadata; 
 	
