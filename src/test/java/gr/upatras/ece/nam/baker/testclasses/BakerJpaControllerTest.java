@@ -82,7 +82,7 @@ public class BakerJpaControllerTest {
 	
 	 
 	public BakerJpaControllerTest() {
-		logger.info("BrokerServiceImpl constructor");
+		logger.info(">>>>>>>>>>>>>> BrokerServiceImpl constructor  <<<<<<<<<<<<<<<<<<");
 	}
 	
     public String echo(String message) {
