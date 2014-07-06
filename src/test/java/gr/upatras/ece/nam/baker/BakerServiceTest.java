@@ -54,12 +54,15 @@ public class BakerServiceTest {
 		assertEquals( is.getStatus(),  InstalledServiceStatus.INIT );		
 
 		logger.info(" test service UUID="+uuid+" . Now is: "+ is.getStatus());
-		
+
+		int guard = 0;
 		while (  (is.getStatus()  != InstalledServiceStatus.STARTED) &&
-				is.getStatus()  != InstalledServiceStatus.FAILED){
+				(is.getStatus()  != InstalledServiceStatus.FAILED) &&
+				(guard<=30)){
 			logger.info("Waiting for STARTED for test service UUID="+uuid+" . Now is: "+ is.getStatus());
 			try {
 				Thread.sleep(1000);
+				guard++;
 			} catch (InterruptedException e) {
 
 				e.printStackTrace();
@@ -98,11 +101,14 @@ public class BakerServiceTest {
 
 		logger.info(" test service UUID="+uuid+" . Now is: "+ is.getStatus());
 		
+		int guard=0;
 		while (  (is.getStatus()  != InstalledServiceStatus.STARTED) &&
-				is.getStatus()  != InstalledServiceStatus.FAILED){
+				(is.getStatus()  != InstalledServiceStatus.FAILED) &&
+				(guard<=30)){
 			logger.info("Waiting for STARTED for test service UUID="+uuid+" . Now is: "+ is.getStatus());
 			try {
 				Thread.sleep(1000);
+				guard++;
 			} catch (InterruptedException e) {
 
 				e.printStackTrace();
@@ -126,39 +132,50 @@ public class BakerServiceTest {
 		
 		
 	}
+	
+	@Test
+	public void testReqInstall_AndPersistence() {
+		BakerService bs = BakerServiceInit();
+		bs.setRepoWebClient( new MockRepositoryWebClient( "NORMAL" )  );
+				
+		UUID uuid = UUID.randomUUID();
+		//we don;t care about repo...we provide a local package hardcoded by MockRepositoryWebClient
+		InstalledService is = bs.installService(uuid,  "www.repoexample.com/repo/EBUNID/"+uuid);
+		assertNotNull(is);
+		assertEquals( 1 , bs.getManagedServices().size());
+		assertEquals( is.getStatus(),  InstalledServiceStatus.INIT );		
+		
+		int guard = 0;
+		while (  (is.getStatus()  != InstalledServiceStatus.STARTED) &&
+				(is.getStatus()  != InstalledServiceStatus.FAILED) &&
+				(guard<=30)){
+			logger.info("Waiting for STARTED for test service UUID="+uuid+" . Now is: "+ is.getStatus());
+			try {
+				Thread.sleep(1000);
+				guard++;
+			} catch (InterruptedException e) {
 
-//	@Test
-//	public void testInstallService() {
-//		BakerService bs = BakerServiceInit();
-//		UUID uuid = UUID.randomUUID();
-//		InstalledService is = bs.installService(uuid,  "www.repoexample.com");
-//		for (int i = 0; i < 20; i++) { //add 20 more random
-//			bs.installService( UUID.randomUUID() ,  "www.repoexample.comRANDOM");
-//		}
-//		assertNotNull(is);
-//		assertEquals(uuid, is.getUuid());
-//		assertEquals(21, bs.getManagedServices().size() );
-//	}
-//
-//	@Test
-//	public void testUninstallService() {
-//		BakerService bs = BakerServiceInit();
-//		UUID uuid = UUID.randomUUID();
-//		InstalledService is = bs.installService(uuid, "www.repoexample.com");
-//		for (int i = 0; i < 20; i++) { //add 20 more random
-//			bs.installService( UUID.randomUUID() , "www.repoexample.comRANDOM");
-//		}
-//		assertNotNull(is);
-//		assertEquals(uuid, is.getUuid());
-//		assertEquals(21, bs.getManagedServices().size() );
-//		
-//		Boolean res = bs.uninstallService(uuid);		
-//
-//		assertEquals( true, res );
-//		assertEquals(20, bs.getManagedServices().size() );
-//		
-//		
-//	}
+				e.printStackTrace();
+			}
+		}		
+		
+		InstalledService istest = bs.getService(uuid);
+		assertNotNull( istest.getServiceMetadata() );
+		assertEquals(uuid, istest.getUuid());
+		assertEquals( InstalledServiceStatus.STARTED, istest.getStatus() );	
+		assertEquals( 1 , bs.getManagedServices().size());
+		
+		bs = null; //remove the old one
+		//create new one..It should persist any installed service
+		BakerService bsNew = BakerServiceInit();
+		InstalledService istestNew = bsNew.getService(uuid); //req the service with the previous uuid
+		assertNotNull( istest.getServiceMetadata() );
+		assertEquals(uuid, istest.getUuid());
+		assertEquals( InstalledServiceStatus.STARTED, istest.getStatus() );	
+		assertEquals( 1 , bsNew.getManagedServices().size());//there should be one
+		
+		
+	}
 
 	//helper functions
 	
