@@ -45,7 +45,7 @@ public class BakerServiceTest {
 
 
 	@Autowired
-	private BakerJpaControllerTest bakerJpaController;
+	private BakerJpaControllerTest bakerJpaControllerTest;
 	
 	
 	private static final transient Log logger = LogFactory.getLog(BakerServiceTest.class.getName());
@@ -54,6 +54,7 @@ public class BakerServiceTest {
 	public void testGetManagedServices() {
 		BakerService bs = BakerServiceInit();
 		assertNotNull( bs .getManagedServices());
+		logger.info("	 	>>>>	bakerJpaControllerTest = "+ bakerJpaControllerTest);
 	}
 //
 //
