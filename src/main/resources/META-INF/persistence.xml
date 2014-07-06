@@ -15,16 +15,16 @@
 	<persistence-unit name="bakerdb-test" transaction-type="RESOURCE_LOCAL">
 		<provider>org.apache.openjpa.persistence.PersistenceProviderImpl
 		</provider>
+		
 		<class>gr.upatras.ece.nam.baker.model.InstalledService</class>
-		<class>gr.upatras.ece.nam.baker.model.InstalledServiceStatus</class>
 		<class>gr.upatras.ece.nam.baker.model.ServiceMetadata</class>
 		
 		
  
 		<properties>
-			<property name="openjpa.ConnectionDriverName" value="org.postgresql.Driver" />
+			<property name="openjpa.ConnectionDriverName" value="org.h2.Driver" />
 			<property name="openjpa.ConnectionURL"
-				value="jdbc:postgresql://localhost:5432/bakerdb_test" />
+				value="jdbc:h2:/opt/baker/bakerdb_test;CIPHER=AES;AUTO_SERVER=TRUE" />
 			<property name="openjpa.ConnectionUserName" value="bakerdb_testuser" />
 			<property name="openjpa.ConnectionPassword" value="bakerdb_testuserpwd" />
 			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema" />
