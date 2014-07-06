@@ -17,16 +17,35 @@ package gr.upatras.ece.nam.baker.model;
 
 import java.util.UUID;
 
+import javax.persistence.Basic;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
+
+
+@Entity(name = "InstalledService")
 public class InstalledService {
 	
+
+
+	@Id
+	@Basic()
 	private UUID uuid;
+	
+	@Basic()
 	private String repoUrl;
+	@Basic()
 	private String installedVersion;
+	@Basic()
 	private String name;
+
+	@Basic()
 	private InstalledServiceStatus status = InstalledServiceStatus.INIT;
 	/**
 	 * this exist only after fetching metadata from repo. Otherwise is null when service is installed.
 	 */
+
+	@OneToOne
 	private ServiceMetadata serviceMetadata; 
 	
 	

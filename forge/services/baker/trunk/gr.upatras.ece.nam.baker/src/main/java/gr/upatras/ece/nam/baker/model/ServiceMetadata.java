@@ -17,15 +17,29 @@ package gr.upatras.ece.nam.baker.model;
 
 import java.util.UUID;
 
+import javax.persistence.Basic;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+
+@Entity(name = "ServiceMetadata")
 public class ServiceMetadata {
 
+
+	@Id
+	@Basic()
 	private UUID uuid;	
+	@Basic()
 	private String name;
+	@Basic()
 	private String provider;
 	private String iconsrc;
+	@Basic()
 	private String shortDescription;
 	private String longDescription;
+	@Basic()
 	private String version;
+	@Basic()
 	private String packageLocation;
 
 
