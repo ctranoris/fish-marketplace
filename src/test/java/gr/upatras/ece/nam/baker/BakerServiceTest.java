@@ -168,11 +168,11 @@ public class BakerServiceTest {
 		bs = null; //remove the old one
 		//create new one..It should persist any installed service
 		BakerService bsNew = BakerServiceInit();
+		assertEquals( "Persistence not implemented yet?!?", 1 , bsNew.getManagedServices().size());//there should be one
 		InstalledService istestNew = bsNew.getService(uuid); //req the service with the previous uuid
 		assertNotNull( istest.getServiceMetadata() );
 		assertEquals(uuid, istest.getUuid());
 		assertEquals( InstalledServiceStatus.STARTED, istest.getStatus() );	
-		assertEquals( 1 , bsNew.getManagedServices().size());//there should be one
 		
 		
 	}

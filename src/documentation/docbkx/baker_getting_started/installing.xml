@@ -1,0 +1,77 @@
+
+<section version="5.0" xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd" xml:id="jetty-downloading"
+	xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xl="http://www.w3.org/1999/xlink"
+	xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns2="http://www.w3.org/1998/Math/MathML" xmlns:ns="http://docbook.org/ns/docbook">
+	<title>
+		Installing <?eval ${project.name}?>
+	</title>
+
+	<section>
+		<title>
+			Downloading the <?eval ${project.name}?>
+			Distribution
+		</title>
+		<para>
+			The standalone <?eval ${project.name}?>
+			distribution is available for download from the
+			 website:
+		</para>
+
+		<blockquote>
+			<para>
+				<link xl:href="http://www.forgebox.eu/?q=node/7">http://www.forgebox.eu/?q=node/7</link>
+			</para>
+		</blockquote>
+
+		<para>
+			It is available in multiple formats; download the one most
+			appropriate for your system. When you
+			download and unpack the binary, it is extracted into a
+			directory called
+			<filename>distribution-VERSION.</filename>
+		</para>
+	</section>
+
+
+	<section xml:id="installing-debian-package">
+		<title>Installing debian package</title>
+
+		<para>Download ssh2web-1.02.deb and install it:
+		</para>
+
+		<programlisting language="bash">
+			dpkg -i ssh2web-1.02.deb
+		</programlisting>
+		
+		<para>Due to some packaging problems after installation you need to change two files:</para>
+
+		<programlisting language="bash">
+			chmod +x /etc/init.d/ssh2webWidget
+			chmod +x /opt/forgebox/startJetty.sh
+		</programlisting>
+		
+		<para>
+		Start service:
+		</para>
+		<programlisting language="bash">
+			/etc/init.d/ssh2webWidget start
+		</programlisting>
+		
+		<para>
+		Open the browser and type: http://127.0.0.1:8080/ssh2web/login.action (or the location of your server)
+		</para>
+	</section>
+
+
+
+
+	<section xml:id="distribution-content">
+		<title>Distribution Content</title>
+
+		<para>A quick rundown of the distribution's contents follows. The
+			top-level directory contains:
+		</para>
+
+
+	</section>
+</section>

@@ -1,0 +1,57 @@
+
+<section version="5.0"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd"
+         xml:id="quickstart-running-jetty"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xs="http://www.w3.org/2001/XMLSchema"
+         xmlns:xl="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns2="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns="http://docbook.org/ns/docbook">
+  <title>Running <?eval ${project.name}?> </title>
+
+  <para>To start <?eval ${project.name}?>  on the default port of 8080, run the following
+  command:</para>
+
+  <para><screen><emphasis role="bold">&gt; cd $JETTY_HOME
+&gt; java -jar start.jar</emphasis><![CDATA[
+2013-09-06 13:52:43.326:INFO:oejs.Server:main: jetty-9.1.0
+2013-09-06 13:52:43.358:INFO:oejdp.ScanningAppProvider:main: Deployment monitor [file:/home/gregw/src/jetty-9.1/jetty-distribution/target/distribution/webapps/] at interval 1
+2013-09-06 13:52:43.390:INFO:oejs.ServerConnector:main: Started ServerConnector@2edf362d{HTTP/1.1}{0.0.0.0:8080}]]></screen></para>
+
+  <para>You can point a browser at this server at <link
+  linkend="???">http://localhost:8080</link>.</para>
+
+  <section xml:id="demo-webapps-base">
+    <title>Demo Base</title>
+
+    <para>Since release 9.1.0, the jetty distribution does not deploy any demo
+    web applications, so to see a more interesting demonstration of the server
+    you need to run from the <filename>demo-base</filename> directory as
+    follows:</para>
+
+    <screen><emphasis role="bold">&gt; cd $JETTY_HOME/demo-base/
+&gt; java -jar ../start.jar</emphasis><![CDATA[
+2013-09-06 13:56:35.939:WARN::main: demo test-realm is deployed. DO NOT USE IN PRODUCTION!
+2013-09-06 13:56:35.943:INFO:oejs.Server:main: jetty-9.1.0-SNAPSHOT
+2013-09-06 13:56:35.976:INFO:oejdp.ScanningAppProvider:main: Deployment monitor [file:/home/gregw/src/jetty-9.1/jetty-distribution/target/distribution/demo-base/webapps/] at interval 1
+2013-09-06 13:56:36.240:INFO:oejpw.PlusConfiguration:main: No Transaction manager found - if your webapp requires one, please configure one.
+2013-09-06 13:56:36.732:WARN::main: async-rest webapp is deployed. DO NOT USE IN PRODUCTION!
+[...]
+2013-09-06 13:56:38.572:INFO:oejsh.ContextHandler:main: Started o.e.j.w.WebAppContext@2757052e{/,file:/home/gregw/src/jetty-9.1/jetty-distribution/target/distribution/demo-base/webapps/ROOT/,AVAILABLE}{/ROOT}
+2013-09-06 13:56:38.579:INFO:oejs.ServerConnector:main: Started ServerConnector@19e0cb78{HTTP/1.1}{0.0.0.0:8080}
+]]></screen>
+
+    <para>Pointing a browser at <link
+    linkend="???">http://localhost:8080</link>, will now show a welcome page
+    and several demo/test web applications.</para>
+
+    <warning>
+      <para>The demonstration web applications are not necessarily secure and
+      should not be deployed in production web servers.</para>
+    </warning>
+  </section>
+
+  
+</section>

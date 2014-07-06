@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book[
+<!ENTITY root "http://www.company.com/<?eval ${project.groupId}?>/<?eval ${project.artifactId}?>/<?eval ${project.version}?>"> 
+]>
+<book version="5.0" xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd" xml:id="index"
+	xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xl="http://www.w3.org/1999/xlink"
+	xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:svg="http://www.w3.org/2000/svg" xmlns:ns2="http://www.w3.org/1998/Math/MathML"
+	xmlns:ns="http://docbook.org/ns/docbook" xmlns:date="http://exslt.org/dates-and-times">
+  <?dbhtml filename="index.html"?>
+
+	<info>
+
+		<title>
+			Documentation for <?eval ${project.name}?>
+			(<?eval ${project.version}?>
+			)
+		</title>
+
+		<pubdate><?dbtimestamp format="Y-m-d H:M:S"?>
+		</pubdate>
+
+
+
+		<copyright>
+			<year>
+				2014 (Inception year <?eval ${project.inceptionYear}?>
+				)
+			</year>
+			<holder>University of Patras</holder>
+		</copyright>
+
+		<revhistory>
+			<revision>
+				<revnumber><?eval ${project.version}?>
+				</revnumber>
+
+				<date><?dbtimestamp format="Y-m-d H:M:S"?>
+				</date>
+
+				<revdescription>
+					<para>
+						This documentation is produced and contributed to under the
+						<link xl:href="http://www.eclipse.org/legal/epl-v10.html">EPL.</link>
+					</para>
+				</revdescription>
+			</revision>
+		</revhistory>
+
+
+		<keywordset>
+			<keyword>jetty</keyword>
+
+			<keyword>http</keyword>
+
+			<keyword>websocket</keyword>
+
+			<keyword>maven</keyword>
+
+			<keyword>java</keyword>
+
+			<keyword>server</keyword>
+
+			<keyword>software</keyword>
+		</keywordset>
+
+		<authorgroup>
+			<author>
+				<personname>
+					<firstname>Christos</firstname>
+					<surname>Tranoris</surname>
+				</personname>
+				<affiliation>
+					<shortaffil>UoP</shortaffil>
+					<jobtitle>Committer</jobtitle>
+					<orgname>University of Patras, Greece</orgname>
+				</affiliation>
+
+			</author>
+
+		</authorgroup>
+
+
+
+
+		<abstract>
+			<para>
+				This documentation is generated with Docbook for 
+				<?eval ${project.name}?>
+				(v.<?eval ${project.version}?>
+				).
+			</para>
+		</abstract>
+		<legalnotice role="status">
+			<para>
+				Please send comments on this specification to the
+				<email>tranoris (at) ece.upatras.gr</email>
+				list.
+			</para>
+		</legalnotice>
+		<legalnotice role="notices">
+			<para>Licensed under the Apache License, Version 2.0 (the "License");
+				you may not use this file except in compliance with the License.
+				You may obtain a copy of the License at
+
+				http://www.apache.org/licenses/LICENSE-2.0
+
+				Unless required by applicable law or agreed to in writing, software
+				distributed under the License is distributed on an "AS IS" BASIS,
+				WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+				See the License for the specific language governing permissions and
+				limitations under the License.
+			</para>
+		</legalnotice>
+
+		<legalnotice>
+			<para> This is the licence of keybox project (https://github.com/skavanagh/KeyBox)
+				Copyright 2013 Sean Kavanagh - sean.p.kavanagh6@gmail.com
+
+				Licensed under the Apache License, Version 2.0 (the "License");
+				you may not use this file except in compliance with the License.
+				You may obtain a copy of the License at
+
+				http://www.apache.org/licenses/LICENSE-2.0
+
+				Unless required by applicable law or agreed to in writing, software
+				distributed under the License is distributed on an "AS IS" BASIS,
+				WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+				See the License for the specific language governing permissions and
+				limitations under the License.
+			</para>
+		</legalnotice>
+
+	</info>
+
+	<preface>
+	<title>Preface</title>
+	
+	<para>
+		Having such an ssh client is the primary requirement for accessing most of FIRE resources. The next requirement is authenticating to the target system. FIRE
+		facilities usually offer the two most common usages, via username and password combination or through public/private keys. The latter need from experimenter
+		some more special configuration for their clients, especially for generating the key pairs.
+	</para>
+</preface>
+
+	<toc />
+
+
+	<ns:part xml:id="developing-part">
+		<title>
+			For Developers of <?eval ${project.name}?>
+		</title>
+		<xi:include href="developing/chapter.xml" />
+		<xi:include href="contributing/chapter.xml" />
+	</ns:part>
+	
+	<ns:part xml:id="quick-start">
+		<title>
+			Getting Started With <?eval ${project.name}?>
+		</title>
+		<xi:include href="baker_getting_started/gettingstartedchapter.xml" />
+	</ns:part>
+
+	<ns:part xml:id="examples">
+		<title>
+			Examples using <?eval ${project.name}?>
+		</title>
+		<xi:include href="examples/exampleschapter.xml" />
+	</ns:part>
+
+
+
+
+</book>

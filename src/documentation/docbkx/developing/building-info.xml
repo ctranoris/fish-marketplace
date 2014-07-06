@@ -1,0 +1,30 @@
+
+<section version="5.0" xml:id="building-info-section" xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd"
+	xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xl="http://www.w3.org/1999/xlink"
+	xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns2="http://www.w3.org/1998/Math/MathML" xmlns:ns="http://docbook.org/ns/docbook">
+	<title>
+		Building <?eval ${project.name}?>
+	</title>
+
+	<para>
+		Maven is used to build the <?eval ${project.name}?>
+		<informalexample>
+			<programlisting language="bash">
+				mvn clean package
+				mvn -P cargo.run cargo:configure
+				mvn -P cargo.run cargo:package
+			</programlisting>
+		</informalexample>
+	</para>
+	
+	<para>
+		Building the debian package:
+		<informalexample>
+			<programlisting language="bash">
+			mvn -Pdebian package
+			</programlisting>
+		</informalexample>
+	</para>
+
+
+</section>
