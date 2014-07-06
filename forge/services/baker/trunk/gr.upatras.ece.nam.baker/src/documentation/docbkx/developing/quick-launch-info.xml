@@ -1,0 +1,43 @@
+
+<section version="5.0"
+         xml:id="quick-launch-info-section"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xs="http://www.w3.org/2001/XMLSchema"
+         xmlns:xl="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns2="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns="http://docbook.org/ns/docbook">
+	<title>
+		Quick launch <?eval ${project.name}?>
+	</title>
+
+	<para>
+
+		For having a quick test drive on source code of <?eval ${project.name}?> you can just:
+	</para>
+	<orderedlist>
+		<listitem>
+			<para>checkout the code from </para>
+			<informalexample>
+				<programlisting language="bash">
+		svn://nam.ece.upatras.gr/nam/forge/widgets/ssh2web/trunk/gr.upatras.nam.ece.ssh2webkeybox
+				
+				</programlisting>
+			</informalexample>
+    
+		</listitem>
+		<listitem>
+			<para>Open your browser and type: </para>
+			<programlisting language="bash">
+						http://127.0.0.1:8080/ssh2web102/login.action
+				
+				</programlisting>
+				
+		</listitem>
+	</orderedlist>
+
+	
+  
+</section>
