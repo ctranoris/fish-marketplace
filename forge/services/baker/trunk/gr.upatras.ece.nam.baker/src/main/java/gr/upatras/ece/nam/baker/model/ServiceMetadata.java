@@ -35,7 +35,7 @@ public class ServiceMetadata {
 	@Basic()
 	private String uuid_metadata;	
 	@Basic()
-	private String name;
+	private String name_metadata;
 	@Basic()
 	private String provider;
 	private String iconsrc;
@@ -53,14 +53,14 @@ public class ServiceMetadata {
 	
 	public ServiceMetadata(String uuid, String name) {
 		super();
-		this.name = name;
+		this.name_metadata = name;
 		this.uuid_metadata = uuid;
 	}
 	public String getName() {
-		return name;
+		return name_metadata;
 	}
 	public void setName(String name) {
-		this.name = name;
+		this.name_metadata = name;
 	}
 	public String getProvider() {
 		return provider;

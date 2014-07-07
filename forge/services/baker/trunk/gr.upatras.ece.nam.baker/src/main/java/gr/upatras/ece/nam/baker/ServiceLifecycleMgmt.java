@@ -43,7 +43,7 @@ public class ServiceLifecycleMgmt {
 
 	private Path packageLocalPath;
 
-	private BakerJpaController bakerJpaController;
+	BakerJpaController bakerJpaController;
 
 	public ServiceLifecycleMgmt(InstalledService s, IRepositoryWebClient rwc, BakerJpaController jpactr) {
 		installService = s;
@@ -60,7 +60,17 @@ public class ServiceLifecycleMgmt {
 
 		InstalledServiceStatus entryState = installService.getStatus();
 		
-		installService = bakerJpaController.update(installService);
+		logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+		bakerJpaController.getAll();
+		logger.info("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+		
+		
+//			InstalledService tempoIS = bakerJpaController.readInstalledServiceByUUID(installService.getUuid());
+//			logger.info(">>>>>>>> task for uuid:" + tempoIS.getUuid() + " is:" + tempoIS.getStatus());
+//			tempoIS = bakerJpaController.update(tempoIS);
+//			logger.info(">>>>>>>> task for uuid:" + tempoIS.getUuid() + " is:" + tempoIS.getStatus());
+			bakerJpaController.update(installService);
+		
 
 		switch (entryState) {
 		case INIT:
