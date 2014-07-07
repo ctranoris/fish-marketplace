@@ -18,17 +18,22 @@ package gr.upatras.ece.nam.baker.model;
 import java.util.UUID;
 
 import javax.persistence.Basic;
+import javax.persistence.Embeddable;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import org.apache.openjpa.persistence.Type;
 
-@Entity(name = "ServiceMetadata")
+
+@Embeddable
 public class ServiceMetadata {
 
+	
 
-	@Id
 	@Basic()
-	private UUID uuid;	
+	private String uuid_metadata;	
 	@Basic()
 	private String name;
 	@Basic()
@@ -46,10 +51,10 @@ public class ServiceMetadata {
 	public ServiceMetadata() {
 	}
 	
-	public ServiceMetadata(UUID uuid, String name) {
+	public ServiceMetadata(String uuid, String name) {
 		super();
 		this.name = name;
-		this.uuid = uuid;
+		this.uuid_metadata = uuid;
 	}
 	public String getName() {
 		return name;
@@ -93,11 +98,11 @@ public class ServiceMetadata {
 	public void setPackageLocation(String packageLocation) {
 		this.packageLocation = packageLocation;
 	}
-	public UUID getUuid() {
-		return uuid;
+	public String getUuid() {
+		return uuid_metadata;
 	}
-	public void setUuid(UUID uuid) {
-		this.uuid = uuid;
+	public void setUuid(String uuid) {
+		this.uuid_metadata = uuid;
 	}
 
 

@@ -62,7 +62,7 @@ public class BakerServiceRS {
 		URI endpointUrl = uri.getBaseUri();
 
 		InstalledService installedService = new InstalledService(
-				UUID.fromString("12cab8b8-668b-4c75-99a9-39b24ed3d8be"), 
+				("12cab8b8-668b-4c75-99a9-39b24ed3d8be"), 
 				endpointUrl + "localrepo/iservices/12cab8b8-668b-4c75-99a9-39b24ed3d8be");
 		installedService.setName("ServiceName");
 		return Response.ok().entity(installedService).build();
@@ -75,7 +75,7 @@ public class BakerServiceRS {
 
 		logger.info("Received GET for uuid: " + uuid);
 
-		InstalledService installedService = bakerServiceRef.getService(UUID.fromString(uuid));
+		InstalledService installedService = bakerServiceRef.getService( uuid );
 
 		if (installedService != null) {
 			return Response.ok().entity(installedService).build();

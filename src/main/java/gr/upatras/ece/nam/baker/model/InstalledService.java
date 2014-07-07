@@ -18,9 +18,16 @@ package gr.upatras.ece.nam.baker.model;
 import java.util.UUID;
 
 import javax.persistence.Basic;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
+
+import org.apache.openjpa.persistence.Externalizer;
+import org.apache.openjpa.persistence.Factory;
+import org.apache.openjpa.persistence.Type;
 
 
 @Entity(name = "InstalledService")
@@ -28,14 +35,19 @@ public class InstalledService {
 	
 
 
-	@Id
-	@Basic()
-	private UUID uuid;
+//	@GeneratedValue( strategy = GenerationType.IDENTITY  )
+//	private long id = 0;
 	
+
+	@Id
+	private String uuid;
+	
+
 	@Basic()
 	private String repoUrl;
 	@Basic()
 	private String installedVersion;
+	
 	@Basic()
 	private String name;
 
@@ -45,7 +57,7 @@ public class InstalledService {
 	 * this exist only after fetching metadata from repo. Otherwise is null when service is installed.
 	 */
 
-	@OneToOne
+	@Embedded
 	private ServiceMetadata serviceMetadata; 
 	
 	
@@ -53,7 +65,7 @@ public class InstalledService {
 		super();
 	}
 	
-	public InstalledService(UUID uuid, String repoUrl) {
+	public InstalledService(String uuid, String repoUrl) {
 		super();
 		this.uuid = uuid;
 		this.repoUrl = repoUrl;
@@ -61,10 +73,10 @@ public class InstalledService {
 	}
 	
 	
-	public UUID getUuid() {
+	public String getUuid() {
 		return uuid;
 	}
-	public void setUuid(UUID uuid) {
+	public void setUuid(String uuid) {
 		this.uuid = uuid;
 	}
 	public String getRepoUrl() {

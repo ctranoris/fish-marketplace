@@ -12,6 +12,27 @@
 <persistence xmlns="http://java.sun.com/xml/ns/persistence"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.0">
 
+	<persistence-unit name="bakerdb" transaction-type="RESOURCE_LOCAL">
+		<provider>org.apache.openjpa.persistence.PersistenceProviderImpl
+		</provider>
+		
+		<class>gr.upatras.ece.nam.baker.model.InstalledService</class>
+		<class>gr.upatras.ece.nam.baker.model.ServiceMetadata</class>
+			
+ 
+		<properties>
+			<property name="openjpa.ConnectionDriverName" value="org.h2.Driver" />
+			<property name="openjpa.ConnectionURL"
+				value="jdbc:h2:~/bakerdb/bakerdb;CIPHER=AES;AUTO_SERVER=TRUE" />
+			<property name="openjpa.ConnectionUserName" value="bakerdb" />
+			<property name="openjpa.ConnectionPassword" value="filepwd bakerdb" />
+			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema" />
+			<property name="openjpa.jdbc.Schema" value="PUBLIC" />
+			<property name="openjpa.Log" value="DefaultLevel=WARN, Tool=INFO" />
+		</properties>
+ 
+	</persistence-unit>
+	
 	<persistence-unit name="bakerdb-test" transaction-type="RESOURCE_LOCAL">
 		<provider>org.apache.openjpa.persistence.PersistenceProviderImpl
 		</provider>
@@ -33,4 +54,5 @@
 		</properties>
  
 	</persistence-unit>
+	
 </persistence>

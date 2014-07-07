@@ -24,7 +24,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,7 +52,7 @@ public class MockRepositoryWebClient implements IRepositoryWebClient {
 	}
 
 	@Override
-	public ServiceMetadata fetchMetadata(UUID uuid, String url) {
+	public ServiceMetadata fetchMetadata(String uuid, String url) {
 		logger.info("TEST fetchMetadata from: " + url + " , for uuid=" + uuid);
 
 		try {
@@ -76,7 +75,7 @@ public class MockRepositoryWebClient implements IRepositoryWebClient {
 	}
 
 	@Override
-	public Path fetchPackageFromLocation(UUID uuid, String packageLocation) {
+	public Path fetchPackageFromLocation(String uuid, String packageLocation) {
 
 		logger.info("TEST fetchMetadata after 2sec from (dummy): " + packageLocation);
 

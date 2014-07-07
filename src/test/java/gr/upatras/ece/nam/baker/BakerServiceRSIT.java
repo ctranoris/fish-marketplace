@@ -51,7 +51,7 @@ public class BakerServiceRSIT {
         List<Object> providers = new ArrayList<Object>();
         providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
         UUID uuid = UUID.fromString("55cab8b8-668b-4c75-99a9-39b24ed3d8be");
-        InstalledService is = prepeareInstalledService(uuid);
+        InstalledService is = prepeareInstalledService(uuid.toString());
                 
         WebClient client = WebClient.create(endpointUrl + "/services/baker/api/iservices/", providers);
         Response r = client.accept("application/json")
@@ -87,7 +87,7 @@ public class BakerServiceRSIT {
         List<Object> providers = new ArrayList<Object>();
         providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
         UUID uuid = UUID.fromString("12cab8b8-668b-4c75-99a9-39b24ed3d8be");
-        InstalledService is = prepeareInstalledService(uuid);
+        InstalledService is = prepeareInstalledService(uuid.toString());
                 
         WebClient client = WebClient.create(endpointUrl + "/services/baker/api/iservices", providers);
         //first post a new installation
@@ -115,7 +115,7 @@ public class BakerServiceRSIT {
     }
     
     //helpers
-    private InstalledService prepeareInstalledService(UUID uuid){
+    private InstalledService prepeareInstalledService(String uuid){
     	InstalledService is = new InstalledService( );     
         is.setUuid(uuid);
         is.setRepoUrl( endpointUrl +"/services/baker/localrepo/iservices/"+uuid);

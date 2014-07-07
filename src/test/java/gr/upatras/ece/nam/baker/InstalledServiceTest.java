@@ -42,8 +42,9 @@ public class InstalledServiceTest {
 	public void testSetUuid() {
 		InstalledService is = installedServiceInit();
 		UUID uuid = UUID.randomUUID();
-		is.setUuid(uuid);
-		assertEquals(uuid, is.getUuid());
+		is.setUuid(uuid.toString());
+		assertEquals(uuid.toString(), is.getUuid());
+		
 	}
 
 	@Test
@@ -88,7 +89,7 @@ public class InstalledServiceTest {
 	private InstalledService installedServiceInit(){
 		UUID uuid =  UUID.randomUUID();		
 		String repoUrl="repourl";
-		InstalledService is = new InstalledService(uuid , repoUrl);
+		InstalledService is = new InstalledService(uuid.toString() , repoUrl);
 		is.setInstalledVersion("1.1v");
 		return is;
 	}

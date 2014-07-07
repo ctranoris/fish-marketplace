@@ -16,9 +16,8 @@
 package gr.upatras.ece.nam.baker.model;
 
 import gr.upatras.ece.nam.baker.ServiceLifecycleMgmt;
-import gr.upatras.ece.nam.baker.impl.RepositoryWebClient;
+import gr.upatras.ece.nam.baker.impl.BakerJpaController;
 
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
@@ -26,8 +25,9 @@ import org.apache.commons.logging.LogFactory;
 
 public class BakerService {
 
-	private ConcurrentHashMap<UUID, InstalledService> managedServices;
+	private ConcurrentHashMap<String, InstalledService> managedServices;
 	private IRepositoryWebClient repoWebClient;
+	private BakerJpaController bakerJpaController;
 
 	private static final transient Log logger = LogFactory.getLog(BakerService.class.getName());
 
@@ -36,7 +36,7 @@ public class BakerService {
 		//this.setRepoWebClient(new RepositoryWebClient());
 	}
 
-	public ConcurrentHashMap<UUID, InstalledService> getManagedServices() {
+	public ConcurrentHashMap<String, InstalledService> getManagedServices() {
 		return managedServices;
 	}
 
@@ -49,11 +49,14 @@ public class BakerService {
 	 */
 	private InstalledService addServiceToManagedServices(InstalledService s) {
 		managedServices.put(s.getUuid(), s);
+		bakerJpaController.addInstalledService(s);
+		
 		return s;
 	}
 
 	private Boolean removeServiceFromManagedServices(InstalledService s) {
 		InstalledService is = managedServices.remove(s.getUuid());
+		bakerJpaController.delete(s);
 		return (is != null);
 	}
 
@@ -67,7 +70,7 @@ public class BakerService {
 	 *            The endpoint of the repository
 	 * @return an InstalledService object
 	 */
-	public InstalledService installService(UUID uuid, String repourl) {
+	public InstalledService installService(String uuid, String repourl) {
 
 		InstalledService s = managedServices.get(uuid); // return existing if
 														// found
@@ -101,7 +104,7 @@ public class BakerService {
 		Thread t1 = new Thread(new Runnable() {
 			public void run() {
 
-				new ServiceLifecycleMgmt(s, repoWebClient);
+				new ServiceLifecycleMgmt(s, repoWebClient, bakerJpaController);
 
 			}
 		});
@@ -113,13 +116,13 @@ public class BakerService {
 
 	}
 
-	public Boolean uninstallService(UUID uuid) {
+	public Boolean uninstallService(String uuid) {
 		InstalledService is = getService(uuid);
 		Boolean res = removeServiceFromManagedServices(is);
 		return res;
 	}
 
-	public InstalledService getService(UUID uuid) {
+	public InstalledService getService(String uuid) {
 		InstalledService is = managedServices.get(uuid);
 		return is;
 	}
@@ -130,6 +133,11 @@ public class BakerService {
 
 	public void setRepoWebClient(IRepositoryWebClient repoWebClient) {
 		this.repoWebClient = repoWebClient;
+	}
+
+	public void setJpaController(BakerJpaController jpactrl) {
+		this.bakerJpaController = jpactrl;
+		
 	}
 
 }
