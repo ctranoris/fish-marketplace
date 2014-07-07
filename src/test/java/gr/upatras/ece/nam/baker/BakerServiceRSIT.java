@@ -46,12 +46,12 @@ public class BakerServiceRSIT {
     }
 
     @Test
-    public void testBakerRSInstallServiceNotFoundAnFail() throws Exception {
+    public void testBakerRSInstallServiceNotFoundAndFail() throws Exception {
     	logger.info("testBakerRSInstallServiceNotFound");
         List<Object> providers = new ArrayList<Object>();
         providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
-        UUID uuid = UUID.fromString("55cab8b8-668b-4c75-99a9-39b24ed3d8be");
-        InstalledService is = prepeareInstalledService(uuid.toString());
+        String uuid = UUID.fromString("55cab8b8-668b-4c75-99a9-39b24ed3d8be").toString();
+        InstalledService is = prepareInstalledService(uuid);
                 
         WebClient client = WebClient.create(endpointUrl + "/services/baker/api/iservices/", providers);
         Response r = client.accept("application/json")
@@ -86,8 +86,8 @@ public class BakerServiceRSIT {
     	
         List<Object> providers = new ArrayList<Object>();
         providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
-        UUID uuid = UUID.fromString("12cab8b8-668b-4c75-99a9-39b24ed3d8be");
-        InstalledService is = prepeareInstalledService(uuid.toString());
+        String uuid = UUID.fromString("77777777-668b-4c75-99a9-39b24ed3d8be").toString();
+        InstalledService is = prepareInstalledService(uuid );
                 
         WebClient client = WebClient.create(endpointUrl + "/services/baker/api/iservices", providers);
         //first post a new installation
@@ -109,13 +109,13 @@ public class BakerServiceRSIT {
 
         assertEquals(uuid, output.getUuid() );
         assertEquals(InstalledServiceStatus.STARTED , output.getStatus()  );
-        assertEquals("Local example service", output.getName() );
+        assertEquals("IntegrTestLocal example service", output.getName() );
         
         
     }
     
     //helpers
-    private InstalledService prepeareInstalledService(String uuid){
+    private InstalledService prepareInstalledService(String uuid){
     	InstalledService is = new InstalledService( );     
         is.setUuid(uuid);
         is.setRepoUrl( endpointUrl +"/services/baker/localrepo/iservices/"+uuid);

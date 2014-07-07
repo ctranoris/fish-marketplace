@@ -79,8 +79,8 @@ public class UploadDownloadFileService {
 		logger.info("Received GET for uuid: " + uuid);
 		ServiceMetadata sm = null;
 		
-		if (uuid.equals("12cab8b8-668b-4c75-99a9-39b24ed3d8be")) {
-			sm = new ServiceMetadata( uuid, "Local example service");
+		if (uuid.equals("77777777-668b-4c75-99a9-39b24ed3d8be") ) {
+			sm = new ServiceMetadata( uuid, "IntegrTestLocal example service");
 			sm.setShortDescription("An example local service");
 			sm.setVersion("1.0.0");
 			sm.setIconsrc("");
@@ -88,9 +88,19 @@ public class UploadDownloadFileService {
 			sm.setLongDescription("");
 			URI endpointUrl = uri.getBaseUri();
 			
+			sm.setPackageLocation(endpointUrl + "localrepo/packages/77777777-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
+		}if ( uuid.equals("12cab8b8-668b-4c75-99a9-39b24ed3d8be") ) {
+			sm = new ServiceMetadata( uuid, "AN example service");
+			sm.setShortDescription("An example local service");
+			sm.setVersion("1.0.0rc1");
+			sm.setIconsrc("");
+			sm.setProvider("");
+			sm.setLongDescription("");
+			URI endpointUrl = uri.getBaseUri();
+			
 			sm.setPackageLocation(endpointUrl + "localrepo/packages/12cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
 		}else if (uuid.equals("22cab8b8-668b-4c75-99a9-39b24ed3d8be")) {
-			sm = new ServiceMetadata( uuid, "Local example ErrInstall service");
+			sm = new ServiceMetadata( uuid, "IntegrTestLocal example ErrInstall service");
 			sm.setShortDescription("An example ErrInstall local service");
 			sm.setVersion("1.0.0");
 			sm.setIconsrc("");
