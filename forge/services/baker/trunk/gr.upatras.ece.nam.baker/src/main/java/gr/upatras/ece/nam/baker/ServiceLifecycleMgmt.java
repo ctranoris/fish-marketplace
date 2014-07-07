@@ -15,6 +15,13 @@
 
 package gr.upatras.ece.nam.baker;
 
+
+import gr.upatras.ece.nam.baker.impl.BakerJpaController;
+import gr.upatras.ece.nam.baker.model.IRepositoryWebClient;
+import gr.upatras.ece.nam.baker.model.InstalledService;
+import gr.upatras.ece.nam.baker.model.InstalledServiceStatus;
+import gr.upatras.ece.nam.baker.model.ServiceMetadata;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -27,12 +34,6 @@ import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import gr.upatras.ece.nam.baker.model.BakerService;
-import gr.upatras.ece.nam.baker.model.IRepositoryWebClient;
-import gr.upatras.ece.nam.baker.model.InstalledService;
-import gr.upatras.ece.nam.baker.model.InstalledServiceStatus;
-import gr.upatras.ece.nam.baker.model.ServiceMetadata;
-
 public class ServiceLifecycleMgmt {
 
 	private static final transient Log logger = LogFactory.getLog(ServiceLifecycleMgmt.class.getName());
@@ -42,9 +43,12 @@ public class ServiceLifecycleMgmt {
 
 	private Path packageLocalPath;
 
-	public ServiceLifecycleMgmt(InstalledService s, IRepositoryWebClient rwc) {
+	private BakerJpaController bakerJpaController;
+
+	public ServiceLifecycleMgmt(InstalledService s, IRepositoryWebClient rwc, BakerJpaController jpactr) {
 		installService = s;
 		repoWebClient = rwc;
+		bakerJpaController = jpactr;
 
 		logger.info("ServiceLifecycleMgmt uuid:" + installService.getUuid() + " name:" + installService.getName());
 		processState();
@@ -55,6 +59,8 @@ public class ServiceLifecycleMgmt {
 		logger.info("task for uuid:" + installService.getUuid() + " is:" + installService.getStatus());
 
 		InstalledServiceStatus entryState = installService.getStatus();
+		
+		installService = bakerJpaController.update(installService);
 
 		switch (entryState) {
 		case INIT:

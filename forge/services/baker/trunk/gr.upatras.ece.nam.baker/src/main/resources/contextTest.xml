@@ -15,8 +15,9 @@
        http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
+
 	<bean name="bakerJpaControllerTest"
-		class="gr.upatras.ece.nam.baker.testclasses.BakerJpaControllerTest">
+		class="gr.upatras.ece.nam.baker.impl.BakerJpaController">
 	</bean>
 
 
@@ -45,7 +46,7 @@
 		<property name="database" value="H2" />
 		<property name="generateDdl" value="true" />
 	</bean>
-	
+
 
 	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
 		<property name="entityManagerFactory" ref="entityManagerFactory" />

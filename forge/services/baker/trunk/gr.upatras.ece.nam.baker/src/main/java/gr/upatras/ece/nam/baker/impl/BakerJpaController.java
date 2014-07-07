@@ -1,5 +1,5 @@
 
-package gr.upatras.ece.nam.baker.testclasses;
+package gr.upatras.ece.nam.baker.impl;
 
 import gr.upatras.ece.nam.baker.model.InstalledService;
 
@@ -18,8 +18,11 @@ import org.apache.commons.logging.LogFactory;
  * @author ctranoris
  *
  */
-public class BakerJpaControllerTest {
-	@PersistenceContext(unitName = "bakerdb-test")
+public class BakerJpaController {
+	
+
+	//@PersistenceContext(unitName = "bakerdb")
+	@PersistenceContext
 	private EntityManager entityManager;
 	
 
@@ -30,21 +33,27 @@ public class BakerJpaControllerTest {
 	public void setEntityManager(EntityManager entityManager) {
 		this.entityManager = entityManager;
 	}
-	private static final transient Log logger = LogFactory.getLog(BakerJpaControllerTest.class.getName());
+	private static final transient Log logger = LogFactory.getLog(BakerJpaController.class.getName());
 
-	public long count() {
+	public long countInstalledServices() {
 		Query q = entityManager.createQuery("SELECT COUNT(s) FROM InstalledService s") ;
 		return (Long) q.getSingleResult();
 	}
 
-	public void create(InstalledService messageEntity) {
-		entityManager.persist(messageEntity);
+	public void createInstalledService(InstalledService is) {
+    	logger.info("Will create InstalledService = " +is.getUuid());
+    	logger.info("Will create entityManager = " + entityManager);
+		entityManager.persist(is);
+		entityManager.flush();
 	}
 
-	public InstalledService read(final String name) {
+	public InstalledService readInstalledServiceByName(final String name) {
 		Query q = entityManager.createQuery("SELECT m FROM InstalledService m WHERE m.name='"+name+"'") ;
-		//q.setFirstResult(1);
-		//comment
+		return (InstalledService) q.getSingleResult();
+	}
+	
+	public InstalledService readInstalledServiceByUUID(final String uuid) {
+		Query q = entityManager.createQuery("SELECT m FROM InstalledService m WHERE m.uuid='"+uuid +"'") ;
 		return (InstalledService) q.getSingleResult();
 	}
 
@@ -59,8 +68,15 @@ public class BakerJpaControllerTest {
 	
 	
 
-	public InstalledService update(InstalledService messageEntity) {
-		return entityManager.merge(messageEntity);
+	public InstalledService update(InstalledService is) {
+    	logger.info("Will update InstalledService = " +is.getUuid());
+    	logger.info("Will update entityManager = " + entityManager);
+		
+    	
+    	
+    	InstalledService resis = entityManager.merge(is);
+    			
+		return resis;
 	}
 
 	public void delete(final InstalledService message) {
@@ -72,16 +88,24 @@ public class BakerJpaControllerTest {
 	        List<InstalledService>lb = entityManager.createQuery( "select p from InstalledService p").getResultList();
 	        for (Iterator iterator = lb.iterator(); iterator.hasNext();) {
 	        	InstalledService iservice = (InstalledService) iterator.next();
+	        	logger.info("===================================");
 				logger.info(" InstalledService found: "+iservice.getName() +
 						" Uuid: "+iservice.getUuid()+
-						" RepoUrl: "+iservice.getRepoUrl() );
+						" RepoUrl: "+iservice.getRepoUrl()+
+						" InstalledVersion: "+iservice.getInstalledVersion()+
+						" Status: "+iservice.getStatus() );
+				if (iservice.getServiceMetadata()!=null)
+					logger.info(" InstalledServiceMetadata found: "+iservice.getServiceMetadata().getName() +
+							" Uuid: "+iservice.getServiceMetadata().getUuid()+
+							" getPackageLocation: "+iservice.getServiceMetadata().getPackageLocation()+
+							" getVersion: "+iservice.getServiceMetadata().getVersion() );
 				
 			}
 	    }
 	 
 	
 	 
-	public BakerJpaControllerTest() {
+	public BakerJpaController() {
 		logger.info(">>>>>>>>>>>>>> BrokerServiceImpl constructor  <<<<<<<<<<<<<<<<<<");
 	}
 	
@@ -91,16 +115,23 @@ public class BakerJpaControllerTest {
     }
 
 	
-	public void addInstalledService(InstalledService bro) {
+	public void addInstalledService(InstalledService is) {
 		
 
 		if (entityManager!=null){
-			create(bro);			
-			logger.info(" InstalledService created: "+bro.getName());
+			createInstalledService(is);			
+			logger.info(" InstalledService created: "+is.getName());
 		}else{
 			logger.info("entityManager is null");
 			
 		}
+		
+	}
+
+	public void deleteAllInstalledService() {
+		Query q = entityManager.createQuery("DELETE FROM InstalledService ") ;
+		q.executeUpdate();
+		
 		
 	}
 }

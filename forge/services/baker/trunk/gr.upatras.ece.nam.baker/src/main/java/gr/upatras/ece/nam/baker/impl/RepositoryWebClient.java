@@ -47,7 +47,7 @@ public class RepositoryWebClient implements IRepositoryWebClient {
 			.getLog(RepositoryWebClient.class.getName());
 
 	@Override
-	public ServiceMetadata fetchMetadata(UUID uuid, String url) {
+	public ServiceMetadata fetchMetadata(String uuid, String url) {
 		logger.info("fetchMetadata from: " + url + " , for uuid=" + uuid);
 
 		try {
@@ -75,7 +75,7 @@ public class RepositoryWebClient implements IRepositoryWebClient {
 	}
 
 	@Override
-	public Path fetchPackageFromLocation(UUID uuid, String packageLocation) {
+	public Path fetchPackageFromLocation(String uuid, String packageLocation) {
 
 		logger.info("fetchPackageFromLocation: " + packageLocation );
 
