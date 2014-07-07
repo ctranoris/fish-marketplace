@@ -62,7 +62,7 @@ public class UploadDownloadFileService {
 
 		logger.info("bunfile: " + bunfile);
 		logger.info("uuid: " + uuid);
-		URL res = getClass().getResource("/"+bunfile);
+		URL res = getClass().getResource("/files/"+bunfile);
 		logger.info("TEST RESOURCE FILE: " + res);
 
 		File file = new File(res.getFile());

@@ -15,7 +15,6 @@
 
 package gr.upatras.ece.nam.baker;
 
-
 import gr.upatras.ece.nam.baker.impl.BakerJpaController;
 import gr.upatras.ece.nam.baker.model.IRepositoryWebClient;
 import gr.upatras.ece.nam.baker.model.InstalledService;
@@ -59,18 +58,7 @@ public class ServiceLifecycleMgmt {
 		logger.info("task for uuid:" + installService.getUuid() + " is:" + installService.getStatus());
 
 		InstalledServiceStatus entryState = installService.getStatus();
-		
-		logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-		bakerJpaController.getAll();
-		logger.info("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-		
-		
-//			InstalledService tempoIS = bakerJpaController.readInstalledServiceByUUID(installService.getUuid());
-//			logger.info(">>>>>>>> task for uuid:" + tempoIS.getUuid() + " is:" + tempoIS.getStatus());
-//			tempoIS = bakerJpaController.update(tempoIS);
-//			logger.info(">>>>>>>> task for uuid:" + tempoIS.getUuid() + " is:" + tempoIS.getStatus());
-			bakerJpaController.update(installService);
-		
+		bakerJpaController.update(installService);
 
 		switch (entryState) {
 		case INIT:
