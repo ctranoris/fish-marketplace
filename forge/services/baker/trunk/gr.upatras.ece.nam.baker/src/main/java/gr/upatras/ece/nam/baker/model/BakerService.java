@@ -18,6 +18,7 @@ package gr.upatras.ece.nam.baker.model;
 import gr.upatras.ece.nam.baker.ServiceLifecycleMgmt;
 import gr.upatras.ece.nam.baker.impl.BakerJpaController;
 
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
@@ -28,6 +29,8 @@ public class BakerService {
 	private ConcurrentHashMap<String, InstalledService> managedServices;
 	private IRepositoryWebClient repoWebClient;
 	private BakerJpaController bakerJpaController;
+
+	
 
 	private static final transient Log logger = LogFactory.getLog(BakerService.class.getName());
 
@@ -49,9 +52,8 @@ public class BakerService {
 	 */
 	private InstalledService addServiceToManagedServices(InstalledService s) {
 		managedServices.put(s.getUuid(), s);
-		bakerJpaController.saveInstalledService(s);
-		InstalledService installService = bakerJpaController.readInstalledServiceByUUID(s.getUuid());
-		logger.info("Saved task for uuid :" + installService.getUuid() + " is:" + installService.getStatus());
+//		InstalledService installService = bakerJpaController.readInstalledServiceByUUID(s.getUuid());
+//		logger.info("Saved task for uuid :" + installService.getUuid() + " is:" + installService.getStatus());
 		
 		return s;
 	}
@@ -86,6 +88,7 @@ public class BakerService {
 		if (s == null) {
 			s = new InstalledService(uuid, repourl);
 			addServiceToManagedServices(s);
+			bakerJpaController.saveInstalledService(s);
 		} else if (s.getStatus() == InstalledServiceStatus.FAILED) {
 			s.setStatus(InstalledServiceStatus.INIT); //restart installation
 			s.setRepoUrl(repourl);
@@ -137,9 +140,21 @@ public class BakerService {
 		this.repoWebClient = repoWebClient;
 	}
 
-	public void setJpaController(BakerJpaController jpactrl) {
-		this.bakerJpaController = jpactrl;
+
+	
+	public BakerJpaController getBakerJpaController() {
+		return bakerJpaController;
+	}
+
+	public void setBakerJpaController(BakerJpaController b) {
+		this.bakerJpaController = b;
+
+		this.bakerJpaController = b;
+		List<InstalledService> ls = b.read(0, 100000);
 		
+		for (InstalledService installedService : ls) {
+			managedServices.put( installedService.getUuid(), installedService);			
+		}
 	}
 
 }
