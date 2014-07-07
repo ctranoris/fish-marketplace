@@ -15,11 +15,11 @@
 	<persistence-unit name="bakerdb" transaction-type="RESOURCE_LOCAL">
 		<provider>org.apache.openjpa.persistence.PersistenceProviderImpl
 		</provider>
-		
+
 		<class>gr.upatras.ece.nam.baker.model.InstalledService</class>
 		<class>gr.upatras.ece.nam.baker.model.ServiceMetadata</class>
-			
- 
+
+
 		<properties>
 			<property name="openjpa.ConnectionDriverName" value="org.h2.Driver" />
 			<property name="openjpa.ConnectionURL"
@@ -30,18 +30,19 @@
 			<property name="openjpa.jdbc.Schema" value="PUBLIC" />
 			<property name="openjpa.Log" value="DefaultLevel=WARN, Tool=INFO" />
 		</properties>
- 
+
 	</persistence-unit>
-	
-	<persistence-unit name="bakerdb-test" transaction-type="RESOURCE_LOCAL">
+
+	<persistence-unit name="bakerdb-test"
+	transaction-type="RESOURCE_LOCAL">
 		<provider>org.apache.openjpa.persistence.PersistenceProviderImpl
 		</provider>
-		
+
 		<class>gr.upatras.ece.nam.baker.model.InstalledService</class>
 		<class>gr.upatras.ece.nam.baker.model.ServiceMetadata</class>
-		
-		
- 
+
+
+
 		<properties>
 			<property name="openjpa.ConnectionDriverName" value="org.h2.Driver" />
 			<property name="openjpa.ConnectionURL"
@@ -50,9 +51,9 @@
 			<property name="openjpa.ConnectionPassword" value="filepwd bakerdb_testuserpwd" />
 			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema" />
 			<property name="openjpa.jdbc.Schema" value="PUBLIC" />
-			<property name="openjpa.Log" value="DefaultLevel=WARN, Tool=INFO" />
+
 		</properties>
- 
+
 	</persistence-unit>
-	
+
 </persistence>

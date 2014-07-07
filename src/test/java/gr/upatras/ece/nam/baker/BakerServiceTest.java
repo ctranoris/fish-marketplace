@@ -45,16 +45,16 @@ public class BakerServiceTest {
 
 	@Autowired
 	private BakerJpaController bakerJpaControllerTest;
-
+	
 	private static final transient Log logger = LogFactory.getLog(BakerServiceTest.class.getName());
 
 	@Test
 	public void testGetManagedServices() {
-		BakerService bs = BakerServiceInit();
+		BakerService bs = BakerServiceInit(new MockRepositoryWebClient("NORMAL"), bakerJpaControllerTest);
 		assertNotNull(bs.getManagedServices());
 		logger.info("	 	>>>>	bakerJpaControllerTest = " + bakerJpaControllerTest);
 	}
-
+//
 //	@Test
 //	public void TestWriteReadDB() {
 //
@@ -66,7 +66,7 @@ public class BakerServiceTest {
 //		istest.setName("NONMAE");
 //		istest.setStatus(InstalledServiceStatus.INSTALLING);
 //
-//		bakerJpaControllerTest.addInstalledService(istest);
+//		bakerJpaControllerTest.saveInstalledService(istest);
 //		bakerJpaControllerTest.getAll();
 //
 //		InstalledService retIs = bakerJpaControllerTest.readInstalledServiceByUUID(uuid);
@@ -86,7 +86,7 @@ public class BakerServiceTest {
 //		sm.setName("MetadataName");
 //		sm.setPackageLocation("/repo/aaa.tar.gz");
 //		istest.setServiceMetadata(sm);
-//		bakerJpaControllerTest.addInstalledService(istest);
+//		bakerJpaControllerTest.saveInstalledService(istest);
 //		bakerJpaControllerTest.getAll();
 //		retIs = bakerJpaControllerTest.readInstalledServiceByUUID(uuid);
 //		assertEquals(uuid, retIs.getUuid());
@@ -96,104 +96,109 @@ public class BakerServiceTest {
 //		assertEquals("MetadataName", retIs.getServiceMetadata().getName());
 //		assertEquals(2, bakerJpaControllerTest.countInstalledServices());
 //
+//		// update it
 //		istest.setStatus(InstalledServiceStatus.STARTED);
 //		bakerJpaControllerTest.update(istest);
 //		retIs = bakerJpaControllerTest.readInstalledServiceByUUID(uuid);
 //		assertEquals(InstalledServiceStatus.STARTED, retIs.getStatus());
+//		bakerJpaControllerTest.getAll();
+//		assertEquals(2, bakerJpaControllerTest.countInstalledServices());
 //		
-//	}
-//
-//	@Test
-//	public void testReqInstall_toSTARTEDStatus() {
-//		BakerService bs = BakerServiceInit();
-//		bs.setRepoWebClient(new MockRepositoryWebClient("NORMAL"));
-//
-//		String uuid = UUID.randomUUID().toString();
-//		// we don;t care about repo...we provide a local package hardcoded by MockRepositoryWebClient
-//		InstalledService is = bs.installService(uuid, "www.repoexample.com/repo/EBUNID/" + uuid);
-//		assertNotNull(is);
-//		assertEquals(1, bs.getManagedServices().size());
-//		assertEquals(is.getStatus(), InstalledServiceStatus.INIT);
-//
-//		logger.info(" test service UUID=" + uuid + " . Now is: " + is.getStatus());
-//
-//		int guard = 0;
-//		while ((is.getStatus() != InstalledServiceStatus.STARTED) && (is.getStatus() != InstalledServiceStatus.FAILED) && (guard <= 30)) {
-//			logger.info("Waiting for STARTED for test service UUID=" + uuid + " . Now is: " + is.getStatus());
-//			try {
-//				Thread.sleep(1000);
-//				guard++;
-//			} catch (InterruptedException e) {
-//
-//				e.printStackTrace();
-//			}
-//		}
-//
-//		InstalledService istest = bs.getService(uuid);
-//		assertNotNull(istest);
-//		assertNotNull(istest.getServiceMetadata());
-//		assertEquals(uuid, istest.getUuid());
-//		assertEquals(is.getUuid(), istest.getUuid());
-//		assertEquals(InstalledServiceStatus.STARTED, istest.getStatus());
-//		assertEquals("www.repoexample.com/repo/EBUNID/" + uuid, istest.getRepoUrl());
-//		assertEquals("/files/examplebun.tar.gz", istest.getServiceMetadata().getPackageLocation());
-//		assertEquals("TemporaryServiceFromMockClass", istest.getServiceMetadata().getName());
-//		assertEquals("1.0.0.test", istest.getServiceMetadata().getVersion());
-//		assertEquals("TemporaryServiceFromMockClass", istest.getName());
-//		assertEquals("1.0.0.test", istest.getInstalledVersion());
-//		assertEquals(1, bs.getManagedServices().size());
 //
 //	}
-//
-//	@Test
-//	public void testReqInstall_ErrScript() {
-//		BakerService bs = BakerServiceInit();
-//		bs.setRepoWebClient(new MockRepositoryWebClient("NORMAL"));
-//
-//		String uuid = UUID.randomUUID().toString();
-//		// we don;t care about repo...we provide a local package hardcoded by MockRepositoryWebClient
-//		InstalledService is = bs.installService(uuid, "www.repoexample.com/repo/EBUNERR/" + uuid);
-//		assertNotNull(is);
-//		assertEquals(1, bs.getManagedServices().size());
-//		assertEquals(is.getStatus(), InstalledServiceStatus.INIT);
-//
-//		logger.info(" test service UUID=" + uuid + " . Now is: " + is.getStatus());
-//
-//		int guard = 0;
-//		while ((is.getStatus() != InstalledServiceStatus.STARTED) && (is.getStatus() != InstalledServiceStatus.FAILED) && (guard <= 30)) {
-//			logger.info("Waiting for STARTED for test service UUID=" + uuid + " . Now is: " + is.getStatus());
-//			try {
-//				Thread.sleep(1000);
-//				guard++;
-//			} catch (InterruptedException e) {
-//
-//				e.printStackTrace();
-//			}
-//		}
-//
-//		InstalledService istest = bs.getService(uuid);
-//		assertNotNull(istest);
-//		assertNotNull(istest.getServiceMetadata());
-//		assertEquals(uuid, istest.getUuid());
-//		assertEquals(is.getUuid(), istest.getUuid());
-//		assertEquals(InstalledServiceStatus.FAILED, istest.getStatus());
-//		assertEquals("www.repoexample.com/repo/EBUNERR/" + uuid, istest.getRepoUrl());
-//		assertEquals("/files/examplebunErrInstall.tar.gz", istest.getServiceMetadata().getPackageLocation());
-//		assertEquals("TemporaryServiceFromMockClass", istest.getServiceMetadata().getName());
-//		assertEquals("1.0.0.test", istest.getServiceMetadata().getVersion());
-//		assertEquals("(pending)", istest.getName());
-//		assertNull(istest.getInstalledVersion());
-//		assertEquals(1, bs.getManagedServices().size());
-//
-//	}
-//
+
+	//
+	// @Test
+	// public void testReqInstall_toSTARTEDStatus() {
+	// BakerService bs = BakerServiceInit();
+	// bs.setRepoWebClient(new MockRepositoryWebClient("NORMAL"));
+	//
+	// String uuid = UUID.randomUUID().toString();
+	// // we don;t care about repo...we provide a local package hardcoded by MockRepositoryWebClient
+	// InstalledService is = bs.installService(uuid, "www.repoexample.com/repo/EBUNID/" + uuid);
+	// assertNotNull(is);
+	// assertEquals(1, bs.getManagedServices().size());
+	// assertEquals(is.getStatus(), InstalledServiceStatus.INIT);
+	//
+	// logger.info(" test service UUID=" + uuid + " . Now is: " + is.getStatus());
+	//
+	// int guard = 0;
+	// while ((is.getStatus() != InstalledServiceStatus.STARTED) && (is.getStatus() != InstalledServiceStatus.FAILED) && (guard <= 30)) {
+	// logger.info("Waiting for STARTED for test service UUID=" + uuid + " . Now is: " + is.getStatus());
+	// try {
+	// Thread.sleep(1000);
+	// guard++;
+	// } catch (InterruptedException e) {
+	//
+	// e.printStackTrace();
+	// }
+	// }
+	//
+	// InstalledService istest = bs.getService(uuid);
+	// assertNotNull(istest);
+	// assertNotNull(istest.getServiceMetadata());
+	// assertEquals(uuid, istest.getUuid());
+	// assertEquals(is.getUuid(), istest.getUuid());
+	// assertEquals(InstalledServiceStatus.STARTED, istest.getStatus());
+	// assertEquals("www.repoexample.com/repo/EBUNID/" + uuid, istest.getRepoUrl());
+	// assertEquals("/files/examplebun.tar.gz", istest.getServiceMetadata().getPackageLocation());
+	// assertEquals("TemporaryServiceFromMockClass", istest.getServiceMetadata().getName());
+	// assertEquals("1.0.0.test", istest.getServiceMetadata().getVersion());
+	// assertEquals("TemporaryServiceFromMockClass", istest.getName());
+	// assertEquals("1.0.0.test", istest.getInstalledVersion());
+	// assertEquals(1, bs.getManagedServices().size());
+	//
+	// }
+	//
+	// @Test
+	// public void testReqInstall_ErrScript() {
+	// BakerService bs = BakerServiceInit();
+	// bs.setRepoWebClient(new MockRepositoryWebClient("NORMAL"));
+	//
+	// String uuid = UUID.randomUUID().toString();
+	// // we don;t care about repo...we provide a local package hardcoded by MockRepositoryWebClient
+	// InstalledService is = bs.installService(uuid, "www.repoexample.com/repo/EBUNERR/" + uuid);
+	// assertNotNull(is);
+	// assertEquals(1, bs.getManagedServices().size());
+	// assertEquals(is.getStatus(), InstalledServiceStatus.INIT);
+	//
+	// logger.info(" test service UUID=" + uuid + " . Now is: " + is.getStatus());
+	//
+	// int guard = 0;
+	// while ((is.getStatus() != InstalledServiceStatus.STARTED) && (is.getStatus() != InstalledServiceStatus.FAILED) && (guard <= 30)) {
+	// logger.info("Waiting for STARTED for test service UUID=" + uuid + " . Now is: " + is.getStatus());
+	// try {
+	// Thread.sleep(1000);
+	// guard++;
+	// } catch (InterruptedException e) {
+	//
+	// e.printStackTrace();
+	// }
+	// }
+	//
+	// InstalledService istest = bs.getService(uuid);
+	// assertNotNull(istest);
+	// assertNotNull(istest.getServiceMetadata());
+	// assertEquals(uuid, istest.getUuid());
+	// assertEquals(is.getUuid(), istest.getUuid());
+	// assertEquals(InstalledServiceStatus.FAILED, istest.getStatus());
+	// assertEquals("www.repoexample.com/repo/EBUNERR/" + uuid, istest.getRepoUrl());
+	// assertEquals("/files/examplebunErrInstall.tar.gz", istest.getServiceMetadata().getPackageLocation());
+	// assertEquals("TemporaryServiceFromMockClass", istest.getServiceMetadata().getName());
+	// assertEquals("1.0.0.test", istest.getServiceMetadata().getVersion());
+	// assertEquals("(pending)", istest.getName());
+	// assertNull(istest.getInstalledVersion());
+	// assertEquals(1, bs.getManagedServices().size());
+	//
+	// }
+	//
 	@Test
 	public void testReqInstall_AndPersistence() {
 		bakerJpaControllerTest.deleteAllInstalledService();
+		logger.info("AFTER DELETE ALL INSTALLED SERVICES");
+		bakerJpaControllerTest.getAll();
 
-		BakerService bs = BakerServiceInit();
-		bs.setRepoWebClient(new MockRepositoryWebClient("NORMAL"));
-		bs.setJpaController(bakerJpaControllerTest);
+		BakerService bs = BakerServiceInit(new MockRepositoryWebClient("NORMAL"), bakerJpaControllerTest);
 
 		String uuid = UUID.randomUUID().toString();
 		// we don;t care about repo...we provide a local package hardcoded by MockRepositoryWebClient
@@ -201,44 +206,47 @@ public class BakerServiceTest {
 		assertNotNull(is);
 		assertEquals(1, bs.getManagedServices().size());
 		assertEquals(is.getStatus(), InstalledServiceStatus.INIT);
-		assertEquals(1, bakerJpaControllerTest.countInstalledServices() );
-		
+		assertEquals(1, bakerJpaControllerTest.countInstalledServices());
+
 		bakerJpaControllerTest.getAll();
 
-//		int guard = 0;
-//		while ((is.getStatus() != InstalledServiceStatus.STARTED) && (is.getStatus() != InstalledServiceStatus.FAILED) && (guard <= 30)) {
-//			logger.info("Waiting for STARTED for test service UUID=" + uuid + " . Now is: " + is.getStatus());
-//			try {
-//				Thread.sleep(1000);
-//				guard++;
-//			} catch (InterruptedException e) {
-//
-//				e.printStackTrace();
-//			}
-//		}
-//
-//		InstalledService istest = bs.getService(uuid);
-//		assertNotNull(istest.getServiceMetadata());
-//		assertEquals(uuid, istest.getUuid());
-//		assertEquals(InstalledServiceStatus.STARTED, istest.getStatus());
-//		assertEquals(1, bs.getManagedServices().size());
-//		bs = null; // remove the old one
-//		// create new one..It should persist any installed service
-//		BakerService bsNew = BakerServiceInit();
-//		bakerJpaControllerTest.getAll();
-//
-//		assertEquals("Persistence not implemented yet?!?", 1, bsNew.getManagedServices().size());// there should be one
-//		InstalledService istestNew = bsNew.getService(uuid); // req the service with the previous uuid
-//		assertNotNull(istest.getServiceMetadata());
-//		assertEquals(uuid, istest.getUuid());
-//		assertEquals(InstalledServiceStatus.STARTED, istest.getStatus());
+		int guard = 0;
+		while ((is.getStatus() != InstalledServiceStatus.STARTED) && (is.getStatus() != InstalledServiceStatus.FAILED) && (guard <= 30)) {
+			logger.info("Waiting for STARTED for test service UUID=" + uuid + " . Now is: " + is.getStatus());
+			try {
+				Thread.sleep(1000);
+				guard++;
+			} catch (InterruptedException e) {
+
+				e.printStackTrace();
+			}
+		}
+
+		InstalledService istest = bs.getService(uuid);
+		assertNotNull(istest.getServiceMetadata());
+		assertEquals(uuid, istest.getUuid());
+		assertEquals(InstalledServiceStatus.STARTED, istest.getStatus());
+		assertEquals(1, bs.getManagedServices().size());
+		bs = null; // remove the old one
+
+		// create new one..It should persist any installed service
+		BakerService bsNew = BakerServiceInit(new MockRepositoryWebClient("NORMAL"), bakerJpaControllerTest);
+		bakerJpaControllerTest.getAll();
+
+		assertEquals("Persistence not implemented yet?!?", 1, bsNew.getManagedServices().size());// there should be one
+		InstalledService istestNew = bsNew.getService(uuid); // req the service with the previous uuid
+		assertNotNull(istest.getServiceMetadata());
+		assertEquals(uuid, istest.getUuid());
+		assertEquals(InstalledServiceStatus.STARTED, istest.getStatus());
 
 	}
 
 	// helper functions
 
-	public BakerService BakerServiceInit() {
+	public BakerService BakerServiceInit(MockRepositoryWebClient mockRepositoryWebClient, BakerJpaController bakerJpaControllerTest2) {
 		BakerService bs = new BakerService();
+		bs.setRepoWebClient(new MockRepositoryWebClient("NORMAL"));
+		bs.setJpaController(bakerJpaControllerTest);
 		return bs;
 	}
 }

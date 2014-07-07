@@ -49,7 +49,9 @@ public class BakerService {
 	 */
 	private InstalledService addServiceToManagedServices(InstalledService s) {
 		managedServices.put(s.getUuid(), s);
-		bakerJpaController.addInstalledService(s);
+		bakerJpaController.saveInstalledService(s);
+		InstalledService installService = bakerJpaController.readInstalledServiceByUUID(s.getUuid());
+		logger.info("Saved task for uuid :" + installService.getUuid() + " is:" + installService.getStatus());
 		
 		return s;
 	}
@@ -89,7 +91,7 @@ public class BakerService {
 			s.setRepoUrl(repourl);
 		}
 
-		processServiceLifecylceJob(s);
+		processServiceLifecylceJob(s, this.bakerJpaController);
 		return s;
 	}
 
@@ -98,13 +100,13 @@ public class BakerService {
 	 * 
 	 * @param s InstalledService object to manage the lifecycle
 	 */
-	private void processServiceLifecylceJob(final InstalledService s) {
+	private void processServiceLifecylceJob(final InstalledService s, final BakerJpaController jpsctr) {
 
 		logger.info("Creating new thread");
 		Thread t1 = new Thread(new Runnable() {
 			public void run() {
 
-				new ServiceLifecycleMgmt(s, repoWebClient, bakerJpaController);
+				new ServiceLifecycleMgmt(s, repoWebClient, jpsctr);
 
 			}
 		});
