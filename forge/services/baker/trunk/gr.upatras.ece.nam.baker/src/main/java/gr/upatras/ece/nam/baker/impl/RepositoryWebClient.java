@@ -79,7 +79,6 @@ public class RepositoryWebClient implements IRepositoryWebClient {
 
 		logger.info("fetchPackageFromLocation: " + packageLocation );
 
-		Path tempDir;
 		try {
 			WebClient client = WebClient.create(packageLocation);
 			Response r = client.get();
@@ -88,9 +87,11 @@ public class RepositoryWebClient implements IRepositoryWebClient {
 			InputStream inputStream = (InputStream) r.getEntity();
 			
 
-			tempDir = Files.createTempDirectory("baker");
+			
+			//Path tempDir = Files.createTempDirectory("baker");
+			String tempDir = System.getProperty("user.home") + File.separator +".baker/buns";
 			File destFile = new File(tempDir+"/"+uuid+"/bun.tar.gz" );
-			Files.createDirectory( Paths.get( tempDir+"/"+uuid ) );
+			Files.createDirectories( Paths.get( tempDir+"/"+uuid ) );
 			Path targetPath = destFile.toPath();
             OutputStream output = new FileOutputStream(targetPath.toFile());			
 			IOUtils.copy(inputStream, output);			

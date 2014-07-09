@@ -16,6 +16,7 @@
 package gr.upatras.ece.nam.baker;
 
 import static org.junit.Assert.*;
+import gr.upatras.ece.nam.baker.impl.BakerJpaController;
 import gr.upatras.ece.nam.baker.model.InstalledService;
 import gr.upatras.ece.nam.baker.model.InstalledServiceStatus;
 
@@ -34,15 +35,21 @@ import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.MappingJsonFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class BakerServiceRSIT {
 
 	private static String endpointUrl;
 	private static final transient Log logger = LogFactory.getLog(BakerServiceRSIT.class.getName());
 
+	@Autowired
+	private static BakerJpaController bakerJpaControllerTest;
+
+	
     @BeforeClass
     public static void beforeClass() {
         endpointUrl = System.getProperty("service.url");
+        //bakerJpaControllerTest.delete(message);
     }
 
     @Test
@@ -58,6 +65,7 @@ public class BakerServiceRSIT {
             .type("application/json")
             .post(is);
         assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
+        
 
         MappingJsonFactory factory = new MappingJsonFactory();
         JsonParser parser = factory.createJsonParser((InputStream)r.getEntity());

@@ -23,7 +23,7 @@
 		<properties>
 			<property name="openjpa.ConnectionDriverName" value="org.h2.Driver" />
 			<property name="openjpa.ConnectionURL"
-				value="jdbc:h2:~/bakerdb/bakerdb;CIPHER=AES;AUTO_SERVER=TRUE" />
+				value="jdbc:h2:~/.baker/db/bakerdb;CIPHER=AES;AUTO_SERVER=TRUE" />
 			<property name="openjpa.ConnectionUserName" value="bakerdb" />
 			<property name="openjpa.ConnectionPassword" value="filepwd bakerdb" />
 			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema" />
@@ -46,7 +46,7 @@
 		<properties>
 			<property name="openjpa.ConnectionDriverName" value="org.h2.Driver" />
 			<property name="openjpa.ConnectionURL"
-				value="jdbc:h2:~/bakerdb/bakerdb_test;CIPHER=AES;AUTO_SERVER=TRUE" />
+				value="jdbc:h2:~/.baker/db/bakerdb_test;CIPHER=AES;AUTO_SERVER=TRUE" />
 			<property name="openjpa.ConnectionUserName" value="bakerdb_testuser" />
 			<property name="openjpa.ConnectionPassword" value="filepwd bakerdb_testuserpwd" />
 			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema" />

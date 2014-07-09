@@ -107,7 +107,7 @@ public class BakerServiceRS {
 
 		logger.info("Received POST for uuid: " + reqInstallService.getUuid());
 
-		InstalledService installedService = bakerServiceRef.installService(reqInstallService.getUuid(), reqInstallService.getRepoUrl());
+		InstalledService installedService = bakerServiceRef.installServiceAndStart(reqInstallService.getUuid(), reqInstallService.getRepoUrl());
 
 		if (installedService != null) {
 			return Response.ok().entity(installedService).build();

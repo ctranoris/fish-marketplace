@@ -27,7 +27,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.network :forwarded_port, guest: 13000, host: 13000, auto_correct:true
 
   config.vm.provider "virtualbox" do |v|
-    v.customize ["modifyvm", :id, "--memory", "2048", "--cpus", "2"]
+    v.customize ["modifyvm", :id, "--memory", "2048", "--cpus", "4"]
   end
 
   # Disable automatic box update checking. If you disable this, then

@@ -56,7 +56,7 @@ public class BakerServiceTest {
 	}
 
 	@Test
-	public void TestWriteReadDB() {
+	public void testWriteReadDB() {
 
 		bakerJpaControllerTest.deleteAllInstalledService();
 
@@ -67,7 +67,7 @@ public class BakerServiceTest {
 		istest.setStatus(InstalledServiceStatus.INSTALLING);
 
 		bakerJpaControllerTest.saveInstalledService(istest);
-		//bakerJpaControllerTest.getAll();
+		// bakerJpaControllerTest.getAll();
 
 		InstalledService retIs = bakerJpaControllerTest.readInstalledServiceByUUID(uuid);
 		assertEquals(uuid, retIs.getUuid());
@@ -87,7 +87,7 @@ public class BakerServiceTest {
 		sm.setPackageLocation("/repo/aaa.tar.gz");
 		istest.setServiceMetadata(sm);
 		bakerJpaControllerTest.saveInstalledService(istest);
-		//bakerJpaControllerTest.getAll();
+		// bakerJpaControllerTest.getAll();
 		retIs = bakerJpaControllerTest.readInstalledServiceByUUID(uuid);
 		assertEquals(uuid, retIs.getUuid());
 		assertEquals(InstalledServiceStatus.STARTING, retIs.getStatus());
@@ -101,21 +101,23 @@ public class BakerServiceTest {
 		bakerJpaControllerTest.update(istest);
 		retIs = bakerJpaControllerTest.readInstalledServiceByUUID(uuid);
 		assertEquals(InstalledServiceStatus.STARTED, retIs.getStatus());
-		//bakerJpaControllerTest.getAll();
+		// bakerJpaControllerTest.getAll();
 		assertEquals(2, bakerJpaControllerTest.countInstalledServices());
 
 	}
 
+	/**
+	 * This requests from Baker to INSTALL a Bun. Baker should bring it to STARTED status
+	 */
 	@Test
 	public void testReqInstall_toSTARTEDStatus() {
 		bakerJpaControllerTest.deleteAllInstalledService();
 		BakerService bs = BakerServiceInit(new MockRepositoryWebClient("NORMAL"), bakerJpaControllerTest);
 		bs.setRepoWebClient(new MockRepositoryWebClient("NORMAL"));
-		
 
 		String uuid = UUID.randomUUID().toString();
 		// we don;t care about repo...we provide a local package hardcoded by MockRepositoryWebClient
-		InstalledService is = bs.installService(uuid, "www.repoexample.com/repo/EBUNID/" + uuid);
+		InstalledService is = bs.installServiceAndStart(uuid, "www.repoexample.com/repo/EBUNID/" + uuid);
 		assertNotNull(is);
 		assertEquals(1, bs.getManagedServices().size());
 		assertEquals(is.getStatus(), InstalledServiceStatus.INIT);
@@ -148,8 +150,123 @@ public class BakerServiceTest {
 		assertEquals("1.0.0.test", istest.getInstalledVersion());
 		assertEquals(1, bs.getManagedServices().size());
 
+		bakerJpaControllerTest.deleteAllInstalledService();
 	}
 
+	/**
+	 * This requests from Baker to INSTALL a Bun. Baker should bring it to STARTED status and then request to STOP it and then UNINSTALL
+	 */
+	@Test
+	public void testReqInstall_toSTARTED_STOPPED_UNINSTALL_Status() {
+		bakerJpaControllerTest.deleteAllInstalledService();
+		BakerService bs = BakerServiceInit(new MockRepositoryWebClient("NORMAL"), bakerJpaControllerTest);
+		bs.setRepoWebClient(new MockRepositoryWebClient("NORMAL"));
+
+		String uuid = UUID.randomUUID().toString();
+		InstalledService is = bs.installServiceAndStart(uuid, "www.repoexample.com/repo/EBUNID/" + uuid);
+
+		int guard = 0;
+		while ((is.getStatus() != InstalledServiceStatus.STARTED) && (is.getStatus() != InstalledServiceStatus.FAILED) && (guard <= 30)) {
+			logger.info("Waiting for STARTED for test service UUID=" + uuid + " . Now is: " + is.getStatus());
+			try {
+				Thread.sleep(1000);
+				guard++;
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		
+		assertEquals(InstalledServiceStatus.STARTED, is.getStatus());
+		logger.info("=========== STARTED moving to STOPPED ================");
+		bs.stopService(uuid);
+		
+		guard = 0;
+		while ((is.getStatus() != InstalledServiceStatus.STOPPED)  && (guard <= 10)) {
+			logger.info("Waiting for STOPPED for test service UUID=" + uuid + " . Now is: " + is.getStatus());
+			try {
+				Thread.sleep(1000);
+				guard++;
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+
+		InstalledService istest = bs.getService(uuid);
+		assertEquals(InstalledServiceStatus.STOPPED, istest.getStatus());
+
+		
+		bs.uninstallService(uuid);
+		guard = 0;
+		while ((is.getStatus() != InstalledServiceStatus.UNINSTALLED)  && (guard <= 10)) {
+			logger.info("Waiting for UNINSTALLED for test service UUID=" + uuid + " . Now is: " + is.getStatus());
+			try {
+				Thread.sleep(1000);
+				guard++;
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+
+		istest = bs.getService(uuid);
+		assertEquals(InstalledServiceStatus.UNINSTALLED , istest.getStatus());
+		
+		
+		
+		
+		bakerJpaControllerTest.deleteAllInstalledService();
+	}
+
+	/**
+	 * This requests from Baker to INSTALL a Bun. 
+	 * Baker should bring it to STARTED status and then request to UNINSTALL it.
+	 * STOP should happen by default
+	 */
+	@Test
+	public void testReqInstall_toSTARTED_and_UNINSTALL_Status() {
+		bakerJpaControllerTest.deleteAllInstalledService();
+		BakerService bs = BakerServiceInit(new MockRepositoryWebClient("NORMAL"), bakerJpaControllerTest);
+		bs.setRepoWebClient(new MockRepositoryWebClient("NORMAL"));
+
+		String uuid = UUID.randomUUID().toString();
+		InstalledService is = bs.installServiceAndStart(uuid, "www.repoexample.com/repo/EBUNID/" + uuid);
+
+		int guard = 0;
+		while ((is.getStatus() != InstalledServiceStatus.STARTED) && (is.getStatus() != InstalledServiceStatus.FAILED) && (guard <= 30)) {
+			logger.info("Waiting for STARTED for test service UUID=" + uuid + " . Now is: " + is.getStatus());
+			try {
+				Thread.sleep(1000);
+				guard++;
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+
+		
+		bs.uninstallService(uuid);
+		guard = 0;
+		while ((is.getStatus() != InstalledServiceStatus.UNINSTALLED)  && (guard <= 10)) {
+			logger.info("Waiting for UNINSTALLED for test service UUID=" + uuid + " . Now is: " + is.getStatus());
+			try {
+				Thread.sleep(1000);
+				guard++;
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+
+		InstalledService istest = bs.getService(uuid);
+		assertEquals(InstalledServiceStatus.UNINSTALLED , istest.getStatus());
+		
+		
+		
+		
+		bakerJpaControllerTest.deleteAllInstalledService();
+	}
+
+	/**
+	 * This requests from Baker to INSTALL a Bun which contains an error on the onInstall recipe
+	 */
 	@Test
 	public void testReqInstall_ErrScript() {
 		bakerJpaControllerTest.deleteAllInstalledService();
@@ -158,7 +275,7 @@ public class BakerServiceTest {
 
 		String uuid = UUID.randomUUID().toString();
 		// we don;t care about repo...we provide a local package hardcoded by MockRepositoryWebClient
-		InstalledService is = bs.installService(uuid, "www.repoexample.com/repo/EBUNERR/" + uuid);
+		InstalledService is = bs.installServiceAndStart(uuid, "www.repoexample.com/repo/EBUNERR/" + uuid);
 		assertNotNull(is);
 		assertEquals(1, bs.getManagedServices().size());
 		assertEquals(is.getStatus(), InstalledServiceStatus.INIT);
@@ -191,8 +308,13 @@ public class BakerServiceTest {
 		assertNull(istest.getInstalledVersion());
 		assertEquals(1, bs.getManagedServices().size());
 
+		bakerJpaControllerTest.deleteAllInstalledService();
 	}
 
+	/**
+	 * This requests from Baker to INSTALL a Bun. Baker should bring it to STARTED status. WE then destroy the baker service instance and create a new one. The
+	 * Bun status should be there installed
+	 */
 	@Test
 	public void testReqInstall_AndPersistence() {
 
@@ -201,7 +323,7 @@ public class BakerServiceTest {
 
 		String uuid = UUID.randomUUID().toString();
 		// we don;t care about repo...we provide a local package hardcoded by MockRepositoryWebClient
-		InstalledService is = bs.installService(uuid, "www.repoexample.com/repo/EBUNID/" + uuid);
+		InstalledService is = bs.installServiceAndStart(uuid, "www.repoexample.com/repo/EBUNID/" + uuid);
 		assertNotNull(is);
 		assertEquals(1, bs.getManagedServices().size());
 		assertEquals(is.getStatus(), InstalledServiceStatus.INIT);
@@ -210,7 +332,8 @@ public class BakerServiceTest {
 		// bakerJpaControllerTest.getAll();
 
 		int guard = 0;
-		while ((is.getStatus() != InstalledServiceStatus.STARTED) && (is.getStatus() != InstalledServiceStatus.FAILED) && (guard <= 30)) {
+		while ((is.getStatus() != InstalledServiceStatus.STARTED) && (is.getStatus() != InstalledServiceStatus.FAILED) 
+				&& (guard <= 40)) {
 			logger.info("Waiting for STARTED for test service UUID=" + uuid + " . Now is: " + is.getStatus());
 			try {
 				Thread.sleep(1000);
@@ -241,16 +364,16 @@ public class BakerServiceTest {
 		assertEquals(uuid, istestNew.getUuid());
 		assertEquals(InstalledServiceStatus.STARTED, istestNew.getStatus());
 
+		bakerJpaControllerTest.deleteAllInstalledService();
 	}
 
 	// helper functions
 
 	public BakerService BakerServiceInit(MockRepositoryWebClient mockRepositoryWebClient, BakerJpaController bakerJpaControllerTest2) {
 
-		
 		BakerService bs = new BakerService();
 		bs.setRepoWebClient(new MockRepositoryWebClient("NORMAL"));
-		bs.setBakerJpaController( bakerJpaControllerTest);
+		bs.setBakerJpaController(bakerJpaControllerTest);
 		return bs;
 	}
 }
