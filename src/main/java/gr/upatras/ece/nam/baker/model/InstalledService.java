@@ -53,10 +53,14 @@ public class InstalledService {
 
 	@Basic()
 	private InstalledServiceStatus status = InstalledServiceStatus.INIT;
+	
+
+	@Basic()
+	private String packageLocalPath;
+	
 	/**
 	 * this exist only after fetching metadata from repo. Otherwise is null when service is installed.
 	 */
-
 	@Embedded
 	private ServiceMetadata serviceMetadata; 
 	
@@ -114,6 +118,14 @@ public class InstalledService {
 
 	public void setServiceMetadata(ServiceMetadata sm) {
 		this.serviceMetadata = sm;
+	}
+
+	public String getPackageLocalPath() {
+		return packageLocalPath;
+	}
+
+	public void setPackageLocalPath(String packageLocalPath) {
+		this.packageLocalPath = packageLocalPath;
 	}
 
 	

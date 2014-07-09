@@ -28,6 +28,7 @@ public enum InstalledServiceStatus {
 	STOPPING,
 	STOPPED,
 	UNINSTALLING,
+	UNINSTALLED,
 	FAILED
 	
 }

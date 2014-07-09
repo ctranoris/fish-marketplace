@@ -378,8 +378,8 @@
 
 
 		<profile>
-			<!-- Run profile for continuous running: mvn clean -Pjetty.integration 
-				jetty:run and access to http://127.0.0.1:13000/jaxrs-srvtest/hello/echo/SierraTangoNevadaxx 
+			<!--For continuous running: "mvn clean -Pjetty.integration jetty:run" 
+				and access to http://127.0.0.1:13000/jaxrs-srvtest/hello/echo/SierraTangoNevadaxx 
 				For jetty integration test: mvn clean -Pjetty.integration verify -->
 			<id>jetty.integration</id>
 			<build>

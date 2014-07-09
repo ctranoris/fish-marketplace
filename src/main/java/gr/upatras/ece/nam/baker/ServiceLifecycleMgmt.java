@@ -40,14 +40,14 @@ public class ServiceLifecycleMgmt {
 	InstalledService installService;
 	IRepositoryWebClient repoWebClient;
 
-	private Path packageLocalPath;
-
 	BakerJpaController bakerJpaController;
+	InstalledServiceStatus targetStatus;
 
-	public ServiceLifecycleMgmt(InstalledService s, IRepositoryWebClient rwc, BakerJpaController jpactr) {
+	public ServiceLifecycleMgmt(InstalledService s, IRepositoryWebClient rwc, BakerJpaController jpactr, InstalledServiceStatus ts) {
 		installService = s;
 		repoWebClient = rwc;
 		bakerJpaController = jpactr;
+		targetStatus = ts;
 
 		logger.info("ServiceLifecycleMgmt uuid:" + installService.getUuid() + " name:" + installService.getName());
 		processState();
@@ -55,10 +55,9 @@ public class ServiceLifecycleMgmt {
 
 	public void processState() {
 
-		logger.info("task for uuid:" + installService.getUuid() + " is:" + installService.getStatus());
+		logger.info("Task for uuid:" + installService.getUuid() + " is:" + installService.getStatus());
 
 		InstalledServiceStatus entryState = installService.getStatus();
-		bakerJpaController.update(installService);
 
 		switch (entryState) {
 		case INIT:
@@ -88,13 +87,43 @@ public class ServiceLifecycleMgmt {
 			execStartingPhase();
 			break;
 		case STARTED:
+			if (targetStatus == InstalledServiceStatus.STOPPED) {
+				installService.setStatus(InstalledServiceStatus.STOPPING);
+			} else if (targetStatus == InstalledServiceStatus.UNINSTALLED) {
+				installService.setStatus(InstalledServiceStatus.STOPPING);
+			}
 
 			break;
+		case STOPPING:
+			execStoppingPhase();
+
+			break;
+
+		case STOPPED:
+			if (targetStatus == InstalledServiceStatus.UNINSTALLED) {
+				installService.setStatus(InstalledServiceStatus.UNINSTALLING);
+			} else if (targetStatus == InstalledServiceStatus.STARTING) {
+				installService.setStatus(InstalledServiceStatus.CONFIGURING);
+			}
+			break;
+
+		case UNINSTALLING:
+
+			execUninstallingPhase();
+
+			break;
+
+		case UNINSTALLED:
+
+			break;
+
 		default:
 			break;
 		}
 
-		if (entryState != installService.getStatus())
+		bakerJpaController.update(installService);
+
+		if ((targetStatus != installService.getStatus()) && (installService.getStatus() != InstalledServiceStatus.FAILED))
 			processState();
 
 	}
@@ -124,7 +153,8 @@ public class ServiceLifecycleMgmt {
 
 		if ((destFile != null) && (extractPackage(destFile) == 0)) {
 			installService.setStatus(InstalledServiceStatus.DOWNLOADED);
-			packageLocalPath = destFile.getParent();
+			Path packageLocalPath = destFile.getParent();
+			installService.setPackageLocalPath(packageLocalPath.toString());
 		} else {
 			logger.info("FAILED Downloading installation package: " + installService.getServiceMetadata().getPackageLocation());
 			installService.setStatus(InstalledServiceStatus.FAILED);
@@ -142,7 +172,7 @@ public class ServiceLifecycleMgmt {
 		installService.setStatus(InstalledServiceStatus.INSTALLING);
 		logger.info("Installing...");
 
-		String cmdStr = packageLocalPath + "/recipes/onInstall";
+		String cmdStr = installService.getPackageLocalPath() + "/recipes/onInstall";
 		logger.info("Will execute recipe 'onInstall' of:" + cmdStr);
 
 		if (executeSystemCommand(cmdStr) == 0) {
@@ -155,7 +185,7 @@ public class ServiceLifecycleMgmt {
 
 	private void execInstalledPhase() {
 		logger.info("execInstalledPhase...");
-		String cmdStr = packageLocalPath + "/recipes/onInstallFinish";
+		String cmdStr = installService.getPackageLocalPath() + "/recipes/onInstallFinish";
 		logger.info("Will execute recipe 'onInstallFinish' of:" + cmdStr);
 
 		installService.setInstalledVersion(installService.getServiceMetadata().getVersion());
@@ -170,7 +200,7 @@ public class ServiceLifecycleMgmt {
 
 	private void execConfiguringPhase() {
 		logger.info("execInstalledPhase...");
-		String cmdStr = packageLocalPath + "/recipes/onApplyConf";
+		String cmdStr = installService.getPackageLocalPath() + "/recipes/onApplyConf";
 		logger.info("Will execute recipe 'onApplyConf' of:" + cmdStr);
 
 		executeSystemCommand(cmdStr); // we don't care for the exit code
@@ -183,13 +213,37 @@ public class ServiceLifecycleMgmt {
 
 	private void execStartingPhase() {
 		logger.info("execStartingPhase...");
-		String cmdStr = packageLocalPath + "/recipes/onStart";
+		String cmdStr = installService.getPackageLocalPath() + "/recipes/onStart";
 		logger.info("Will execute recipe 'onStart' of:" + cmdStr);
 
 		if (executeSystemCommand(cmdStr) == 0) {
 			installService.setStatus(InstalledServiceStatus.STARTED);
 		} else
 			installService.setStatus(InstalledServiceStatus.STOPPED);
+
+	}
+
+	private void execStoppingPhase() {
+
+		logger.info("execStoppingPhase...");
+		String cmdStr = installService.getPackageLocalPath() + "/recipes/onStop";
+		logger.info("Will execute recipe 'onStop' of:" + cmdStr);
+
+		// if (executeSystemCommand(cmdStr) == 0) {
+		// whatever is the return value...it will go to stopped
+		installService.setStatus(InstalledServiceStatus.STOPPED);
+
+	}
+
+	private void execUninstallingPhase() {
+
+		logger.info("execUninstallingPhase...");
+		String cmdStr = installService.getPackageLocalPath() + "/recipes/onUninstall";
+		logger.info("Will execute recipe 'onUninstall' of:" + cmdStr);
+
+		// if (executeSystemCommand(cmdStr) == 0) {
+		// whatever is the return value...it will go to stopped
+		installService.setStatus(InstalledServiceStatus.UNINSTALLED);
 
 	}
 
@@ -210,10 +264,10 @@ public class ServiceLifecycleMgmt {
 			exitValue = executor.execute(cmdLine);
 
 		} catch (ExecuteException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 		logger.info("out>" + out);
