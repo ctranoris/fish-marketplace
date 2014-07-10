@@ -41,7 +41,8 @@ public class ServiceLifecycleMgmt {
 	IRepositoryWebClient repoWebClient;
 
 	BakerJpaController bakerJpaController;
-	InstalledServiceStatus targetStatus;
+	private InstalledServiceStatus targetStatus;
+	private Boolean restartTriggered = false;
 
 	public ServiceLifecycleMgmt(InstalledService s, IRepositoryWebClient rwc, BakerJpaController jpactr, InstalledServiceStatus ts) {
 		installService = s;
@@ -56,8 +57,17 @@ public class ServiceLifecycleMgmt {
 	public void processState() {
 
 		logger.info("Task for uuid:" + installService.getUuid() + " is:" + installService.getStatus());
-
 		InstalledServiceStatus entryState = installService.getStatus();
+		
+		//this is used to restart the service. usefull if reconfiguring.
+		if ((targetStatus == InstalledServiceStatus.STARTED) &&
+				(entryState == InstalledServiceStatus.STARTED ) &&
+				(!restartTriggered) ){
+			logger.info("Entry and Target state are STARTED. A restart will be triggered, with confguration applied.");
+			restartTriggered = true;
+		}else
+			restartTriggered = false;
+
 
 		switch (entryState) {
 		case INIT:
@@ -91,6 +101,8 @@ public class ServiceLifecycleMgmt {
 				installService.setStatus(InstalledServiceStatus.STOPPING);
 			} else if (targetStatus == InstalledServiceStatus.UNINSTALLED) {
 				installService.setStatus(InstalledServiceStatus.STOPPING);
+			} else if ( (targetStatus == InstalledServiceStatus.STARTED) && restartTriggered) {
+				installService.setStatus(InstalledServiceStatus.STOPPING);
 			}
 
 			break;
@@ -102,7 +114,7 @@ public class ServiceLifecycleMgmt {
 		case STOPPED:
 			if (targetStatus == InstalledServiceStatus.UNINSTALLED) {
 				installService.setStatus(InstalledServiceStatus.UNINSTALLING);
-			} else if (targetStatus == InstalledServiceStatus.STARTING) {
+			} else if (targetStatus == InstalledServiceStatus.STARTED) {
 				installService.setStatus(InstalledServiceStatus.CONFIGURING);
 			}
 			break;
@@ -231,6 +243,7 @@ public class ServiceLifecycleMgmt {
 
 		// if (executeSystemCommand(cmdStr) == 0) {
 		// whatever is the return value...it will go to stopped
+		executeSystemCommand(cmdStr);
 		installService.setStatus(InstalledServiceStatus.STOPPED);
 
 	}
@@ -243,13 +256,14 @@ public class ServiceLifecycleMgmt {
 
 		// if (executeSystemCommand(cmdStr) == 0) {
 		// whatever is the return value...it will go to stopped
+		executeSystemCommand(cmdStr);
 		installService.setStatus(InstalledServiceStatus.UNINSTALLED);
 
 	}
 
 	public int executeSystemCommand(String cmdStr) {
 
-		logger.info(" Execute :" + cmdStr);
+		logger.info(" ================> Execute :" + cmdStr);
 
 		CommandLine cmdLine = CommandLine.parse(cmdStr);
 		final Executor executor = new DefaultExecutor();
@@ -262,6 +276,7 @@ public class ServiceLifecycleMgmt {
 		int exitValue = -1;
 		try {
 			exitValue = executor.execute(cmdLine);
+			logger.info(" ================> EXIT ("+exitValue+") FROM :" + cmdStr);
 
 		} catch (ExecuteException e) {
 

@@ -175,14 +175,12 @@ public class BakerServiceTest {
 				e.printStackTrace();
 			}
 		}
-		
-		
+
 		assertEquals(InstalledServiceStatus.STARTED, is.getStatus());
-		logger.info("=========== STARTED moving to STOPPED ================");
 		bs.stopService(uuid);
-		
+
 		guard = 0;
-		while ((is.getStatus() != InstalledServiceStatus.STOPPED)  && (guard <= 10)) {
+		while ((is.getStatus() != InstalledServiceStatus.STOPPED) && (guard <= 10)) {
 			logger.info("Waiting for STOPPED for test service UUID=" + uuid + " . Now is: " + is.getStatus());
 			try {
 				Thread.sleep(1000);
@@ -195,10 +193,9 @@ public class BakerServiceTest {
 		InstalledService istest = bs.getService(uuid);
 		assertEquals(InstalledServiceStatus.STOPPED, istest.getStatus());
 
-		
 		bs.uninstallService(uuid);
 		guard = 0;
-		while ((is.getStatus() != InstalledServiceStatus.UNINSTALLED)  && (guard <= 10)) {
+		while ((is.getStatus() != InstalledServiceStatus.UNINSTALLED) && (guard <= 10)) {
 			logger.info("Waiting for UNINSTALLED for test service UUID=" + uuid + " . Now is: " + is.getStatus());
 			try {
 				Thread.sleep(1000);
@@ -209,18 +206,13 @@ public class BakerServiceTest {
 		}
 
 		istest = bs.getService(uuid);
-		assertEquals(InstalledServiceStatus.UNINSTALLED , istest.getStatus());
-		
-		
-		
-		
+		assertEquals(InstalledServiceStatus.UNINSTALLED, istest.getStatus());
+
 		bakerJpaControllerTest.deleteAllInstalledService();
 	}
 
 	/**
-	 * This requests from Baker to INSTALL a Bun. 
-	 * Baker should bring it to STARTED status and then request to UNINSTALL it.
-	 * STOP should happen by default
+	 * This requests from Baker to INSTALL a Bun. Baker should bring it to STARTED status and then request to UNINSTALL it. STOP should happen by default
 	 */
 	@Test
 	public void testReqInstall_toSTARTED_and_UNINSTALL_Status() {
@@ -242,10 +234,9 @@ public class BakerServiceTest {
 			}
 		}
 
-		
 		bs.uninstallService(uuid);
 		guard = 0;
-		while ((is.getStatus() != InstalledServiceStatus.UNINSTALLED)  && (guard <= 10)) {
+		while ((is.getStatus() != InstalledServiceStatus.UNINSTALLED) && (guard <= 10)) {
 			logger.info("Waiting for UNINSTALLED for test service UUID=" + uuid + " . Now is: " + is.getStatus());
 			try {
 				Thread.sleep(1000);
@@ -256,11 +247,76 @@ public class BakerServiceTest {
 		}
 
 		InstalledService istest = bs.getService(uuid);
-		assertEquals(InstalledServiceStatus.UNINSTALLED , istest.getStatus());
+		assertEquals(InstalledServiceStatus.UNINSTALLED, istest.getStatus());
+
+		bakerJpaControllerTest.deleteAllInstalledService();
+	}
+
+	/**
+	 * This requests from Baker to INSTALL a Bun. Baker should bring it to STARTED status and then request to UNINSTALL it. STOP should happen by default
+	 */
+	@Test
+	public void testReqInstall_toSTARTED_CONFIGURE_and_RESTART() {
+		bakerJpaControllerTest.deleteAllInstalledService();
+		BakerService bs = BakerServiceInit(new MockRepositoryWebClient("NORMAL"), bakerJpaControllerTest);
+		bs.setRepoWebClient(new MockRepositoryWebClient("NORMAL"));
+
+		String uuid = UUID.randomUUID().toString();
+		InstalledService is = bs.installServiceAndStart(uuid, "www.repoexample.com/repo/EBUNID/" + uuid);
+
+		int guard = 0;
+		while ((is.getStatus() != InstalledServiceStatus.STARTED) && (is.getStatus() != InstalledServiceStatus.FAILED) && (guard <= 30)) {
+			logger.info("Waiting for STARTED for test service UUID=" + uuid + " . Now is: " + is.getStatus());
+			try {
+				Thread.sleep(1000);
+				guard++;
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		assertEquals(InstalledServiceStatus.STARTED, is.getStatus());
 		
-		
-		
-		
+		logger.info("===========================================================================");
+		logger.info("Service STARTED UUID=" + uuid + " . Now will reconfigure and restart");
+
+		bs.configureService(uuid);
+
+		try {
+
+			guard = 0;
+			while ((is.getStatus() != InstalledServiceStatus.STOPPING) && (guard <= 50)) {
+				logger.info("Waiting for STOPPED for test service UUID=" + uuid + " . Now is: " + is.getStatus());
+				Thread.sleep(200);
+				guard++;
+			}
+			assertEquals(InstalledServiceStatus.STOPPING, is.getStatus());
+
+			guard = 0;
+			while ((is.getStatus() != InstalledServiceStatus.CONFIGURING) && (guard <= 50)) {
+				logger.info("Waiting for CONFIGURING for test service UUID=" + uuid + " . Now is: " + is.getStatus());
+
+				Thread.sleep(200);
+				guard++;
+			}
+			assertEquals(InstalledServiceStatus.CONFIGURING, is.getStatus());
+
+			guard = 0;
+			while ((is.getStatus() != InstalledServiceStatus.STARTED) && (guard <= 20)) {
+				logger.info("Waiting for STARTED for test service UUID=" + uuid + " . Now is: " + is.getStatus());
+
+				Thread.sleep(1000);
+				guard++;
+			}
+			assertEquals(InstalledServiceStatus.STARTED, is.getStatus());
+
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
+
+		logger.info("Service CONFIGURED and reSTARTED UUID=" + uuid + ". ");
+		InstalledService istest = bs.getService(uuid); // check also DB
+		assertEquals(InstalledServiceStatus.STARTED, istest.getStatus());
+
 		bakerJpaControllerTest.deleteAllInstalledService();
 	}
 
@@ -332,8 +388,7 @@ public class BakerServiceTest {
 		// bakerJpaControllerTest.getAll();
 
 		int guard = 0;
-		while ((is.getStatus() != InstalledServiceStatus.STARTED) && (is.getStatus() != InstalledServiceStatus.FAILED) 
-				&& (guard <= 40)) {
+		while ((is.getStatus() != InstalledServiceStatus.STARTED) && (is.getStatus() != InstalledServiceStatus.FAILED) && (guard <= 40)) {
 			logger.info("Waiting for STARTED for test service UUID=" + uuid + " . Now is: " + is.getStatus());
 			try {
 				Thread.sleep(1000);

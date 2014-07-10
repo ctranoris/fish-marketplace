@@ -1,5 +1,6 @@
 #!/bin/bash
 
 cd "$(dirname "$0")"
-sleep 2
+sleep 4
 touch onInstall.ok.txt
+ls -la
