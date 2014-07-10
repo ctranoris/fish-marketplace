@@ -181,5 +181,14 @@ public class BakerService {
 
 	}
 
+	public void configureService(String uuid) {
+		InstalledService is = managedServices.get(uuid);
+
+		logger.info("will configure service uuid= "+uuid);
+		
+		processServiceLifecylceJob(is, this.bakerJpaController, InstalledServiceStatus.STARTED);
+		
+	}
+
 
 }

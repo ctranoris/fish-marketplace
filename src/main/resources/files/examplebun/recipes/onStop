@@ -2,5 +2,6 @@
 
 cd "$(dirname "$0")"
 
-sleep 2
+sleep 5
 touch onStop.ok.txt
+ls -la

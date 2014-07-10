@@ -3,3 +3,4 @@
 cd "$(dirname "$0")"
 sleep 2
 touch onInstallFinish.ok.txt
+ls -la
