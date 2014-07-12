@@ -30,13 +30,11 @@ public class BakerService {
 	private IRepositoryWebClient repoWebClient;
 	private BakerJpaController bakerJpaController;
 
-	
-
 	private static final transient Log logger = LogFactory.getLog(BakerService.class.getName());
 
 	public BakerService() {
 		managedServices = new ConcurrentHashMap<>();
-		//this.setRepoWebClient(new RepositoryWebClient());
+		// this.setRepoWebClient(new RepositoryWebClient());
 	}
 
 	public ConcurrentHashMap<String, InstalledService> getManagedServices() {
@@ -52,9 +50,9 @@ public class BakerService {
 	 */
 	private InstalledService addServiceToManagedServices(InstalledService s) {
 		managedServices.put(s.getUuid(), s);
-//		InstalledService installService = bakerJpaController.readInstalledServiceByUUID(s.getUuid());
-//		logger.info("Saved task for uuid :" + installService.getUuid() + " is:" + installService.getStatus());
-		
+		// InstalledService installService = bakerJpaController.readInstalledServiceByUUID(s.getUuid());
+		// logger.info("Saved task for uuid :" + installService.getUuid() + " is:" + installService.getStatus());
+
 		return s;
 	}
 
@@ -76,12 +74,12 @@ public class BakerService {
 	 */
 	public InstalledService installServiceAndStart(String uuid, String repourl) {
 
+		logger.info("installServiceAndStart " + uuid);
 		InstalledService s = managedServices.get(uuid); // return existing if
 														// found
-		if (( s!=null ) && (s.getStatus() != InstalledServiceStatus.FAILED) ){
+		if ((s != null) && (s.getStatus() != InstalledServiceStatus.FAILED) && (s.getStatus() != InstalledServiceStatus.UNINSTALLED)) {
 			return s;
 		}
-		
 
 		logger.info("will start installation");
 
@@ -89,8 +87,10 @@ public class BakerService {
 			s = new InstalledService(uuid, repourl);
 			addServiceToManagedServices(s);
 			bakerJpaController.saveInstalledService(s);
-		} else if (s.getStatus() == InstalledServiceStatus.FAILED) {
-			s.setStatus(InstalledServiceStatus.INIT); //restart installation
+		} else if ((s.getStatus() == InstalledServiceStatus.FAILED) || (s.getStatus() == InstalledServiceStatus.UNINSTALLED)) {
+
+			logger.info("Will RESTART installation of existing" + s.getUuid() + ". HAD Status= " + s.getStatus());
+			s.setStatus(InstalledServiceStatus.INIT); // restart installation
 			s.setRepoUrl(repourl);
 		}
 
@@ -101,13 +101,12 @@ public class BakerService {
 	/**
 	 * It executes the installation of the bun in a thread job, following the bun installation state machine
 	 * 
-	 * @param s InstalledService object to manage the lifecycle
+	 * @param s
+	 *            InstalledService object to manage the lifecycle
 	 */
-	private void processServiceLifecylceJob(final InstalledService s, 
-			final BakerJpaController jpsctr,
-			final InstalledServiceStatus targetStatus) {
+	private void processServiceLifecylceJob(final InstalledService s, final BakerJpaController jpsctr, final InstalledServiceStatus targetStatus) {
 
-		logger.info("Creating new thread of "+s.getUuid()+ " for target action = "+targetStatus);
+		logger.info("Creating new thread of " + s.getUuid() + " for target action = " + targetStatus);
 		Thread t1 = new Thread(new Runnable() {
 			public void run() {
 
@@ -122,13 +121,11 @@ public class BakerService {
 		// thread.start();
 
 	}
-	
+
 	public InstalledService getService(String uuid) {
 		InstalledService is = managedServices.get(uuid);
 		return is;
 	}
-
-	
 
 	public IRepositoryWebClient getRepoWebClient() {
 		return repoWebClient;
@@ -138,8 +135,6 @@ public class BakerService {
 		this.repoWebClient = repoWebClient;
 	}
 
-
-	
 	public BakerJpaController getBakerJpaController() {
 		return bakerJpaController;
 	}
@@ -149,34 +144,33 @@ public class BakerService {
 
 		this.bakerJpaController = b;
 		List<InstalledService> ls = b.read(0, 100000);
-		
+
 		for (InstalledService installedService : ls) {
-			managedServices.put( installedService.getUuid(), installedService);			
+			managedServices.put(installedService.getUuid(), installedService);
 		}
 	}
 
 	public void stopService(String uuid) {
 		InstalledService is = managedServices.get(uuid);
 
-		if (is.getStatus() != InstalledServiceStatus.STARTED ) 
+		if (is.getStatus() != InstalledServiceStatus.STARTED)
 			return;
-					
-		logger.info("will stop service uuid= "+uuid);
 
-		//is.setStatus(InstalledServiceStatus.STOPPING); //
-		
+		logger.info("will stop service uuid= " + uuid);
+
+		// is.setStatus(InstalledServiceStatus.STOPPING); //
+
 		processServiceLifecylceJob(is, this.bakerJpaController, InstalledServiceStatus.STOPPED);
-		
-	}
 
+	}
 
 	public void uninstallService(String uuid) {
 		InstalledService is = managedServices.get(uuid);
 
-		logger.info("will uninstall service uuid= "+uuid);
+		logger.info("will uninstall service uuid= " + uuid);
 
-		//is.setStatus(InstalledServiceStatus.UNINSTALLING); //
-		
+		// is.setStatus(InstalledServiceStatus.UNINSTALLING); //
+
 		processServiceLifecylceJob(is, this.bakerJpaController, InstalledServiceStatus.UNINSTALLED);
 
 	}
@@ -184,11 +178,10 @@ public class BakerService {
 	public void configureService(String uuid) {
 		InstalledService is = managedServices.get(uuid);
 
-		logger.info("will configure service uuid= "+uuid);
-		
-		processServiceLifecylceJob(is, this.bakerJpaController, InstalledServiceStatus.STARTED);
-		
-	}
+		logger.info("will configure service uuid= " + uuid);
 
+		processServiceLifecylceJob(is, this.bakerJpaController, InstalledServiceStatus.STARTED);
+
+	}
 
 }
