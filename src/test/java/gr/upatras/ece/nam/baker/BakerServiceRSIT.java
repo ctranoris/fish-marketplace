@@ -54,7 +54,8 @@ public class BakerServiceRSIT {
 
     @Test
     public void testBakerRSInstallServiceNotFoundAndFail() throws Exception {
-    	logger.info("testBakerRSInstallServiceNotFound");
+    	
+    	logger.info("Executing TEST = testBakerRSInstallServiceNotFound");
         List<Object> providers = new ArrayList<Object>();
         providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
         String uuid = UUID.fromString("55cab8b8-668b-4c75-99a9-39b24ed3d8be").toString();
@@ -70,6 +71,7 @@ public class BakerServiceRSIT {
         MappingJsonFactory factory = new MappingJsonFactory();
         JsonParser parser = factory.createJsonParser((InputStream)r.getEntity());
         InstalledService output = parser.readValueAs(InstalledService.class);
+    	logger.info("InstalledServiceoutput = "+output.getUuid()+ ", status="+output.getStatus() );
         assertEquals(InstalledServiceStatus.INIT , output.getStatus()  );      
         
         //wait for 2 seconds
@@ -90,7 +92,8 @@ public class BakerServiceRSIT {
     
     @Test
     public void testBakerRSInstallServiceAndGetStatus() throws Exception {
-    	logger.info("testBakerRSInstallServiceAndGetStatus");
+    	
+    	logger.info("Executing TEST = testBakerRSInstallServiceAndGetStatus");
     	
         List<Object> providers = new ArrayList<Object>();
         providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
