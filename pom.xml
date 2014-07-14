@@ -288,7 +288,7 @@
 
 
 	<profiles>
-		<!-- To make documentation: mvn clean -Pdocbkx install -->
+		<!-- To make documentation: mvn clean -Pdocbkx install -Dmaven.test.skip=true-->
 		<profile>
 			<id>docbkx</id>
 			<build>

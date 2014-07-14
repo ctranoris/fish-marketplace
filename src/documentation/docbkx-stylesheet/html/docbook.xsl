@@ -385,6 +385,7 @@ xmlns:date="http://exslt.org/dates-and-times"
     <xsl:if test="$admon.textlabel != 0 or d:title or d:info/d:title">
       <h3 class="title">
         <xsl:call-template name="anchor"/>
+        
         <i>
           <xsl:attribute name="class">
             <xsl:value-of select="$admon.icon"/>

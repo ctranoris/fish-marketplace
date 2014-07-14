@@ -21,7 +21,7 @@
 2013-09-06 13:52:43.390:INFO:oejs.ServerConnector:main: Started ServerConnector@2edf362d{HTTP/1.1}{0.0.0.0:8080}]]></screen></para>
 
   <para>You can point a browser at this server at <link
-  linkend="???">http://localhost:8080</link>.</para>
+  >http://localhost:8080</link>.</para>
 
   <section xml:id="demo-webapps-base">
     <title>Demo Base</title>
@@ -44,7 +44,7 @@
 ]]></screen>
 
     <para>Pointing a browser at <link
-    linkend="???">http://localhost:8080</link>, will now show a welcome page
+    >http://localhost:8080</link>, will now show a welcome page
     and several demo/test web applications.</para>
 
     <warning>
