@@ -2,9 +2,12 @@
 <!DOCTYPE book[
 <!ENTITY root "http://www.company.com/<?eval ${project.groupId}?>/<?eval ${project.artifactId}?>/<?eval ${project.version}?>"> 
 ]>
-<book version="5.0" xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd" xml:id="index"
-	xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xl="http://www.w3.org/1999/xlink"
-	xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:svg="http://www.w3.org/2000/svg" xmlns:ns2="http://www.w3.org/1998/Math/MathML"
+<book version="5.0"
+	xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd"
+	xml:id="index" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xl="http://www.w3.org/1999/xlink"
+	xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xhtml="http://www.w3.org/1999/xhtml"
+	xmlns:svg="http://www.w3.org/2000/svg" xmlns:ns2="http://www.w3.org/1998/Math/MathML"
 	xmlns:ns="http://docbook.org/ns/docbook" xmlns:date="http://exslt.org/dates-and-times">
   <?dbhtml filename="index.html"?>
 
@@ -100,47 +103,72 @@
 		<legalnotice role="notices">
 			<para>Licensed under the Apache License, Version 2.0 (the "License");
 				you may not use this file except in compliance with the License.
-				You may obtain a copy of the License at
+				You
+				may obtain a copy of the License at
 
 				http://www.apache.org/licenses/LICENSE-2.0
 
-				Unless required by applicable law or agreed to in writing, software
-				distributed under the License is distributed on an "AS IS" BASIS,
-				WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-				See the License for the specific language governing permissions and
-				limitations under the License.
+				Unless required by
+				applicable law or agreed to in writing, software
+				distributed under
+				the License is distributed on an "AS IS" BASIS,
+				WITHOUT WARRANTIES OR
+				CONDITIONS OF ANY KIND, either express or implied.
+				See the License
+				for the specific language governing permissions and
+				limitations under
+				the License.
 			</para>
 		</legalnotice>
 
-		<legalnotice>
-			<para> This is the licence of keybox project (https://github.com/skavanagh/KeyBox)
-				Copyright 2013 Sean Kavanagh - sean.p.kavanagh6@gmail.com
 
-				Licensed under the Apache License, Version 2.0 (the "License");
-				you may not use this file except in compliance with the License.
-				You may obtain a copy of the License at
-
-				http://www.apache.org/licenses/LICENSE-2.0
-
-				Unless required by applicable law or agreed to in writing, software
-				distributed under the License is distributed on an "AS IS" BASIS,
-				WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-				See the License for the specific language governing permissions and
-				limitations under the License.
-			</para>
-		</legalnotice>
 
 	</info>
 
 	<preface>
-	<title>Preface</title>
-	
-	<para>
-		Having such an ssh client is the primary requirement for accessing most of FIRE resources. The next requirement is authenticating to the target system. FIRE
-		facilities usually offer the two most common usages, via username and password combination or through public/private keys. The latter need from experimenter
-		some more special configuration for their clients, especially for generating the key pairs.
-	</para>
-</preface>
+		<title>Preface</title>
+
+		<para>
+			Baker is used currently to deploy services through the use of
+			buns
+			recipes. Baker in general:
+		</para>
+		<orderedlist>
+			<listitem>
+				<ns:para>
+					will take care and install the most recent version of a bun
+				</ns:para>
+			</listitem>
+			<listitem>
+				<ns:para>
+					Will
+					match a bun version with installed version AND host OS
+					version
+				</ns:para>
+				<orderedlist>
+					<listitem>
+						<ns:para>
+							example Baker v1.1 on Ubuntu 12.04 should use ExampleBun1(v2.34,
+							ubuntu12.04)
+						</ns:para>
+					</listitem>
+					<listitem>
+						<ns:para>
+							example Baker v1.2 on Windows7 should use ExampleBunW2(v1.22, win7)
+						</ns:para>
+					</listitem>
+				</orderedlist>
+			</listitem>
+
+
+
+			<listitem>
+				<ns:para>
+					Report and manage dependencies between buns
+				</ns:para>
+			</listitem>
+		</orderedlist>
+	</preface>
 
 	<toc />
 
@@ -150,16 +178,17 @@
 			For Developers of <?eval ${project.name}?>
 		</title>
 		<xi:include href="developing/chapter.xml" />
+		
 		<xi:include href="contributing/chapter.xml" />
 	</ns:part>
-	
+
 	<ns:part xml:id="quick-start">
 		<title>
 			Getting Started With <?eval ${project.name}?>
 		</title>
 		<xi:include href="baker_getting_started/gettingstartedchapter.xml" />
 	</ns:part>
-
+	
 	<ns:part xml:id="examples">
 		<title>
 			Examples using <?eval ${project.name}?>
