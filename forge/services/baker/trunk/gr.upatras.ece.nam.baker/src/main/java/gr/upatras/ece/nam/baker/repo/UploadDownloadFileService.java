@@ -47,7 +47,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 
 
-@Path("/localrepo")
+@Path("/repo")
 public class UploadDownloadFileService {
 
 	@Context
@@ -72,7 +72,7 @@ public class UploadDownloadFileService {
 	}
 
 	@GET
-	@Path("/iservices/{uuid}")
+	@Path("/ibuns/{uuid}")
 	@Produces("application/json")
 	public Response getMetadata(@PathParam("uuid") String uuid) {
 
@@ -88,7 +88,7 @@ public class UploadDownloadFileService {
 			sm.setLongDescription("");
 			URI endpointUrl = uri.getBaseUri();
 			
-			sm.setPackageLocation(endpointUrl + "localrepo/packages/77777777-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
+			sm.setPackageLocation(endpointUrl + "repo/packages/77777777-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
 		}if ( uuid.equals("12cab8b8-668b-4c75-99a9-39b24ed3d8be") ) {
 			sm = new BunMetadata( uuid, "AN example service");
 			sm.setShortDescription("An example local service");
@@ -98,7 +98,7 @@ public class UploadDownloadFileService {
 			sm.setLongDescription("");
 			URI endpointUrl = uri.getBaseUri();
 			
-			sm.setPackageLocation(endpointUrl + "localrepo/packages/12cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
+			sm.setPackageLocation(endpointUrl + "repo/packages/12cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
 		}else if (uuid.equals("22cab8b8-668b-4c75-99a9-39b24ed3d8be")) {
 			sm = new BunMetadata( uuid, "IntegrTestLocal example ErrInstall service");
 			sm.setShortDescription("An example ErrInstall local service");
@@ -108,14 +108,14 @@ public class UploadDownloadFileService {
 			sm.setLongDescription("");
 			URI endpointUrl = uri.getBaseUri();
 			
-			sm.setPackageLocation(endpointUrl + "localrepo/packages/22cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebunErrInstall.tar.gz");
+			sm.setPackageLocation(endpointUrl + "repo/packages/22cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebunErrInstall.tar.gz");
 		}
 
 		if (sm != null) {
 			return Response.ok().entity(sm).build();
 		} else {
 			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
-			builder.entity("Installed service with uuid=" + uuid + " not found in local registry");
+			builder.entity("Installed bun with uuid=" + uuid + " not found in local registry");
 			throw new WebApplicationException(builder.build());
 		}
 

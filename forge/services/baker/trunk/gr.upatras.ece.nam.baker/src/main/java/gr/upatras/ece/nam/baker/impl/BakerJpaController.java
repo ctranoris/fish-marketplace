@@ -132,11 +132,11 @@ public class BakerJpaController {
 						" RepoUrl: "+iservice.getRepoUrl()+
 						" InstalledVersion: "+iservice.getInstalledVersion()+
 						" Status: "+iservice.getStatus() );
-				if (iservice.getServiceMetadata()!=null)
-					logger.info("=== InstalledBunMetadata found: "+iservice.getServiceMetadata().getName() +
-							" Uuid: "+iservice.getServiceMetadata().getUuid()+
-							" getPackageLocation: "+iservice.getServiceMetadata().getPackageLocation()+
-							" getVersion: "+iservice.getServiceMetadata().getVersion() );
+				if (iservice.getBunMetadata()!=null)
+					logger.info("=== InstalledBunMetadata found: "+iservice.getBunMetadata().getName() +
+							" Uuid: "+iservice.getBunMetadata().getUuid()+
+							" getPackageLocation: "+iservice.getBunMetadata().getPackageLocation()+
+							" getVersion: "+iservice.getBunMetadata().getVersion() );
 				
 			}
 	     

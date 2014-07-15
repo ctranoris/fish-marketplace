@@ -66,16 +66,16 @@ public class BakerInstallationMgmt {
 	 * Starts the installation of a bun. If found already in local registry (managedInstalledBun list) returns a ref to an existing instance if found. Otherwise
 	 * starts a new installation.
 	 * 
-	 * @param uuid
+	 * @param reqBunUUID
 	 *            The uuid of the requested Bun
-	 * @param repourl
+	 * @param bunRepoURL
 	 *            The endpoint of the repository
 	 * @return an InstalledBun object
 	 */
-	public InstalledBun installBunAndStart(String uuid, String repourl) {
+	public InstalledBun installBunAndStart(String reqBunUUID, String bunRepoURL) {
 
-		logger.info("installBunAndStart " + uuid);
-		InstalledBun s = managedInstalledBuns.get(uuid); // return existing if
+		logger.info("reqBunUUID= " + reqBunUUID);
+		InstalledBun s = managedInstalledBuns.get(reqBunUUID); // return existing if
 														// found
 		if ((s != null) && (s.getStatus() != InstalledBunStatus.FAILED) && (s.getStatus() != InstalledBunStatus.UNINSTALLED)) {
 			return s;
@@ -84,14 +84,14 @@ public class BakerInstallationMgmt {
 		logger.info("will start installation");
 
 		if (s == null) {
-			s = new InstalledBun(uuid, repourl);
+			s = new InstalledBun(reqBunUUID, bunRepoURL);
 			addSBunToManagedBuns(s);
 			bakerJpaController.saveInstalledBun(s);
 		} else if ((s.getStatus() == InstalledBunStatus.FAILED) || (s.getStatus() == InstalledBunStatus.UNINSTALLED)) {
 
-			logger.info("Will RESTART installation of existing" + s.getUuid() + ". HAD Status= " + s.getStatus());
+			logger.info("Will RESTART installation of existing " + s.getUuid() + ". HAD Status= " + s.getStatus());
 			s.setStatus(InstalledBunStatus.INIT); // restart installation
-			s.setRepoUrl(repourl);
+			s.setRepoUrl(bunRepoURL);
 		}
 
 		processBunLifecycleJob(s, this.bakerJpaController, InstalledBunStatus.STARTED);
@@ -167,7 +167,6 @@ public class BakerInstallationMgmt {
 		InstalledBun is = managedInstalledBuns.get(uuid);
 
 		logger.info("will uninstall bun uuid= " + uuid);
-
 
 		processBunLifecycleJob(is, this.bakerJpaController, InstalledBunStatus.UNINSTALLED);
 
