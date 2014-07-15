@@ -14,7 +14,7 @@
 
 	<bean id="repoWebClientBean" class="gr.upatras.ece.nam.baker.impl.RepositoryWebClient" />
 	
-	<bean id="bakerServiceBean" class="gr.upatras.ece.nam.baker.model.BakerService" >
+	<bean id="bakerInstallationMgmtBean" class="gr.upatras.ece.nam.baker.impl.BakerInstallationMgmt" >
 		<property name="repoWebClient" ref="repoWebClientBean" />
 		<property name="bakerJpaController" ref="bakerJpaControllerRef" />
 	</bean>
@@ -22,10 +22,10 @@
 	<jaxrs:server id="services" address="/baker/">
 		<jaxrs:serviceBeans>
 			
-			<bean class="gr.upatras.ece.nam.baker.localrepo.UploadDownloadFileService" />
+			<bean class="gr.upatras.ece.nam.baker.repo.UploadDownloadFileService" />
 			 
-			<bean class="gr.upatras.ece.nam.baker.BakerServiceRS">
-				<property name="bakerServiceRef" ref="bakerServiceBean" />
+			<bean class="gr.upatras.ece.nam.baker.impl.BakerClientAPIImpl">
+				<property name="bakerInstallationMgmtRef" ref="bakerInstallationMgmtBean" />
 			</bean>
 		</jaxrs:serviceBeans>
 		<jaxrs:providers>

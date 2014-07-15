@@ -18,8 +18,8 @@ package gr.upatras.ece.nam.baker;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import gr.upatras.ece.nam.baker.impl.BakerInstallationMgmt;
 import gr.upatras.ece.nam.baker.impl.BakerJpaController;
-import gr.upatras.ece.nam.baker.model.BakerService;
 import gr.upatras.ece.nam.baker.model.InstalledService;
 import gr.upatras.ece.nam.baker.model.InstalledServiceStatus;
 import gr.upatras.ece.nam.baker.model.ServiceMetadata;
@@ -50,7 +50,7 @@ public class BakerServiceTest {
 
 	@Test
 	public void testGetManagedServices() {
-		BakerService bs = BakerServiceInit(new MockRepositoryWebClient("NORMAL"), bakerJpaControllerTest);
+		BakerInstallationMgmt bs = BakerServiceInit(new MockRepositoryWebClient("NORMAL"), bakerJpaControllerTest);
 		assertNotNull(bs.getManagedServices());
 		logger.info("	 	>>>>	bakerJpaControllerTest = " + bakerJpaControllerTest);
 	}
@@ -112,7 +112,7 @@ public class BakerServiceTest {
 	@Test
 	public void testReqInstall_toSTARTEDStatus() {
 		bakerJpaControllerTest.deleteAllInstalledService();
-		BakerService bs = BakerServiceInit(new MockRepositoryWebClient("NORMAL"), bakerJpaControllerTest);
+		BakerInstallationMgmt bs = BakerServiceInit(new MockRepositoryWebClient("NORMAL"), bakerJpaControllerTest);
 		bs.setRepoWebClient(new MockRepositoryWebClient("NORMAL"));
 
 		String uuid = UUID.randomUUID().toString();
@@ -159,7 +159,7 @@ public class BakerServiceTest {
 	@Test
 	public void testReqInstall_toSTARTED_STOPPED_UNINSTALL_Status() {
 		bakerJpaControllerTest.deleteAllInstalledService();
-		BakerService bs = BakerServiceInit(new MockRepositoryWebClient("NORMAL"), bakerJpaControllerTest);
+		BakerInstallationMgmt bs = BakerServiceInit(new MockRepositoryWebClient("NORMAL"), bakerJpaControllerTest);
 		bs.setRepoWebClient(new MockRepositoryWebClient("NORMAL"));
 
 		String uuid = UUID.randomUUID().toString();
@@ -217,7 +217,7 @@ public class BakerServiceTest {
 	@Test
 	public void testReqInstall_toSTARTED_and_UNINSTALL_Status() {
 		bakerJpaControllerTest.deleteAllInstalledService();
-		BakerService bs = BakerServiceInit(new MockRepositoryWebClient("NORMAL"), bakerJpaControllerTest);
+		BakerInstallationMgmt bs = BakerServiceInit(new MockRepositoryWebClient("NORMAL"), bakerJpaControllerTest);
 		bs.setRepoWebClient(new MockRepositoryWebClient("NORMAL"));
 
 		String uuid = UUID.randomUUID().toString();
@@ -258,7 +258,7 @@ public class BakerServiceTest {
 	@Test
 	public void testReqInstall_toSTARTED_CONFIGURE_and_RESTART() {
 		bakerJpaControllerTest.deleteAllInstalledService();
-		BakerService bs = BakerServiceInit(new MockRepositoryWebClient("NORMAL"), bakerJpaControllerTest);
+		BakerInstallationMgmt bs = BakerServiceInit(new MockRepositoryWebClient("NORMAL"), bakerJpaControllerTest);
 		bs.setRepoWebClient(new MockRepositoryWebClient("NORMAL"));
 
 		String uuid = UUID.randomUUID().toString();
@@ -326,7 +326,7 @@ public class BakerServiceTest {
 	@Test
 	public void testReqInstall_ErrScript() {
 		bakerJpaControllerTest.deleteAllInstalledService();
-		BakerService bs = BakerServiceInit(new MockRepositoryWebClient("NORMAL"), bakerJpaControllerTest);
+		BakerInstallationMgmt bs = BakerServiceInit(new MockRepositoryWebClient("NORMAL"), bakerJpaControllerTest);
 		bs.setRepoWebClient(new MockRepositoryWebClient("NORMAL"));
 
 		String uuid = UUID.randomUUID().toString();
@@ -375,7 +375,7 @@ public class BakerServiceTest {
 	public void testReqInstall_AndPersistence() {
 
 		bakerJpaControllerTest.deleteAllInstalledService();
-		BakerService bs = BakerServiceInit(new MockRepositoryWebClient("NORMAL"), bakerJpaControllerTest);
+		BakerInstallationMgmt bs = BakerServiceInit(new MockRepositoryWebClient("NORMAL"), bakerJpaControllerTest);
 
 		String uuid = UUID.randomUUID().toString();
 		// we don;t care about repo...we provide a local package hardcoded by MockRepositoryWebClient
@@ -410,7 +410,7 @@ public class BakerServiceTest {
 		bs = null; // remove the old one
 
 		// create new one..It should persist any installed service
-		BakerService bsNew = BakerServiceInit(new MockRepositoryWebClient("NORMAL"), bakerJpaControllerTest);
+		BakerInstallationMgmt bsNew = BakerServiceInit(new MockRepositoryWebClient("NORMAL"), bakerJpaControllerTest);
 		// bakerJpaControllerTest.getAll();
 
 		assertEquals("Persistence not implemented yet?!?", 1, bsNew.getManagedServices().size());// there should be one
@@ -424,9 +424,9 @@ public class BakerServiceTest {
 
 	// helper functions
 
-	public BakerService BakerServiceInit(MockRepositoryWebClient mockRepositoryWebClient, BakerJpaController bakerJpaControllerTest2) {
+	public BakerInstallationMgmt BakerServiceInit(MockRepositoryWebClient mockRepositoryWebClient, BakerJpaController bakerJpaControllerTest2) {
 
-		BakerService bs = new BakerService();
+		BakerInstallationMgmt bs = new BakerInstallationMgmt();
 		bs.setRepoWebClient(new MockRepositoryWebClient("NORMAL"));
 		bs.setBakerJpaController(bakerJpaControllerTest);
 		return bs;

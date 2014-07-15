@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package gr.upatras.ece.nam.baker.model;
+package gr.upatras.ece.nam.baker.impl;
 
-import gr.upatras.ece.nam.baker.ServiceLifecycleMgmt;
-import gr.upatras.ece.nam.baker.impl.BakerJpaController;
+import gr.upatras.ece.nam.baker.model.IRepositoryWebClient;
+import gr.upatras.ece.nam.baker.model.InstalledService;
+import gr.upatras.ece.nam.baker.model.InstalledServiceStatus;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,15 +25,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class BakerService {
+public class BakerInstallationMgmt {
 
 	private ConcurrentHashMap<String, InstalledService> managedServices;
 	private IRepositoryWebClient repoWebClient;
 	private BakerJpaController bakerJpaController;
 
-	private static final transient Log logger = LogFactory.getLog(BakerService.class.getName());
+	private static final transient Log logger = LogFactory.getLog(BakerInstallationMgmt.class.getName());
 
-	public BakerService() {
+	public BakerInstallationMgmt() {
 		managedServices = new ConcurrentHashMap<>();
 		// this.setRepoWebClient(new RepositoryWebClient());
 	}
