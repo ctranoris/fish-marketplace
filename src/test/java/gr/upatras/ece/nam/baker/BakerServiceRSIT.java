@@ -17,8 +17,8 @@ package gr.upatras.ece.nam.baker;
 
 import static org.junit.Assert.*;
 import gr.upatras.ece.nam.baker.impl.BakerJpaController;
-import gr.upatras.ece.nam.baker.model.InstalledService;
-import gr.upatras.ece.nam.baker.model.InstalledServiceStatus;
+import gr.upatras.ece.nam.baker.model.InstalledBun;
+import gr.upatras.ece.nam.baker.model.InstalledBunStatus;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -59,7 +59,7 @@ public class BakerServiceRSIT {
         List<Object> providers = new ArrayList<Object>();
         providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
         String uuid = UUID.fromString("55cab8b8-668b-4c75-99a9-39b24ed3d8be").toString();
-        InstalledService is = prepareInstalledService(uuid);
+        InstalledBun is = prepareInstalledService(uuid);
                 
         WebClient client = WebClient.create(endpointUrl + "/services/baker/api/iservices/", providers);
         Response r = client.accept("application/json")
@@ -70,9 +70,9 @@ public class BakerServiceRSIT {
 
         MappingJsonFactory factory = new MappingJsonFactory();
         JsonParser parser = factory.createJsonParser((InputStream)r.getEntity());
-        InstalledService output = parser.readValueAs(InstalledService.class);
+        InstalledBun output = parser.readValueAs(InstalledBun.class);
     	logger.info("InstalledServiceoutput = "+output.getUuid()+ ", status="+output.getStatus() );
-        assertEquals(InstalledServiceStatus.INIT , output.getStatus()  );      
+        assertEquals(InstalledBunStatus.INIT , output.getStatus()  );      
         
         //wait for 2 seconds
         Thread.sleep(2000);
@@ -83,10 +83,10 @@ public class BakerServiceRSIT {
         
         factory = new MappingJsonFactory();
         parser = factory.createJsonParser((InputStream)r.getEntity());
-        output = parser.readValueAs(InstalledService.class);
+        output = parser.readValueAs(InstalledBun.class);
 
         assertEquals(uuid, output.getUuid() );
-        assertEquals(InstalledServiceStatus.FAILED , output.getStatus()  );
+        assertEquals(InstalledBunStatus.FAILED , output.getStatus()  );
         assertEquals("(pending)", output.getName() );
     }
     
@@ -98,7 +98,7 @@ public class BakerServiceRSIT {
         List<Object> providers = new ArrayList<Object>();
         providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
         String uuid = UUID.fromString("77777777-668b-4c75-99a9-39b24ed3d8be").toString();
-        InstalledService is = prepareInstalledService(uuid );
+        InstalledBun is = prepareInstalledService(uuid );
                 
         WebClient client = WebClient.create(endpointUrl + "/services/baker/api/iservices", providers);
         //first post a new installation
@@ -116,18 +116,18 @@ public class BakerServiceRSIT {
         
         MappingJsonFactory factory = new MappingJsonFactory();
         JsonParser parser = factory.createJsonParser((InputStream)r.getEntity());
-        InstalledService output = parser.readValueAs(InstalledService.class);
+        InstalledBun output = parser.readValueAs(InstalledBun.class);
 
         assertEquals(uuid, output.getUuid() );
-        assertEquals(InstalledServiceStatus.STARTED , output.getStatus()  );
+        assertEquals(InstalledBunStatus.STARTED , output.getStatus()  );
         assertEquals("IntegrTestLocal example service", output.getName() );
         
         
     }
     
     //helpers
-    private InstalledService prepareInstalledService(String uuid){
-    	InstalledService is = new InstalledService( );     
+    private InstalledBun prepareInstalledService(String uuid){
+    	InstalledBun is = new InstalledBun( );     
         is.setUuid(uuid);
         is.setRepoUrl( endpointUrl +"/services/baker/localrepo/iservices/"+uuid);
         return is;

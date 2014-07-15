@@ -15,7 +15,7 @@
 
 package gr.upatras.ece.nam.baker.impl;
 
-import gr.upatras.ece.nam.baker.model.InstalledService;
+import gr.upatras.ece.nam.baker.model.InstalledBun;
 
 import java.util.Iterator;
 import java.util.List;
@@ -43,44 +43,32 @@ public class BakerJpaController {
 	 @PersistenceUnit
     private EntityManagerFactory entityManagerFactory;
 	
-	
-	//private EntityManager entityManager;
-	
 
-//	public EntityManager getEntityManager() {
-//		return entityManager;
-//	}
-//
-//	public void setEntityManager(EntityManager entityManager) {
-//		this.entityManager = entityManager;
-//	}
-	
-	
 
-	public long countInstalledServices() {
+	public long countInstalledBuns() {
 
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
         
-		Query q = entityManager.createQuery("SELECT COUNT(s) FROM InstalledService s") ;
+		Query q = entityManager.createQuery("SELECT COUNT(s) FROM InstalledBun s") ;
 		return (Long) q.getSingleResult();
 	}
 	
 	
-	public InstalledService update(InstalledService is) {
+	public InstalledBun update(InstalledBun is) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
         EntityTransaction entityTransaction = entityManager.getTransaction();
 
         entityTransaction.begin();
-        InstalledService resis = entityManager.merge(is);
+        InstalledBun resis = entityManager.merge(is);
         entityTransaction.commit();
         
 		return resis;
 	}
 
-	public void saveInstalledService(InstalledService is) {
-    	logger.info("Will create InstalledService = " +is.getUuid());
+	public void saveInstalledBun(InstalledBun is) {
+    	logger.info("Will create InstalledBun = " +is.getUuid());
 
     	EntityManager entityManager = entityManagerFactory.createEntityManager();
 
@@ -93,43 +81,32 @@ public class BakerJpaController {
         entityTransaction.commit();
 	}
 
-	public InstalledService readInstalledServiceByName(final String name) {
+	public InstalledBun readInstalledBunByName(final String name) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
-		Query q = entityManager.createQuery("SELECT m FROM InstalledService m WHERE m.name='"+name+"'") ;
-		return (InstalledService) q.getSingleResult();
+		Query q = entityManager.createQuery("SELECT m FROM InstalledBun m WHERE m.name='"+name+"'") ;
+		return (InstalledBun) q.getSingleResult();
 	}
 	
-	public InstalledService readInstalledServiceByUUID(final String uuid) {
+	public InstalledBun readInstalledBunByUUID(final String uuid) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
-		Query q = entityManager.createQuery("SELECT m FROM InstalledService m WHERE m.uuid='"+uuid +"'") ;
-		return (InstalledService) q.getSingleResult();
+		Query q = entityManager.createQuery("SELECT m FROM InstalledBun m WHERE m.uuid='"+uuid +"'") ;
+		return (InstalledBun) q.getSingleResult();
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<InstalledService> read(int firstResult, int maxResults) {
+	public List<InstalledBun> read(int firstResult, int maxResults) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
-		Query q = entityManager.createQuery("SELECT m FROM InstalledService m") ;
+		Query q = entityManager.createQuery("SELECT m FROM InstalledBun m") ;
 		q.setFirstResult(firstResult);
 		q.setMaxResults(maxResults);
 		return q.getResultList();
 	}
 	
 	
-	
-
-//	public InstalledService update(InstalledService is) {
-//    	logger.info("Will update InstalledService = " +is.getUuid());
-//    	logger.info("Will update entityManager = " + entityManager);
-//		
-//    	InstalledService resis = entityManager.merge(is);
-//    			
-//		return resis;
-//	}
-
-	public void delete(final InstalledService message) {
+	public void delete(final InstalledBun message) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
         EntityTransaction entityTransaction = entityManager.getTransaction();
@@ -147,16 +124,16 @@ public class BakerJpaController {
 
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
      	
-	        List<InstalledService>lb = entityManager.createQuery( "select p from InstalledService p").getResultList();
+	        List<InstalledBun>lb = entityManager.createQuery( "select p from InstalledBun p").getResultList();
 	        for (Iterator iterator = lb.iterator(); iterator.hasNext();) {
-	        	InstalledService iservice = (InstalledService) iterator.next();
-				logger.info("=== InstalledService found: "+iservice.getName() +
+	        	InstalledBun iservice = (InstalledBun) iterator.next();
+				logger.info("=== InstalledBun found: "+iservice.getName() +
 						" Uuid: "+iservice.getUuid()+
 						" RepoUrl: "+iservice.getRepoUrl()+
 						" InstalledVersion: "+iservice.getInstalledVersion()+
 						" Status: "+iservice.getStatus() );
 				if (iservice.getServiceMetadata()!=null)
-					logger.info("=== InstalledServiceMetadata found: "+iservice.getServiceMetadata().getName() +
+					logger.info("=== InstalledBunMetadata found: "+iservice.getServiceMetadata().getName() +
 							" Uuid: "+iservice.getServiceMetadata().getUuid()+
 							" getPackageLocation: "+iservice.getServiceMetadata().getPackageLocation()+
 							" getVersion: "+iservice.getServiceMetadata().getVersion() );
@@ -169,7 +146,7 @@ public class BakerJpaController {
 	
 	 
 	public BakerJpaController() {
-		logger.info(">>>>>>>>>>>>>> BrokerServiceImpl constructor  <<<<<<<<<<<<<<<<<<");
+		logger.info(">>>>>>>>>>>>>> BakerJpaController constructor  <<<<<<<<<<<<<<<<<<");
 	}
 	
     public String echo(String message) {
@@ -178,14 +155,14 @@ public class BakerJpaController {
     }
 
 		
-	public void deleteAllInstalledService() {
+	public void deleteAllInstalledBuns() {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
         EntityTransaction entityTransaction = entityManager.getTransaction();
 
         entityTransaction.begin();
 		
-		Query q = entityManager.createQuery("DELETE FROM InstalledService ") ;
+		Query q = entityManager.createQuery("DELETE FROM InstalledBun ") ;
 		q.executeUpdate();
 		entityManager.flush();
 		

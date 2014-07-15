@@ -16,9 +16,9 @@
 package gr.upatras.ece.nam.baker.impl;
 
 import gr.upatras.ece.nam.baker.model.IRepositoryWebClient;
-import gr.upatras.ece.nam.baker.model.InstalledService;
-import gr.upatras.ece.nam.baker.model.InstalledServiceStatus;
-import gr.upatras.ece.nam.baker.model.ServiceMetadata;
+import gr.upatras.ece.nam.baker.model.InstalledBun;
+import gr.upatras.ece.nam.baker.model.InstalledBunStatus;
+import gr.upatras.ece.nam.baker.model.BunMetadata;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -32,18 +32,18 @@ import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class ServiceLifecycleMgmt {
+public class InstalledBunLifecycleMgmt {
 
-	private static final transient Log logger = LogFactory.getLog(ServiceLifecycleMgmt.class.getName());
+	private static final transient Log logger = LogFactory.getLog(InstalledBunLifecycleMgmt.class.getName());
 
-	InstalledService installService;
+	InstalledBun installService;
 	IRepositoryWebClient repoWebClient;
 
 	BakerJpaController bakerJpaController;
-	private InstalledServiceStatus targetStatus;
+	private InstalledBunStatus targetStatus;
 	private Boolean restartTriggered = false;
 
-	public ServiceLifecycleMgmt(InstalledService s, IRepositoryWebClient rwc, BakerJpaController jpactr, InstalledServiceStatus ts) {
+	public InstalledBunLifecycleMgmt(InstalledBun s, IRepositoryWebClient rwc, BakerJpaController jpactr, InstalledBunStatus ts) {
 		installService = s;
 		repoWebClient = rwc;
 		bakerJpaController = jpactr;
@@ -56,11 +56,11 @@ public class ServiceLifecycleMgmt {
 	public void processState() {
 
 		logger.info("Task for uuid:" + installService.getUuid() + " is:" + installService.getStatus());
-		InstalledServiceStatus entryState = installService.getStatus();
+		InstalledBunStatus entryState = installService.getStatus();
 		
 		//this is used to restart the service. usefull if reconfiguring.
-		if ((targetStatus == InstalledServiceStatus.STARTED) &&
-				(entryState == InstalledServiceStatus.STARTED ) &&
+		if ((targetStatus == InstalledBunStatus.STARTED) &&
+				(entryState == InstalledBunStatus.STARTED ) &&
 				(!restartTriggered) ){
 			logger.info("Entry and Target state are STARTED. A restart will be triggered, with confguration applied.");
 			restartTriggered = true;
@@ -96,12 +96,12 @@ public class ServiceLifecycleMgmt {
 			execStartingPhase();
 			break;
 		case STARTED:
-			if (targetStatus == InstalledServiceStatus.STOPPED) {
-				installService.setStatus(InstalledServiceStatus.STOPPING);
-			} else if (targetStatus == InstalledServiceStatus.UNINSTALLED) {
-				installService.setStatus(InstalledServiceStatus.STOPPING);
-			} else if ( (targetStatus == InstalledServiceStatus.STARTED) && restartTriggered) {
-				installService.setStatus(InstalledServiceStatus.STOPPING);
+			if (targetStatus == InstalledBunStatus.STOPPED) {
+				installService.setStatus(InstalledBunStatus.STOPPING);
+			} else if (targetStatus == InstalledBunStatus.UNINSTALLED) {
+				installService.setStatus(InstalledBunStatus.STOPPING);
+			} else if ( (targetStatus == InstalledBunStatus.STARTED) && restartTriggered) {
+				installService.setStatus(InstalledBunStatus.STOPPING);
 			}
 
 			break;
@@ -111,10 +111,10 @@ public class ServiceLifecycleMgmt {
 			break;
 
 		case STOPPED:
-			if (targetStatus == InstalledServiceStatus.UNINSTALLED) {
-				installService.setStatus(InstalledServiceStatus.UNINSTALLING);
-			} else if (targetStatus == InstalledServiceStatus.STARTED) {
-				installService.setStatus(InstalledServiceStatus.CONFIGURING);
+			if (targetStatus == InstalledBunStatus.UNINSTALLED) {
+				installService.setStatus(InstalledBunStatus.UNINSTALLING);
+			} else if (targetStatus == InstalledBunStatus.STARTED) {
+				installService.setStatus(InstalledBunStatus.CONFIGURING);
 			}
 			break;
 
@@ -134,14 +134,14 @@ public class ServiceLifecycleMgmt {
 
 		bakerJpaController.update(installService);
 
-		if ((targetStatus != installService.getStatus()) && (installService.getStatus() != InstalledServiceStatus.FAILED))
+		if ((targetStatus != installService.getStatus()) && (installService.getStatus() != InstalledBunStatus.FAILED))
 			processState();
 
 	}
 
 	private void downLoadMetadataInfo() {
 		logger.info("Downloading metadata info...");
-		ServiceMetadata smetadata = null;
+		BunMetadata smetadata = null;
 		if (repoWebClient != null)
 			smetadata = repoWebClient.fetchMetadata(installService.getUuid(), installService.getRepoUrl());
 		else
@@ -149,10 +149,10 @@ public class ServiceLifecycleMgmt {
 
 		if (smetadata != null) {
 			installService.setServiceMetadata(smetadata);
-			installService.setStatus(InstalledServiceStatus.DOWNLOADING);
+			installService.setStatus(InstalledBunStatus.DOWNLOADING);
 		} else {
 			logger.info("smetadata == null...FAILED");
-			installService.setStatus(InstalledServiceStatus.FAILED);
+			installService.setStatus(InstalledBunStatus.FAILED);
 		}
 
 	}
@@ -163,12 +163,12 @@ public class ServiceLifecycleMgmt {
 		Path destFile = repoWebClient.fetchPackageFromLocation(installService.getUuid(), installService.getServiceMetadata().getPackageLocation());
 
 		if ((destFile != null) && (extractPackage(destFile) == 0)) {
-			installService.setStatus(InstalledServiceStatus.DOWNLOADED);
+			installService.setStatus(InstalledBunStatus.DOWNLOADED);
 			Path packageLocalPath = destFile.getParent();
 			installService.setPackageLocalPath(packageLocalPath.toString());
 		} else {
 			logger.info("FAILED Downloading installation package: " + installService.getServiceMetadata().getPackageLocation());
-			installService.setStatus(InstalledServiceStatus.FAILED);
+			installService.setStatus(InstalledBunStatus.FAILED);
 		}
 
 	}
@@ -180,7 +180,7 @@ public class ServiceLifecycleMgmt {
 
 	private void startPackageInstallation() {
 
-		installService.setStatus(InstalledServiceStatus.INSTALLING);
+		installService.setStatus(InstalledBunStatus.INSTALLING);
 		logger.info("Installing...");
 
 		String cmdStr = installService.getPackageLocalPath() + "/recipes/onInstall";
@@ -188,9 +188,9 @@ public class ServiceLifecycleMgmt {
 
 		if (executeSystemCommand(cmdStr) == 0) {
 
-			installService.setStatus(InstalledServiceStatus.INSTALLED);
+			installService.setStatus(InstalledBunStatus.INSTALLED);
 		} else
-			installService.setStatus(InstalledServiceStatus.FAILED);
+			installService.setStatus(InstalledBunStatus.FAILED);
 
 	}
 
@@ -203,9 +203,9 @@ public class ServiceLifecycleMgmt {
 		installService.setName(installService.getServiceMetadata().getName());
 		executeSystemCommand(cmdStr); // we don't care for the exit code
 		if (executeSystemCommand(cmdStr) == 0) {
-			installService.setStatus(InstalledServiceStatus.CONFIGURING);
+			installService.setStatus(InstalledBunStatus.CONFIGURING);
 		} else
-			installService.setStatus(InstalledServiceStatus.FAILED);
+			installService.setStatus(InstalledBunStatus.FAILED);
 
 	}
 
@@ -216,9 +216,9 @@ public class ServiceLifecycleMgmt {
 
 		executeSystemCommand(cmdStr); // we don't care for the exit code
 		if (executeSystemCommand(cmdStr) == 0) {
-			installService.setStatus(InstalledServiceStatus.STARTING);
+			installService.setStatus(InstalledBunStatus.STARTING);
 		} else
-			installService.setStatus(InstalledServiceStatus.FAILED);
+			installService.setStatus(InstalledBunStatus.FAILED);
 
 	}
 
@@ -228,9 +228,9 @@ public class ServiceLifecycleMgmt {
 		logger.info("Will execute recipe 'onStart' of:" + cmdStr);
 
 		if (executeSystemCommand(cmdStr) == 0) {
-			installService.setStatus(InstalledServiceStatus.STARTED);
+			installService.setStatus(InstalledBunStatus.STARTED);
 		} else
-			installService.setStatus(InstalledServiceStatus.STOPPED);
+			installService.setStatus(InstalledBunStatus.STOPPED);
 
 	}
 
@@ -243,7 +243,7 @@ public class ServiceLifecycleMgmt {
 		// if (executeSystemCommand(cmdStr) == 0) {
 		// whatever is the return value...it will go to stopped
 		executeSystemCommand(cmdStr);
-		installService.setStatus(InstalledServiceStatus.STOPPED);
+		installService.setStatus(InstalledBunStatus.STOPPED);
 
 	}
 
@@ -256,7 +256,7 @@ public class ServiceLifecycleMgmt {
 		// if (executeSystemCommand(cmdStr) == 0) {
 		// whatever is the return value...it will go to stopped
 		executeSystemCommand(cmdStr);
-		installService.setStatus(InstalledServiceStatus.UNINSTALLED);
+		installService.setStatus(InstalledBunStatus.UNINSTALLED);
 
 	}
 

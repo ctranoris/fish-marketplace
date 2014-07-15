@@ -16,7 +16,7 @@
 package gr.upatras.ece.nam.baker.testclasses;
 
 import gr.upatras.ece.nam.baker.model.IRepositoryWebClient;
-import gr.upatras.ece.nam.baker.model.ServiceMetadata;
+import gr.upatras.ece.nam.baker.model.BunMetadata;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,7 +52,7 @@ public class MockRepositoryWebClient implements IRepositoryWebClient {
 	}
 
 	@Override
-	public ServiceMetadata fetchMetadata(String uuid, String url) {
+	public BunMetadata fetchMetadata(String uuid, String url) {
 		logger.info("TEST fetchMetadata from: " + url + " , for uuid=" + uuid);
 
 		try {
@@ -61,9 +61,9 @@ public class MockRepositoryWebClient implements IRepositoryWebClient {
 			e.printStackTrace();
 		}
 
-		ServiceMetadata sm = null;
+		BunMetadata sm = null;
 		if (mockRepositoryBehavior != MockRepositoryBehavior.RETURN_NULLMETADATA) {
-			sm = new ServiceMetadata(uuid, "TemporaryServiceFromMockClass");
+			sm = new BunMetadata(uuid, "TemporaryServiceFromMockClass");
 			if (url.contains("EBUNID") )
 				sm.setPackageLocation("/files/examplebun.tar.gz");
 			else if (url.contains("EBUNERR"))

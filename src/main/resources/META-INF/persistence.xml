@@ -16,8 +16,8 @@
 		<provider>org.apache.openjpa.persistence.PersistenceProviderImpl
 		</provider>
 
-		<class>gr.upatras.ece.nam.baker.model.InstalledService</class>
-		<class>gr.upatras.ece.nam.baker.model.ServiceMetadata</class>
+		<class>gr.upatras.ece.nam.baker.model.InstalledBun</class>
+		<class>gr.upatras.ece.nam.baker.model.BunMetadata</class>
 
 
 		<properties>
@@ -38,8 +38,8 @@
 		<provider>org.apache.openjpa.persistence.PersistenceProviderImpl
 		</provider>
 
-		<class>gr.upatras.ece.nam.baker.model.InstalledService</class>
-		<class>gr.upatras.ece.nam.baker.model.ServiceMetadata</class>
+		<class>gr.upatras.ece.nam.baker.model.InstalledBun</class>
+		<class>gr.upatras.ece.nam.baker.model.BunMetadata</class>
 
 
 

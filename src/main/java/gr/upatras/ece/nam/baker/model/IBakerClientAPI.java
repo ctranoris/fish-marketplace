@@ -19,9 +19,9 @@ import javax.ws.rs.core.Response;
 
 public interface IBakerClientAPI {
 
-	Response getJsonInstalledService(String uuid);
+	Response getJsonInstalledBun(String uuid);
 	
-	Response getJsonInstalledServices();
+	Response getJsonInstalledBuns();
 	
-	Response jsonInstallService(InstalledService reqInstallService);
+	Response jsonInstallBun(InstalledBun reqInstallBun);
 }

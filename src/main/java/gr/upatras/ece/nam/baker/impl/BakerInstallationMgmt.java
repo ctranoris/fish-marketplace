@@ -16,8 +16,8 @@
 package gr.upatras.ece.nam.baker.impl;
 
 import gr.upatras.ece.nam.baker.model.IRepositoryWebClient;
-import gr.upatras.ece.nam.baker.model.InstalledService;
-import gr.upatras.ece.nam.baker.model.InstalledServiceStatus;
+import gr.upatras.ece.nam.baker.model.InstalledBun;
+import gr.upatras.ece.nam.baker.model.InstalledBunStatus;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,75 +27,74 @@ import org.apache.commons.logging.LogFactory;
 
 public class BakerInstallationMgmt {
 
-	private ConcurrentHashMap<String, InstalledService> managedServices;
+	private ConcurrentHashMap<String, InstalledBun> managedInstalledBuns;
 	private IRepositoryWebClient repoWebClient;
 	private BakerJpaController bakerJpaController;
 
 	private static final transient Log logger = LogFactory.getLog(BakerInstallationMgmt.class.getName());
 
 	public BakerInstallationMgmt() {
-		managedServices = new ConcurrentHashMap<>();
+		managedInstalledBuns = new ConcurrentHashMap<>();
 		// this.setRepoWebClient(new RepositoryWebClient());
 	}
 
-	public ConcurrentHashMap<String, InstalledService> getManagedServices() {
-		return managedServices;
+	public ConcurrentHashMap<String, InstalledBun> getManagedInstalledBuns() {
+		return managedInstalledBuns;
 	}
 
 	/**
 	 * Add installed service object to ManagedServices list
 	 * 
 	 * @param s
-	 *            InstalledService to add
+	 *            InstalledBun to add
 	 * @return the same service
 	 */
-	private InstalledService addServiceToManagedServices(InstalledService s) {
-		managedServices.put(s.getUuid(), s);
-		// InstalledService installService = bakerJpaController.readInstalledServiceByUUID(s.getUuid());
-		// logger.info("Saved task for uuid :" + installService.getUuid() + " is:" + installService.getStatus());
+	private InstalledBun addSBunToManagedBuns(InstalledBun s) {
+		managedInstalledBuns.put(s.getUuid(), s);
+
 
 		return s;
 	}
 
-	private Boolean removeServiceFromManagedServices(InstalledService s) {
-		InstalledService is = managedServices.remove(s.getUuid());
-		bakerJpaController.delete(s);
-		return (is != null);
-	}
+//	private Boolean removeServiceFromManagedServices(InstalledBun s) {
+//		InstalledBun is = managedInstalledBuns.remove(s.getUuid());
+//		bakerJpaController.delete(s);
+//		return (is != null);
+//	}
 
 	/**
-	 * Starts the installation of a service. If found already in local registry (managedservices list) returns a ref to an existing instance if found. Otherwise
+	 * Starts the installation of a bun. If found already in local registry (managedInstalledBun list) returns a ref to an existing instance if found. Otherwise
 	 * starts a new installation.
 	 * 
 	 * @param uuid
 	 *            The uuid of the requested Bun
 	 * @param repourl
 	 *            The endpoint of the repository
-	 * @return an InstalledService object
+	 * @return an InstalledBun object
 	 */
-	public InstalledService installServiceAndStart(String uuid, String repourl) {
+	public InstalledBun installBunAndStart(String uuid, String repourl) {
 
-		logger.info("installServiceAndStart " + uuid);
-		InstalledService s = managedServices.get(uuid); // return existing if
+		logger.info("installBunAndStart " + uuid);
+		InstalledBun s = managedInstalledBuns.get(uuid); // return existing if
 														// found
-		if ((s != null) && (s.getStatus() != InstalledServiceStatus.FAILED) && (s.getStatus() != InstalledServiceStatus.UNINSTALLED)) {
+		if ((s != null) && (s.getStatus() != InstalledBunStatus.FAILED) && (s.getStatus() != InstalledBunStatus.UNINSTALLED)) {
 			return s;
 		}
 
 		logger.info("will start installation");
 
 		if (s == null) {
-			s = new InstalledService(uuid, repourl);
-			addServiceToManagedServices(s);
-			bakerJpaController.saveInstalledService(s);
-		} else if ((s.getStatus() == InstalledServiceStatus.FAILED) || (s.getStatus() == InstalledServiceStatus.UNINSTALLED)) {
+			s = new InstalledBun(uuid, repourl);
+			addSBunToManagedBuns(s);
+			bakerJpaController.saveInstalledBun(s);
+		} else if ((s.getStatus() == InstalledBunStatus.FAILED) || (s.getStatus() == InstalledBunStatus.UNINSTALLED)) {
 
 			logger.info("Will RESTART installation of existing" + s.getUuid() + ". HAD Status= " + s.getStatus());
-			s.setStatus(InstalledServiceStatus.INIT); // restart installation
+			s.setStatus(InstalledBunStatus.INIT); // restart installation
 			s.setRepoUrl(repourl);
 		}
 
-		processServiceLifecylceJob(s, this.bakerJpaController, InstalledServiceStatus.STARTED);
+		processBunLifecycleJob(s, this.bakerJpaController, InstalledBunStatus.STARTED);
 		return s;
 	}
 
@@ -103,15 +102,15 @@ public class BakerInstallationMgmt {
 	 * It executes the installation of the bun in a thread job, following the bun installation state machine
 	 * 
 	 * @param s
-	 *            InstalledService object to manage the lifecycle
+	 *            InstalledBun object to manage the lifecycle
 	 */
-	private void processServiceLifecylceJob(final InstalledService s, final BakerJpaController jpsctr, final InstalledServiceStatus targetStatus) {
+	private void processBunLifecycleJob(final InstalledBun s, final BakerJpaController jpsctr, final InstalledBunStatus targetStatus) {
 
 		logger.info("Creating new thread of " + s.getUuid() + " for target action = " + targetStatus);
 		Thread t1 = new Thread(new Runnable() {
 			public void run() {
 
-				new ServiceLifecycleMgmt(s, repoWebClient, jpsctr, targetStatus);
+				new InstalledBunLifecycleMgmt(s, repoWebClient, jpsctr, targetStatus);
 
 			}
 		});
@@ -123,8 +122,8 @@ public class BakerInstallationMgmt {
 
 	}
 
-	public InstalledService getService(String uuid) {
-		InstalledService is = managedServices.get(uuid);
+	public InstalledBun getService(String uuid) {
+		InstalledBun is = managedInstalledBuns.get(uuid);
 		return is;
 	}
 
@@ -144,44 +143,42 @@ public class BakerInstallationMgmt {
 		this.bakerJpaController = b;
 
 		this.bakerJpaController = b;
-		List<InstalledService> ls = b.read(0, 100000);
+		List<InstalledBun> ls = b.read(0, 100000);
 
-		for (InstalledService installedService : ls) {
-			managedServices.put(installedService.getUuid(), installedService);
+		for (InstalledBun installedBun : ls) {
+			managedInstalledBuns.put(installedBun.getUuid(), installedBun);
 		}
 	}
 
 	public void stopService(String uuid) {
-		InstalledService is = managedServices.get(uuid);
+		InstalledBun is = managedInstalledBuns.get(uuid);
 
-		if (is.getStatus() != InstalledServiceStatus.STARTED)
+		if (is.getStatus() != InstalledBunStatus.STARTED)
 			return;
 
 		logger.info("will stop service uuid= " + uuid);
 
-		// is.setStatus(InstalledServiceStatus.STOPPING); //
 
-		processServiceLifecylceJob(is, this.bakerJpaController, InstalledServiceStatus.STOPPED);
+		processBunLifecycleJob(is, this.bakerJpaController, InstalledBunStatus.STOPPED);
 
 	}
 
 	public void uninstallService(String uuid) {
-		InstalledService is = managedServices.get(uuid);
+		InstalledBun is = managedInstalledBuns.get(uuid);
 
-		logger.info("will uninstall service uuid= " + uuid);
+		logger.info("will uninstall bun uuid= " + uuid);
 
-		// is.setStatus(InstalledServiceStatus.UNINSTALLING); //
 
-		processServiceLifecylceJob(is, this.bakerJpaController, InstalledServiceStatus.UNINSTALLED);
+		processBunLifecycleJob(is, this.bakerJpaController, InstalledBunStatus.UNINSTALLED);
 
 	}
 
 	public void configureService(String uuid) {
-		InstalledService is = managedServices.get(uuid);
+		InstalledBun is = managedInstalledBuns.get(uuid);
 
-		logger.info("will configure service uuid= " + uuid);
+		logger.info("will configure bun uuid= " + uuid);
 
-		processServiceLifecylceJob(is, this.bakerJpaController, InstalledServiceStatus.STARTED);
+		processBunLifecycleJob(is, this.bakerJpaController, InstalledBunStatus.STARTED);
 
 	}
 

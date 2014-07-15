@@ -30,8 +30,8 @@ import org.apache.openjpa.persistence.Factory;
 import org.apache.openjpa.persistence.Type;
 
 
-@Entity(name = "InstalledService")
-public class InstalledService {
+@Entity(name = "InstalledBun")
+public class InstalledBun {
 	
 
 
@@ -52,7 +52,7 @@ public class InstalledService {
 	private String name;
 
 	@Basic()
-	private InstalledServiceStatus status = InstalledServiceStatus.INIT;
+	private InstalledBunStatus status = InstalledBunStatus.INIT;
 	
 
 	@Basic()
@@ -62,14 +62,14 @@ public class InstalledService {
 	 * this exist only after fetching metadata from repo. Otherwise is null when service is installed.
 	 */
 	@Embedded
-	private ServiceMetadata serviceMetadata; 
+	private BunMetadata serviceMetadata; 
 	
 	
-	public InstalledService() {
+	public InstalledBun() {
 		super();
 	}
 	
-	public InstalledService(String uuid, String repoUrl) {
+	public InstalledBun(String uuid, String repoUrl) {
 		super();
 		this.uuid = uuid;
 		this.repoUrl = repoUrl;
@@ -104,19 +104,19 @@ public class InstalledService {
 		this.name = name;
 	}
 
-	public InstalledServiceStatus getStatus() {
+	public InstalledBunStatus getStatus() {
 		return status;
 	}
 
-	public void setStatus(InstalledServiceStatus status) {
+	public void setStatus(InstalledBunStatus status) {
 		this.status = status;
 	}
 
-	public ServiceMetadata getServiceMetadata() {
+	public BunMetadata getServiceMetadata() {
 		return serviceMetadata;
 	}
 
-	public void setServiceMetadata(ServiceMetadata sm) {
+	public void setServiceMetadata(BunMetadata sm) {
 		this.serviceMetadata = sm;
 	}
 
