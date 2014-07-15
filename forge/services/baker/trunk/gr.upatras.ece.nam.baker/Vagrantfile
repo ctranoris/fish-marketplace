@@ -56,6 +56,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # config.vm.synced_folder "../data", "/vagrant_data"
   config.vm.synced_folder "./", "/home/vagrant/baker", disabled: true
   config.vm.synced_folder "C:/Users/ctranoris/wsJunoEE_BakerProject", "/home/vagrant/ws"
+  config.vm.synced_folder "D:/programs/apache-cxf-3.0.0-src/apache-cxf-3.0.0-src/distribution/src/main/release/samples", "/home/vagrant/cxfsamples"
+  
   # config.vm.synced_folder "C:/Users/ctranoris/wsJunoEE_BakerProject/gr.upatras.ece.nam.baker", "/home/vagrant/baker"
   
 

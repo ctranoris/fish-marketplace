@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package gr.upatras.ece.nam.baker;
+package gr.upatras.ece.nam.baker.impl;
 
 import java.net.URI;
 import java.util.UUID;
 
-import gr.upatras.ece.nam.baker.model.BakerService;
+import gr.upatras.ece.nam.baker.model.IBakerClientAPI;
 import gr.upatras.ece.nam.baker.model.InstalledService;
 
 import org.apache.commons.logging.Log;
@@ -37,20 +37,20 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
 @Path("/api")
-public class BakerServiceRS {
-	private static final transient Log logger = LogFactory.getLog(BakerServiceRS.class.getName());
+public class BakerClientAPIImpl implements IBakerClientAPI{
+	private static final transient Log logger = LogFactory.getLog(BakerClientAPIImpl.class.getName());
 
 	@Context
 	UriInfo uri;
 
-	private BakerService bakerServiceRef;
+	private BakerInstallationMgmt bakerInstallationMgmtRef;
 
-	public BakerService getBakerServiceRef() {
-		return bakerServiceRef;
-	}
+	public BakerInstallationMgmt getBakerServiceRef() {
+		return bakerInstallationMgmtRef;
+	}	
 
-	public void setBakerServiceRef(BakerService bakerServiceRef) {
-		this.bakerServiceRef = bakerServiceRef;
+	public void setBakerServiceRef(BakerInstallationMgmt bakerServiceRef) {
+		this.bakerInstallationMgmtRef = bakerServiceRef;
 	}
 
 	// just to get an example json!
@@ -75,7 +75,7 @@ public class BakerServiceRS {
 
 		logger.info("Received GET for uuid: " + uuid);
 
-		InstalledService installedService = bakerServiceRef.getService( uuid );
+		InstalledService installedService = bakerInstallationMgmtRef.getService( uuid );
 
 		if (installedService != null) {
 			return Response.ok().entity(installedService).build();
@@ -96,7 +96,7 @@ public class BakerServiceRS {
 		// bakerServiceRef.installService( UUID.randomUUID() ,
 		// "www.repoexample.comRANDOM", "1.1.1RANDOM"+i);
 		// }
-		return Response.ok().entity(bakerServiceRef.getManagedServices().values()).build();
+		return Response.ok().entity(bakerInstallationMgmtRef.getManagedServices().values()).build();
 
 	}
 
@@ -107,7 +107,7 @@ public class BakerServiceRS {
 
 		logger.info("Received POST for uuid: " + reqInstallService.getUuid());
 
-		InstalledService installedService = bakerServiceRef.installServiceAndStart(reqInstallService.getUuid(), reqInstallService.getRepoUrl());
+		InstalledService installedService = bakerInstallationMgmtRef.installServiceAndStart(reqInstallService.getUuid(), reqInstallService.getRepoUrl());
 
 		if (installedService != null) {
 			return Response.ok().entity(installedService).build();

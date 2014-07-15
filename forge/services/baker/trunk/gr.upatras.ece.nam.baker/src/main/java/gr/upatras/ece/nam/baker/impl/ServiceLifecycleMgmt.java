@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package gr.upatras.ece.nam.baker;
+package gr.upatras.ece.nam.baker.impl;
 
-import gr.upatras.ece.nam.baker.impl.BakerJpaController;
 import gr.upatras.ece.nam.baker.model.IRepositoryWebClient;
 import gr.upatras.ece.nam.baker.model.InstalledService;
 import gr.upatras.ece.nam.baker.model.InstalledServiceStatus;
