@@ -85,15 +85,15 @@ public class BakerServiceTest {
 		sm.setUuid(uuid);
 		sm.setName("MetadataName");
 		sm.setPackageLocation("/repo/aaa.tar.gz");
-		istest.setServiceMetadata(sm);
+		istest.setBunMetadata(sm);
 		bakerJpaControllerTest.saveInstalledBun(istest);
 		// bakerJpaControllerTest.getAll();
 		retIs = bakerJpaControllerTest.readInstalledBunByUUID(uuid);
 		assertEquals(uuid, retIs.getUuid());
 		assertEquals(InstalledBunStatus.STARTING, retIs.getStatus());
 		assertEquals("NONMAE2", retIs.getName());
-		assertEquals("/repo/aaa.tar.gz", retIs.getServiceMetadata().getPackageLocation());
-		assertEquals("MetadataName", retIs.getServiceMetadata().getName());
+		assertEquals("/repo/aaa.tar.gz", retIs.getBunMetadata().getPackageLocation());
+		assertEquals("MetadataName", retIs.getBunMetadata().getName());
 		assertEquals(2, bakerJpaControllerTest.countInstalledBuns());
 
 		// update it
@@ -138,14 +138,14 @@ public class BakerServiceTest {
 
 		InstalledBun istest = bs.getService(uuid);
 		assertNotNull(istest);
-		assertNotNull(istest.getServiceMetadata());
+		assertNotNull(istest.getBunMetadata());
 		assertEquals(uuid, istest.getUuid());
 		assertEquals(is.getUuid(), istest.getUuid());
 		assertEquals(InstalledBunStatus.STARTED, istest.getStatus());
 		assertEquals("www.repoexample.com/repo/EBUNID/" + uuid, istest.getRepoUrl());
-		assertEquals("/files/examplebun.tar.gz", istest.getServiceMetadata().getPackageLocation());
-		assertEquals("TemporaryServiceFromMockClass", istest.getServiceMetadata().getName());
-		assertEquals("1.0.0.test", istest.getServiceMetadata().getVersion());
+		assertEquals("/files/examplebun.tar.gz", istest.getBunMetadata().getPackageLocation());
+		assertEquals("TemporaryServiceFromMockClass", istest.getBunMetadata().getName());
+		assertEquals("1.0.0.test", istest.getBunMetadata().getVersion());
 		assertEquals("TemporaryServiceFromMockClass", istest.getName());
 		assertEquals("1.0.0.test", istest.getInstalledVersion());
 		assertEquals(1, bs.getManagedInstalledBuns().size());
@@ -352,14 +352,14 @@ public class BakerServiceTest {
 
 		InstalledBun istest = bs.getService(uuid);
 		assertNotNull(istest);
-		assertNotNull(istest.getServiceMetadata());
+		assertNotNull(istest.getBunMetadata());
 		assertEquals(uuid, istest.getUuid());
 		assertEquals(is.getUuid(), istest.getUuid());
 		assertEquals(InstalledBunStatus.FAILED, istest.getStatus());
 		assertEquals("www.repoexample.com/repo/EBUNERR/" + uuid, istest.getRepoUrl());
-		assertEquals("/files/examplebunErrInstall.tar.gz", istest.getServiceMetadata().getPackageLocation());
-		assertEquals("TemporaryServiceFromMockClass", istest.getServiceMetadata().getName());
-		assertEquals("1.0.0.test", istest.getServiceMetadata().getVersion());
+		assertEquals("/files/examplebunErrInstall.tar.gz", istest.getBunMetadata().getPackageLocation());
+		assertEquals("TemporaryServiceFromMockClass", istest.getBunMetadata().getName());
+		assertEquals("1.0.0.test", istest.getBunMetadata().getVersion());
 		assertEquals("(pending)", istest.getName());
 		assertNull(istest.getInstalledVersion());
 		assertEquals(1, bs.getManagedInstalledBuns().size());
@@ -400,7 +400,7 @@ public class BakerServiceTest {
 		}
 
 		InstalledBun istest = bs.getService(uuid);
-		assertNotNull(istest.getServiceMetadata());
+		assertNotNull(istest.getBunMetadata());
 		assertEquals(uuid, istest.getUuid());
 		assertEquals(InstalledBunStatus.STARTED, istest.getStatus());
 		assertEquals(1, bs.getManagedInstalledBuns().size());
@@ -415,7 +415,7 @@ public class BakerServiceTest {
 
 		assertEquals("Persistence not implemented yet?!?", 1, bsNew.getManagedInstalledBuns().size());// there should be one
 		InstalledBun istestNew = bsNew.getService(uuid); // req the service with the previous uuid
-		assertNotNull(istest.getServiceMetadata());
+		assertNotNull(istest.getBunMetadata());
 		assertEquals(uuid, istestNew.getUuid());
 		assertEquals(InstalledBunStatus.STARTED, istestNew.getStatus());
 

@@ -384,7 +384,7 @@ xmlns:date="http://exslt.org/dates-and-times"
 
     <xsl:if test="$admon.textlabel != 0 or d:title or d:info/d:title">
       <h3 class="title">
-        <xsl:call-template name="anchor"/>
+        <!-- xsl:call-template name="anchor"/>  -->
         
         <i>
           <xsl:attribute name="class">
@@ -470,7 +470,7 @@ Override the default header navigation to insert a home button on the top.
                 <xsl:if test="count($prev)>0">
                   <a accesskey="p">
                     <xsl:attribute name="href">
-                      <xsl:call-template name="href.target">
+                      <xsl:call-template >
                         <xsl:with-param name="object" select="$prev"/>
                       </xsl:call-template>
                     </xsl:attribute>
@@ -499,7 +499,7 @@ Override the default header navigation to insert a home button on the top.
                 -->
                 <a accesskey="p">
                     <xsl:attribute name="href">
-                      <xsl:call-template name="href.target">
+                      <xsl:call-template>
                         <xsl:with-param name="object" select="$home"/>
                       </xsl:call-template>
                     </xsl:attribute>
@@ -513,7 +513,7 @@ Override the default header navigation to insert a home button on the top.
                 <xsl:if test="count($next)>0">
                   <a accesskey="n">
                     <xsl:attribute name="href">
-                      <xsl:call-template name="href.target">
+                      <xsl:call-template >
                         <xsl:with-param name="object" select="$next"/>
                       </xsl:call-template>
                     </xsl:attribute>

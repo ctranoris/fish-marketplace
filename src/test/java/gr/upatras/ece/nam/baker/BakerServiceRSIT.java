@@ -45,91 +45,125 @@ public class BakerServiceRSIT {
 	@Autowired
 	private static BakerJpaController bakerJpaControllerTest;
 
+	@BeforeClass
+	public static void beforeClass() {
+		endpointUrl = System.getProperty("service.url");
+		// bakerJpaControllerTest.delete(message);
+	}
+
+	 @Test
+	 public void testBakerRSInstallServiceNotFoundAndFail() throws Exception {
 	
-    @BeforeClass
-    public static void beforeClass() {
-        endpointUrl = System.getProperty("service.url");
-        //bakerJpaControllerTest.delete(message);
-    }
+	 logger.info("Executing TEST = testBakerRSInstallServiceNotFound");
+	 List<Object> providers = new ArrayList<Object>();
+	 providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
+	 String uuid = UUID.fromString("55cab8b8-668b-4c75-99a9-39b24ed3d8be").toString();
+	 InstalledBun is = prepareInstalledService(uuid);
+	
+	 WebClient client = WebClient.create(endpointUrl + "/services/baker/api/ibuns/", providers);
+	 Response r = client.accept("application/json")
+	 .type("application/json")
+	 .post(is);
+	 assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
+	
+	
+	 MappingJsonFactory factory = new MappingJsonFactory();
+	 JsonParser parser = factory.createJsonParser((InputStream)r.getEntity());
+	 InstalledBun output = parser.readValueAs(InstalledBun.class);
+	 logger.info("InstalledServiceoutput = "+output.getUuid()+ ", status="+output.getStatus() );
+	 assertEquals(InstalledBunStatus.INIT , output.getStatus() );
+	
+	 //wait for 2 seconds
+	 Thread.sleep(2000);
+	 //ask again about this task
+	 client = WebClient.create(endpointUrl + "/services/baker/api/ibuns/"+uuid);
+	 r = client.accept("application/json").type("application/json").get();
+	
+	
+	 factory = new MappingJsonFactory();
+	 parser = factory.createJsonParser((InputStream)r.getEntity());
+	 output = parser.readValueAs(InstalledBun.class);
+	
+	 assertEquals(uuid, output.getUuid() );
+	 assertEquals(InstalledBunStatus.FAILED , output.getStatus() );
+	 assertEquals("(pending)", output.getName() );
+	 }
 
-    @Test
-    public void testBakerRSInstallServiceNotFoundAndFail() throws Exception {
-    	
-    	logger.info("Executing TEST = testBakerRSInstallServiceNotFound");
-        List<Object> providers = new ArrayList<Object>();
-        providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
-        String uuid = UUID.fromString("55cab8b8-668b-4c75-99a9-39b24ed3d8be").toString();
-        InstalledBun is = prepareInstalledService(uuid);
-                
-        WebClient client = WebClient.create(endpointUrl + "/services/baker/api/iservices/", providers);
-        Response r = client.accept("application/json")
-            .type("application/json")
-            .post(is);
-        assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
-        
+	@Test
+	public void testBakerRSInstallBunAndGetStatus() throws Exception {
 
-        MappingJsonFactory factory = new MappingJsonFactory();
-        JsonParser parser = factory.createJsonParser((InputStream)r.getEntity());
-        InstalledBun output = parser.readValueAs(InstalledBun.class);
-    	logger.info("InstalledServiceoutput = "+output.getUuid()+ ", status="+output.getStatus() );
-        assertEquals(InstalledBunStatus.INIT , output.getStatus()  );      
-        
-        //wait for 2 seconds
-        Thread.sleep(2000);
-        //ask again about this task
-        client = WebClient.create(endpointUrl + "/services/baker/api/iservices/"+uuid);
-        r = client.accept("application/json").type("application/json").get();
-        
-        
-        factory = new MappingJsonFactory();
-        parser = factory.createJsonParser((InputStream)r.getEntity());
-        output = parser.readValueAs(InstalledBun.class);
+		logger.info("Executing TEST = testBakerRSInstallServiceAndGetStatus");
 
-        assertEquals(uuid, output.getUuid() );
-        assertEquals(InstalledBunStatus.FAILED , output.getStatus()  );
-        assertEquals("(pending)", output.getName() );
-    }
-    
-    @Test
-    public void testBakerRSInstallServiceAndGetStatus() throws Exception {
-    	
-    	logger.info("Executing TEST = testBakerRSInstallServiceAndGetStatus");
-    	
-        List<Object> providers = new ArrayList<Object>();
-        providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
-        String uuid = UUID.fromString("77777777-668b-4c75-99a9-39b24ed3d8be").toString();
-        InstalledBun is = prepareInstalledService(uuid );
-                
-        WebClient client = WebClient.create(endpointUrl + "/services/baker/api/iservices", providers);
-        //first post a new installation
-        Response r = client.accept("application/json")
-            .type("application/json")
-            .post(is);
-        assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
-        
-        //wait for 12 seconds
-        Thread.sleep(12000);
-        
-        //ask again about this task
-        client = WebClient.create(endpointUrl + "/services/baker/api/iservices/"+uuid);
-        r = client.accept("application/json").type("application/json").get();
-        
-        MappingJsonFactory factory = new MappingJsonFactory();
-        JsonParser parser = factory.createJsonParser((InputStream)r.getEntity());
-        InstalledBun output = parser.readValueAs(InstalledBun.class);
+		List<Object> providers = new ArrayList<Object>();
+		providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
+		String uuid = UUID.fromString("77777777-668b-4c75-99a9-39b24ed3d8be").toString();
 
-        assertEquals(uuid, output.getUuid() );
-        assertEquals(InstalledBunStatus.STARTED , output.getStatus()  );
-        assertEquals("IntegrTestLocal example service", output.getName() );
-        
-        
-    }
-    
-    //helpers
-    private InstalledBun prepareInstalledService(String uuid){
-    	InstalledBun is = new InstalledBun( );     
-        is.setUuid(uuid);
-        is.setRepoUrl( endpointUrl +"/services/baker/localrepo/iservices/"+uuid);
-        return is;
-    }
+		// first delete an existing installation if exists
+
+		WebClient client = WebClient.create(endpointUrl + "/services/baker/api/ibuns/" + uuid, providers);
+		Response r = client.accept("application/json").type("application/json").delete();
+		if (Response.Status.NOT_FOUND.getStatusCode() != r.getStatus()) {
+			
+			assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
+			logger.info("Bun is already installed! We uninstall it first!");
+			int guard = 0;
+			InstalledBun insbun = null;
+			do {
+
+				// ask again about this task
+				client = WebClient.create(endpointUrl + "/services/baker/api/ibuns/" + uuid);
+				r = client.accept("application/json").type("application/json").get();
+
+				MappingJsonFactory factory = new MappingJsonFactory();
+				JsonParser parser = factory.createJsonParser((InputStream) r.getEntity());
+				insbun = parser.readValueAs(InstalledBun.class);
+
+				logger.info("Waiting for UNINSTALLED for test bun UUID=" + uuid + " . Now is: " + insbun.getStatus());
+				Thread.sleep(2000);
+				guard++;
+
+			} while ((insbun != null) && (insbun.getStatus() != InstalledBunStatus.UNINSTALLED) && (guard <= 30));
+
+			assertEquals(InstalledBunStatus.UNINSTALLED, insbun.getStatus());
+
+		}
+
+		// now post a new installation
+		client = WebClient.create(endpointUrl + "/services/baker/api/ibuns", providers);
+		InstalledBun is = prepareInstalledService(uuid);
+		r = client.accept("application/json").type("application/json").post(is);
+		assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
+
+		int guard = 0;
+
+		InstalledBun insbun = null;
+		do {
+
+			// ask again about this task
+			client = WebClient.create(endpointUrl + "/services/baker/api/ibuns/" + uuid);
+			r = client.accept("application/json").type("application/json").get();
+
+			MappingJsonFactory factory = new MappingJsonFactory();
+			JsonParser parser = factory.createJsonParser((InputStream) r.getEntity());
+			insbun = parser.readValueAs(InstalledBun.class);
+
+			logger.info("Waiting for STARTED for test bun UUID=" + uuid + " . Now is: " + insbun.getStatus());
+			Thread.sleep(1000);
+			guard++;
+
+		} while ((insbun != null) && (insbun.getStatus() != InstalledBunStatus.STARTED) && (insbun.getStatus() != InstalledBunStatus.FAILED) && (guard <= 30));
+
+		assertEquals(uuid, insbun.getUuid());
+		assertEquals(InstalledBunStatus.STARTED, insbun.getStatus());
+		assertEquals("IntegrTestLocal example service", insbun.getName());
+
+	}
+
+	// helpers
+	private InstalledBun prepareInstalledService(String uuid) {
+		InstalledBun is = new InstalledBun();
+		is.setUuid(uuid);
+		is.setRepoUrl(endpointUrl + "/services/baker/repo/ibuns/" + uuid);
+		return is;
+	}
 }

@@ -148,7 +148,7 @@ public class InstalledBunLifecycleMgmt {
 			logger.info("repoWebClient == null...FAILED");
 
 		if (smetadata != null) {
-			installService.setServiceMetadata(smetadata);
+			installService.setBunMetadata(smetadata);
 			installService.setStatus(InstalledBunStatus.DOWNLOADING);
 		} else {
 			logger.info("smetadata == null...FAILED");
@@ -158,16 +158,16 @@ public class InstalledBunLifecycleMgmt {
 	}
 
 	private void startPackageDownloading() {
-		logger.info("Downloading installation package: " + installService.getServiceMetadata().getPackageLocation());
+		logger.info("Downloading installation package: " + installService.getBunMetadata().getPackageLocation());
 
-		Path destFile = repoWebClient.fetchPackageFromLocation(installService.getUuid(), installService.getServiceMetadata().getPackageLocation());
+		Path destFile = repoWebClient.fetchPackageFromLocation(installService.getUuid(), installService.getBunMetadata().getPackageLocation());
 
 		if ((destFile != null) && (extractPackage(destFile) == 0)) {
 			installService.setStatus(InstalledBunStatus.DOWNLOADED);
 			Path packageLocalPath = destFile.getParent();
 			installService.setPackageLocalPath(packageLocalPath.toString());
 		} else {
-			logger.info("FAILED Downloading installation package: " + installService.getServiceMetadata().getPackageLocation());
+			logger.info("FAILED Downloading installation package: " + installService.getBunMetadata().getPackageLocation());
 			installService.setStatus(InstalledBunStatus.FAILED);
 		}
 
@@ -199,8 +199,8 @@ public class InstalledBunLifecycleMgmt {
 		String cmdStr = installService.getPackageLocalPath() + "/recipes/onInstallFinish";
 		logger.info("Will execute recipe 'onInstallFinish' of:" + cmdStr);
 
-		installService.setInstalledVersion(installService.getServiceMetadata().getVersion());
-		installService.setName(installService.getServiceMetadata().getName());
+		installService.setInstalledVersion(installService.getBunMetadata().getVersion());
+		installService.setName(installService.getBunMetadata().getName());
 		executeSystemCommand(cmdStr); // we don't care for the exit code
 		if (executeSystemCommand(cmdStr) == 0) {
 			installService.setStatus(InstalledBunStatus.CONFIGURING);

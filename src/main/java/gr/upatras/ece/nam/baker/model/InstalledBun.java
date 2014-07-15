@@ -41,7 +41,6 @@ public class InstalledBun {
 
 	@Id
 	private String uuid;
-	
 
 	@Basic()
 	private String repoUrl;
@@ -62,7 +61,7 @@ public class InstalledBun {
 	 * this exist only after fetching metadata from repo. Otherwise is null when service is installed.
 	 */
 	@Embedded
-	private BunMetadata serviceMetadata; 
+	private BunMetadata bunMetadata; 
 	
 	
 	public InstalledBun() {
@@ -112,12 +111,12 @@ public class InstalledBun {
 		this.status = status;
 	}
 
-	public BunMetadata getServiceMetadata() {
-		return serviceMetadata;
+	public BunMetadata getBunMetadata() {
+		return bunMetadata;
 	}
 
-	public void setServiceMetadata(BunMetadata sm) {
-		this.serviceMetadata = sm;
+	public void setBunMetadata(BunMetadata sm) {
+		this.bunMetadata = sm;
 	}
 
 	public String getPackageLocalPath() {

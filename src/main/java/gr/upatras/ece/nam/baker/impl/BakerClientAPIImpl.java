@@ -24,6 +24,7 @@ import gr.upatras.ece.nam.baker.model.InstalledBun;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -81,7 +82,7 @@ public class BakerClientAPIImpl implements IBakerClientAPI{
 			return Response.ok().entity(installedBun).build();
 		} else {
 			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
-			builder.entity("Installed bun with uuid=" + uuid + " not found in baker registry");
+			builder.entity("Installed bun with uuid=" + uuid + " not found in baker client registry");
 			throw new WebApplicationException(builder.build());
 		}
 
@@ -103,7 +104,8 @@ public class BakerClientAPIImpl implements IBakerClientAPI{
 	@POST
 	@Path("/ibuns/")
 	@Produces("application/json")
-	public Response jsonInstallBun(InstalledBun reqInstallBun) {
+	public Response jsonInstallBun(InstalledBun reqInstallBun) { 
+		
 
 		logger.info("Received POST for uuid: " + reqInstallBun.getUuid());
 
@@ -114,6 +116,26 @@ public class BakerClientAPIImpl implements IBakerClientAPI{
 		} else {
 			ResponseBuilder builder = Response.status(Status.INTERNAL_SERVER_ERROR);
 			builder.entity("Requested Bun with uuid=" + reqInstallBun.getUuid() + " cannot be installed");
+			throw new WebApplicationException(builder.build());
+		}
+
+	}
+	
+	@DELETE
+	@Path("/ibuns/{uuid}")
+	@Produces("application/json")
+	public Response getJsonDeleteBun(@PathParam("uuid") String uuid) {
+
+		logger.info("Received @DELETE for uuid: " + uuid);
+		
+		InstalledBun installedBun = bakerInstallationMgmtRef.getService( uuid );
+
+		if (installedBun != null) {
+			bakerInstallationMgmtRef.uninstallService(uuid);
+			return Response.ok().entity(installedBun).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("Installed bun with uuid=" + uuid + " not found in baker client registry");
 			throw new WebApplicationException(builder.build());
 		}
 
