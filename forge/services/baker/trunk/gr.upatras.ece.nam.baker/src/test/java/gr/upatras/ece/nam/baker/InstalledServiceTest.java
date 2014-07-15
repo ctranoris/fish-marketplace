@@ -19,8 +19,8 @@ import static org.junit.Assert.*;
 
 import java.util.UUID;
 
-import gr.upatras.ece.nam.baker.model.InstalledService;
-import gr.upatras.ece.nam.baker.model.InstalledServiceStatus;
+import gr.upatras.ece.nam.baker.model.InstalledBun;
+import gr.upatras.ece.nam.baker.model.InstalledBunStatus;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,14 +33,14 @@ public class InstalledServiceTest {
 	
 	@Test
 	public void testGetUuid() {
-		InstalledService is = installedServiceInit();
+		InstalledBun is = installedServiceInit();
 		assertNotNull(is.getUuid());		
 				
 	}
 
 	@Test
 	public void testSetUuid() {
-		InstalledService is = installedServiceInit();
+		InstalledBun is = installedServiceInit();
 		UUID uuid = UUID.randomUUID();
 		is.setUuid(uuid.toString());
 		assertEquals(uuid.toString(), is.getUuid());
@@ -49,14 +49,14 @@ public class InstalledServiceTest {
 
 	@Test
 	public void testGetRepoUrl() {
-		InstalledService is = installedServiceInit();
+		InstalledBun is = installedServiceInit();
 		assertNotNull(is.getRepoUrl());		
 				
 	}
 
 	@Test
 	public void testSetRepoUrl() {
-		InstalledService is = installedServiceInit();
+		InstalledBun is = installedServiceInit();
 		String url= "testurl";
 		is.setRepoUrl(url);
 		assertEquals(url, is.getRepoUrl());
@@ -64,13 +64,13 @@ public class InstalledServiceTest {
 
 	@Test
 	public void testGetInstalledVersion() {
-		InstalledService is = installedServiceInit();
+		InstalledBun is = installedServiceInit();
 		assertNotNull(is.getInstalledVersion());		
 	}
 
 	@Test
 	public void testSetInstalledVersion() {
-		InstalledService is = installedServiceInit();
+		InstalledBun is = installedServiceInit();
 		String version= "2.2vv2";
 		is.setInstalledVersion(version);
 		assertEquals(version, is.getInstalledVersion());
@@ -78,18 +78,18 @@ public class InstalledServiceTest {
 	
 	@Test
 	public void testSetStatus() {
-		InstalledService is = installedServiceInit();
+		InstalledBun is = installedServiceInit();
 		
-		is.setStatus( InstalledServiceStatus.INSTALLING ); 
-		assertEquals(InstalledServiceStatus.INSTALLING, is.getStatus());
+		is.setStatus( InstalledBunStatus.INSTALLING ); 
+		assertEquals(InstalledBunStatus.INSTALLING, is.getStatus());
 	}
 	
 	
 	//helpers
-	private InstalledService installedServiceInit(){
+	private InstalledBun installedServiceInit(){
 		UUID uuid =  UUID.randomUUID();		
 		String repoUrl="repourl";
-		InstalledService is = new InstalledService(uuid.toString() , repoUrl);
+		InstalledBun is = new InstalledBun(uuid.toString() , repoUrl);
 		is.setInstalledVersion("1.1v");
 		return is;
 	}

@@ -15,7 +15,7 @@
 
 package gr.upatras.ece.nam.baker.model;
 
-public enum InstalledServiceStatus {
+public enum InstalledBunStatus {
 
 	INIT,
 	DOWNLOADING,

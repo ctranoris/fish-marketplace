@@ -19,7 +19,7 @@ import java.net.URI;
 import java.util.UUID;
 
 import gr.upatras.ece.nam.baker.model.IBakerClientAPI;
-import gr.upatras.ece.nam.baker.model.InstalledService;
+import gr.upatras.ece.nam.baker.model.InstalledBun;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,75 +45,75 @@ public class BakerClientAPIImpl implements IBakerClientAPI{
 
 	private BakerInstallationMgmt bakerInstallationMgmtRef;
 
-	public BakerInstallationMgmt getBakerServiceRef() {
+	public BakerInstallationMgmt getBakerInstallationMgmtRef() {
 		return bakerInstallationMgmtRef;
 	}	
 
-	public void setBakerServiceRef(BakerInstallationMgmt bakerServiceRef) {
+	public void setBakerInstallationMgmtRef(BakerInstallationMgmt bakerServiceRef) {
 		this.bakerInstallationMgmtRef = bakerServiceRef;
 	}
 
 	// just to get an example json!
 	@GET
-	@Path("/iservices/example")
+	@Path("/ibuns/example")
 	@Produces("application/json")
-	public Response getJsonInstalledServiceExample() {
+	public Response getJsonInstalledBunExample() {
 
 		URI endpointUrl = uri.getBaseUri();
 
-		InstalledService installedService = new InstalledService(
+		InstalledBun installedBun = new InstalledBun(
 				("12cab8b8-668b-4c75-99a9-39b24ed3d8be"), 
 				endpointUrl + "localrepo/iservices/12cab8b8-668b-4c75-99a9-39b24ed3d8be");
-		installedService.setName("ServiceName");
-		return Response.ok().entity(installedService).build();
+		installedBun.setName("ServiceName");
+		return Response.ok().entity(installedBun).build();
 	}
 
 	@GET
-	@Path("/iservices/{uuid}")
+	@Path("/ibuns/{uuid}")
 	@Produces("application/json")
-	public Response getJsonInstalledService(@PathParam("uuid") String uuid) {
+	public Response getJsonInstalledBun(@PathParam("uuid") String uuid) {
 
 		logger.info("Received GET for uuid: " + uuid);
 
-		InstalledService installedService = bakerInstallationMgmtRef.getService( uuid );
+		InstalledBun installedBun = bakerInstallationMgmtRef.getService( uuid );
 
-		if (installedService != null) {
-			return Response.ok().entity(installedService).build();
+		if (installedBun != null) {
+			return Response.ok().entity(installedBun).build();
 		} else {
 			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
-			builder.entity("Installed service with uuid=" + uuid + " not found in baker registry");
+			builder.entity("Installed bun with uuid=" + uuid + " not found in baker registry");
 			throw new WebApplicationException(builder.build());
 		}
 
 	}
 
 	@GET
-	@Path("/iservices/")
+	@Path("/ibuns/")
 	@Produces("application/json")
-	public Response getJsonInstalledServices() {
+	public Response getJsonInstalledBuns() {
 
 		// for (int i = 0; i < 20; i++) { //add 20 more random
 		// bakerServiceRef.installService( UUID.randomUUID() ,
 		// "www.repoexample.comRANDOM", "1.1.1RANDOM"+i);
 		// }
-		return Response.ok().entity(bakerInstallationMgmtRef.getManagedServices().values()).build();
+		return Response.ok().entity(bakerInstallationMgmtRef.getManagedInstalledBuns().values()).build();
 
 	}
 
 	@POST
-	@Path("/iservices/")
+	@Path("/ibuns/")
 	@Produces("application/json")
-	public Response jsonInstallService(InstalledService reqInstallService) {
+	public Response jsonInstallBun(InstalledBun reqInstallBun) {
 
-		logger.info("Received POST for uuid: " + reqInstallService.getUuid());
+		logger.info("Received POST for uuid: " + reqInstallBun.getUuid());
 
-		InstalledService installedService = bakerInstallationMgmtRef.installServiceAndStart(reqInstallService.getUuid(), reqInstallService.getRepoUrl());
+		InstalledBun installedBun = bakerInstallationMgmtRef.installBunAndStart(reqInstallBun.getUuid(), reqInstallBun.getRepoUrl());
 
-		if (installedService != null) {
-			return Response.ok().entity(installedService).build();
+		if (installedBun != null) {
+			return Response.ok().entity(installedBun).build();
 		} else {
 			ResponseBuilder builder = Response.status(Status.INTERNAL_SERVER_ERROR);
-			builder.entity("Requested Service with uuid=" + reqInstallService.getUuid() + " cannot be installed");
+			builder.entity("Requested Bun with uuid=" + reqInstallBun.getUuid() + " cannot be installed");
 			throw new WebApplicationException(builder.build());
 		}
 

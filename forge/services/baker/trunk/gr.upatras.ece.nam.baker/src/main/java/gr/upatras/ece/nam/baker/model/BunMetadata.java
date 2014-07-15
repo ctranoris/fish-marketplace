@@ -28,7 +28,7 @@ import org.apache.openjpa.persistence.Type;
 
 
 @Embeddable
-public class ServiceMetadata {
+public class BunMetadata {
 
 	
 
@@ -48,10 +48,10 @@ public class ServiceMetadata {
 	private String packageLocation;
 
 
-	public ServiceMetadata() {
+	public BunMetadata() {
 	}
 	
-	public ServiceMetadata(String uuid, String name) {
+	public BunMetadata(String uuid, String name) {
 		super();
 		this.name_metadata = name;
 		this.uuid_metadata = uuid;

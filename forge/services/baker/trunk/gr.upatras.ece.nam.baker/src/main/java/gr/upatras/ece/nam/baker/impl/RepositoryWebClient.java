@@ -16,7 +16,7 @@
 package gr.upatras.ece.nam.baker.impl;
 
 import gr.upatras.ece.nam.baker.model.IRepositoryWebClient;
-import gr.upatras.ece.nam.baker.model.ServiceMetadata;
+import gr.upatras.ece.nam.baker.model.BunMetadata;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -47,7 +47,7 @@ public class RepositoryWebClient implements IRepositoryWebClient {
 			.getLog(RepositoryWebClient.class.getName());
 
 	@Override
-	public ServiceMetadata fetchMetadata(String uuid, String url) {
+	public BunMetadata fetchMetadata(String uuid, String url) {
 		logger.info("fetchMetadata from: " + url + " , for uuid=" + uuid);
 
 		try {
@@ -58,7 +58,7 @@ public class RepositoryWebClient implements IRepositoryWebClient {
 			if ( r.getStatus() == Response.Status.OK.getStatusCode() ){
 				MappingJsonFactory factory = new MappingJsonFactory();
 				JsonParser parser  = factory.createJsonParser((InputStream) r.getEntity());
-				ServiceMetadata output = parser.readValueAs(ServiceMetadata.class);
+				BunMetadata output = parser.readValueAs(BunMetadata.class);
 				return output;
 			}
 			

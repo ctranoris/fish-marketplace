@@ -15,7 +15,7 @@
 
 package gr.upatras.ece.nam.baker.repo;
 
-import gr.upatras.ece.nam.baker.model.ServiceMetadata;
+import gr.upatras.ece.nam.baker.model.BunMetadata;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -77,10 +77,10 @@ public class UploadDownloadFileService {
 	public Response getMetadata(@PathParam("uuid") String uuid) {
 
 		logger.info("Received GET for uuid: " + uuid);
-		ServiceMetadata sm = null;
+		BunMetadata sm = null;
 		
 		if (uuid.equals("77777777-668b-4c75-99a9-39b24ed3d8be") ) {
-			sm = new ServiceMetadata( uuid, "IntegrTestLocal example service");
+			sm = new BunMetadata( uuid, "IntegrTestLocal example service");
 			sm.setShortDescription("An example local service");
 			sm.setVersion("1.0.0");
 			sm.setIconsrc("");
@@ -90,7 +90,7 @@ public class UploadDownloadFileService {
 			
 			sm.setPackageLocation(endpointUrl + "localrepo/packages/77777777-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
 		}if ( uuid.equals("12cab8b8-668b-4c75-99a9-39b24ed3d8be") ) {
-			sm = new ServiceMetadata( uuid, "AN example service");
+			sm = new BunMetadata( uuid, "AN example service");
 			sm.setShortDescription("An example local service");
 			sm.setVersion("1.0.0rc1");
 			sm.setIconsrc("");
@@ -100,7 +100,7 @@ public class UploadDownloadFileService {
 			
 			sm.setPackageLocation(endpointUrl + "localrepo/packages/12cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
 		}else if (uuid.equals("22cab8b8-668b-4c75-99a9-39b24ed3d8be")) {
-			sm = new ServiceMetadata( uuid, "IntegrTestLocal example ErrInstall service");
+			sm = new BunMetadata( uuid, "IntegrTestLocal example ErrInstall service");
 			sm.setShortDescription("An example ErrInstall local service");
 			sm.setVersion("1.0.0");
 			sm.setIconsrc("");
