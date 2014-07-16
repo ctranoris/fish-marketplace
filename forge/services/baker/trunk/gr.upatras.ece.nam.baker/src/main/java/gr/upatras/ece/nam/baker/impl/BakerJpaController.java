@@ -84,18 +84,18 @@ public class BakerJpaController {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
 		Query q = entityManager.createQuery("SELECT m FROM InstalledBun m WHERE m.name='" + name + "'");
-		return (InstalledBun) q.getSingleResult();
+		return (q.getResultList().size()==0)?null:(InstalledBun) q.getSingleResult();
 	}
 
 	public InstalledBun readInstalledBunByUUID(final String uuid) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
 		Query q = entityManager.createQuery("SELECT m FROM InstalledBun m WHERE m.uuid='" + uuid + "'");
-		return (InstalledBun) q.getSingleResult();
+		return (q.getResultList().size()==0)?null:(InstalledBun) q.getSingleResult();
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<InstalledBun> read(int firstResult, int maxResults) {
+	public List<InstalledBun> readInstalledBuns(int firstResult, int maxResults) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
 		Query q = entityManager.createQuery("SELECT m FROM InstalledBun m");
@@ -104,7 +104,7 @@ public class BakerJpaController {
 		return q.getResultList();
 	}
 
-	public void delete(final InstalledBun message) {
+	public void deleteInstalledBun(final InstalledBun message) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
 		EntityTransaction entityTransaction = entityManager.getTransaction();
@@ -212,6 +212,24 @@ public class BakerJpaController {
 
 		return resis;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<BakerUser> readUsers(int firstResult, int maxResults) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		Query q = entityManager.createQuery("SELECT m FROM BakerUser m");
+		q.setFirstResult(firstResult);
+		q.setMaxResults(maxResults);
+		return q.getResultList();
+	}
+	
+	public long countUsers() {
+
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		Query q = entityManager.createQuery("SELECT COUNT(s) FROM BakerUser s");
+		return (Long) q.getSingleResult();
+	}
 
 	public void getAllUsersPrinted() {
 		logger.info("================= getAllUsers() ==================START");
@@ -258,6 +276,16 @@ public class BakerJpaController {
 
 		return resis;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<BunMetadata> readBunsMetadata(int firstResult, int maxResults) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		Query q = entityManager.createQuery("SELECT m FROM BunMetadata m");
+		q.setFirstResult(firstResult);
+		q.setMaxResults(maxResults);
+		return q.getResultList();
+	}
 
 	public void getAllBunsPrinted() {
 		logger.info("================= getAllBunsPrinted() ==================START");
@@ -281,13 +309,48 @@ public class BakerJpaController {
 	public BakerUser readBakerUserByUsername(String username) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 		Query q = entityManager.createQuery("SELECT m FROM BakerUser m WHERE m.username='" + username + "'");
-		return (BakerUser) q.getSingleResult();
+		return (q.getResultList().size()==0)?null:(BakerUser) q.getSingleResult();
+	}
+	
+	public BakerUser readBakerUserById(int userid) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		Query q = entityManager.createQuery("SELECT m FROM BakerUser m WHERE m.id=" + userid );
+		
+		
+		return (q.getResultList().size()==0)?null:(BakerUser) q.getSingleResult();
 	}
 
 	public BunMetadata readBunMetadataByUUID(String uuid) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
 		Query q = entityManager.createQuery("SELECT m FROM BunMetadata m WHERE m.uuid='" + uuid + "'");
-		return (BunMetadata) q.getSingleResult();
+		return (q.getResultList().size()==0)?null:(BunMetadata) q.getSingleResult();
 	}
+
+	public void deleteUser(final BakerUser u) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		EntityTransaction entityTransaction = entityManager.getTransaction();
+
+		entityTransaction.begin();
+
+		entityManager.remove(u);
+
+		entityTransaction.commit();
+	}
+
+	public void deleteBun(final BunMetadata bun) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		EntityTransaction entityTransaction = entityManager.getTransaction();
+
+		entityTransaction.begin();
+
+		entityManager.remove(bun);
+
+		entityTransaction.commit();
+	}
+
+	
+
 }
