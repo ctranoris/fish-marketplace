@@ -18,6 +18,7 @@
 
 		<class>gr.upatras.ece.nam.baker.model.InstalledBun</class>
 		<class>gr.upatras.ece.nam.baker.model.BunMetadata</class>
+		<class>gr.upatras.ece.nam.baker.model.BakerUser</class>
 
 
 		<properties>
@@ -40,6 +41,7 @@
 
 		<class>gr.upatras.ece.nam.baker.model.InstalledBun</class>
 		<class>gr.upatras.ece.nam.baker.model.BunMetadata</class>
+		<class>gr.upatras.ece.nam.baker.model.BakerUser</class>
 
 
 

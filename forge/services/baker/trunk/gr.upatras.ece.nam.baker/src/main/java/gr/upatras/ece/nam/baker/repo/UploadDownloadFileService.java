@@ -58,7 +58,7 @@ public class UploadDownloadFileService {
 	@GET
 	@Path("/packages/{uuid}/{bunfile}")
 	@Produces("application/gzip")
-	public Response downloadFile(@PathParam("uuid") String uuid, @PathParam("bunfile") String bunfile) {
+	public Response downloadBunPackage(@PathParam("uuid") String uuid, @PathParam("bunfile") String bunfile) {
 
 		logger.info("bunfile: " + bunfile);
 		logger.info("uuid: " + uuid);
@@ -84,7 +84,6 @@ public class UploadDownloadFileService {
 			sm.setShortDescription("An example local service");
 			sm.setVersion("1.0.0");
 			sm.setIconsrc("");
-			sm.setProvider("");
 			sm.setLongDescription("");
 			URI endpointUrl = uri.getBaseUri();
 			
@@ -94,7 +93,6 @@ public class UploadDownloadFileService {
 			sm.setShortDescription("An example local service");
 			sm.setVersion("1.0.0rc1");
 			sm.setIconsrc("");
-			sm.setProvider("");
 			sm.setLongDescription("");
 			URI endpointUrl = uri.getBaseUri();
 			
@@ -104,7 +102,6 @@ public class UploadDownloadFileService {
 			sm.setShortDescription("An example ErrInstall local service");
 			sm.setVersion("1.0.0");
 			sm.setIconsrc("");
-			sm.setProvider("");
 			sm.setLongDescription("");
 			URI endpointUrl = uri.getBaseUri();
 			

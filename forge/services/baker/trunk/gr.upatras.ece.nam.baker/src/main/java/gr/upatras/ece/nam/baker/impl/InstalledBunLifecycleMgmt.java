@@ -133,7 +133,7 @@ public class InstalledBunLifecycleMgmt {
 			break;
 		}
 
-		bakerJpaController.update(installedBun);
+		bakerJpaController.updateInstalledBun(installedBun);
 
 		if ((targetStatus != installedBun.getStatus()) && (installedBun.getStatus() != InstalledBunStatus.FAILED))
 			processState();

@@ -15,37 +15,45 @@
 
 package gr.upatras.ece.nam.baker.model;
 
-import java.util.UUID;
-
 import javax.persistence.Basic;
-import javax.persistence.Embeddable;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
+import javax.persistence.ManyToOne;
 
-import org.apache.openjpa.persistence.Type;
 
-
-@Embeddable
+@Entity(name = "BunMetadata")
 public class BunMetadata {
 
+
+	@Id
+	@GeneratedValue( strategy = GenerationType.IDENTITY  )
+	private long id = 0;
+	
+	@GeneratedValue( strategy = GenerationType.AUTO, generator = "uuid-hex"  )
+	private String uuid;
 	
 
+	@ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
+	@JoinColumns({ @JoinColumn() })
+	private BakerUser owner = null;
+
 	@Basic()
-	private String uuid_metadata;	
+	private String name = null;
 	@Basic()
-	private String name_metadata;
+	private String iconsrc = null;
 	@Basic()
-	private String provider;
-	private String iconsrc;
+	private String shortDescription = null;
 	@Basic()
-	private String shortDescription;
-	private String longDescription;
+	private String longDescription = null;
 	@Basic()
-	private String version;
+	private String version = null;
 	@Basic()
-	private String packageLocation;
+	private String packageLocation = null;
 
 
 	public BunMetadata() {
@@ -53,21 +61,26 @@ public class BunMetadata {
 	
 	public BunMetadata(String uuid, String name) {
 		super();
-		this.name_metadata = name;
-		this.uuid_metadata = uuid;
+		this.name = name;
+		this.uuid = uuid;
 	}
+	
+	public BakerUser getOwner() {
+		return owner;
+	}
+	
+	public void setOwner(BakerUser newOwner) {
+		owner = newOwner;
+	}
+	
 	public String getName() {
-		return name_metadata;
+		return name;
 	}
 	public void setName(String name) {
-		this.name_metadata = name;
+		this.name = name;
 	}
-	public String getProvider() {
-		return provider;
-	}
-	public void setProvider(String provider) {
-		this.provider = provider;
-	}
+	
+
 	public String getIconsrc() {
 		return iconsrc;
 	}
@@ -99,10 +112,18 @@ public class BunMetadata {
 		this.packageLocation = packageLocation;
 	}
 	public String getUuid() {
-		return uuid_metadata;
+		return uuid;
 	}
 	public void setUuid(String uuid) {
-		this.uuid_metadata = uuid;
+		this.uuid = uuid;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
 	}
 
 
