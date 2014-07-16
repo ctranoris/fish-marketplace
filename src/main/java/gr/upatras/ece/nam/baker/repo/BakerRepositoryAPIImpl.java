@@ -16,6 +16,7 @@
 package gr.upatras.ece.nam.baker.repo;
 
 import gr.upatras.ece.nam.baker.model.BunMetadata;
+import gr.upatras.ece.nam.baker.model.IBakerRepositoryAPI;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -48,12 +49,12 @@ import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 
 
 @Path("/repo")
-public class UploadDownloadFileService {
+public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI{
 
 	@Context
 	UriInfo uri;
 
-	private static final transient Log logger = LogFactory.getLog(UploadDownloadFileService.class.getName());
+	private static final transient Log logger = LogFactory.getLog(BakerRepositoryAPIImpl.class.getName());
 
 	@GET
 	@Path("/packages/{uuid}/{bunfile}")
@@ -74,7 +75,7 @@ public class UploadDownloadFileService {
 	@GET
 	@Path("/ibuns/{uuid}")
 	@Produces("application/json")
-	public Response getMetadata(@PathParam("uuid") String uuid) {
+	public Response getBunMetadataByUUID(@PathParam("uuid") String uuid) {
 
 		logger.info("Received GET for uuid: " + uuid);
 		BunMetadata sm = null;
@@ -116,6 +117,31 @@ public class UploadDownloadFileService {
 			throw new WebApplicationException(builder.build());
 		}
 
+	}
+
+	@Override
+	public Response getBuns() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Response getUsers() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Response getAllBunsofUser(String username) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public Response uploadBunMetadata(BunMetadata bm) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	// @POST

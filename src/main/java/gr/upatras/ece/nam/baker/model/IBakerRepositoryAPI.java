@@ -7,6 +7,7 @@ public interface IBakerRepositoryAPI {
 
 	Response getBuns();
 	Response getUsers();
+	Response getAllBunsofUser(String username);
 	Response getBunMetadataByUUID(String uuid);
 	Response downloadBunPackage(String uuid, String bunfile);
 	Response uploadBunMetadata(BunMetadata bm);
