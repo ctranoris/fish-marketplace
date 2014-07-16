@@ -60,6 +60,7 @@ public class InstalledBun {
 	/**
 	 * this exist only after fetching metadata from repo. Otherwise is null when service is installed.
 	 */
+	
 	@Embedded
 	private BunMetadata bunMetadata; 
 	
