@@ -49,7 +49,7 @@ public class BakerInstallationMgmt {
 	 *            InstalledBun to add
 	 * @return the same service
 	 */
-	private InstalledBun addSBunToManagedBuns(InstalledBun s) {
+	private InstalledBun addBunToManagedBuns(InstalledBun s) {
 		managedInstalledBuns.put(s.getUuid(), s);
 
 
@@ -85,7 +85,7 @@ public class BakerInstallationMgmt {
 
 		if (s == null) {
 			s = new InstalledBun(reqBunUUID, bunRepoURL);
-			addSBunToManagedBuns(s);
+			addBunToManagedBuns(s);
 			bakerJpaController.saveInstalledBun(s);
 		} else if ((s.getStatus() == InstalledBunStatus.FAILED) || (s.getStatus() == InstalledBunStatus.UNINSTALLED)) {
 
@@ -143,7 +143,7 @@ public class BakerInstallationMgmt {
 		this.bakerJpaController = b;
 
 		this.bakerJpaController = b;
-		List<InstalledBun> ls = b.read(0, 100000);
+		List<InstalledBun> ls = b.readInstalledBuns(0, 100000);
 
 		for (InstalledBun installedBun : ls) {
 			managedInstalledBuns.put(installedBun.getUuid(), installedBun);

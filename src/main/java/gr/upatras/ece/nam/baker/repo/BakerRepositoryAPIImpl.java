@@ -15,46 +15,165 @@
 
 package gr.upatras.ece.nam.baker.repo;
 
+import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.IBakerRepositoryAPI;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
-import javax.activation.DataHandler;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.cxf.jaxrs.ext.multipart.Attachment;
-
 
 @Path("/repo")
-public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI{
+public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 	@Context
 	UriInfo uri;
 
 	private static final transient Log logger = LogFactory.getLog(BakerRepositoryAPIImpl.class.getName());
+
+	private BakerRepository bakerRepositoryRef;
+
+	// BakerUser related API
+
+	@GET
+	@Path("/users/")
+	@Produces("application/json")
+	public Response getUsers() {
+		return Response.ok().entity(bakerRepositoryRef.getUserValues()).build();
+	}
+
+	/**
+	 * @return an example user to see how to do POSTS
+	 */
+	@GET
+	@Path("/users/example")
+	@Produces("application/json")
+	public Response getUserExample() {
+		BakerUser b = new BakerUser();
+		b.setName("Christos");
+		b.setUsername("ctran");
+		b.setPassword("passwd");
+		b.setOrganization("UoP");
+		ResponseBuilder response = Response.ok(b);
+
+		CacheControl cacheControl = new CacheControl();
+		cacheControl.setNoCache(true);
+		response.cacheControl(cacheControl);
+
+		return response.build();
+	}
+
+	@GET
+	@Path("/users/{userid}")
+	@Produces("application/json")
+	public Response getUserById(@PathParam("userid") int userid) {
+
+		BakerUser u = bakerRepositoryRef.getUserByID(userid);
+
+		if (u != null) {
+			return Response.ok().entity(u).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("User with id=" + userid + " not found in baker registry");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+
+	@POST
+	@Path("/users/")
+	@Produces("application/json")
+	@Consumes("application/json")
+	public Response addUser(BakerUser user) {
+
+		logger.info("Received POST for user: " + user.getUsername());
+
+		BakerUser u = bakerRepositoryRef.addBakerUserToUsers(user);
+
+		if (u != null) {
+			return Response.ok().entity(u).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.INTERNAL_SERVER_ERROR);
+			builder.entity("Requested user with username=" + user.getUsername() + " cannot be installed");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+
+	@PUT
+	@Path("/users/{userid}")
+	@Produces("application/json")
+	@Consumes("application/json")
+	public Response updateUserInfo(@PathParam("userid") int userid, BakerUser user) {
+		logger.info("Received PUT for user: " + user.getUsername());
+
+		BakerUser u = bakerRepositoryRef.updateUserInfo(userid, user);
+
+		if (u != null) {
+			return Response.ok().entity(u).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.INTERNAL_SERVER_ERROR);
+			builder.entity("Requested user with username=" + user.getUsername() + " cannot be updated");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+
+	@DELETE
+	@Path("/users/{userid}")
+	@Produces("application/json")
+	public Response deleteUser(@PathParam("userid") int userid) {
+		logger.info("Received DELETE for userid: " + userid);
+
+		bakerRepositoryRef.deleteUser(userid);
+
+		return Response.ok().build();
+	}
+
+	@GET
+	@Path("/users/{userid}/buns")
+	@Produces("application/json")
+	public Response getAllBunsofUser(@PathParam("userid") int userid) {
+		logger.info("getAllBunsofUser for userid: " + userid);
+		BakerUser u = bakerRepositoryRef.getUserByID(userid);
+		
+		if (u != null) {
+			List<BunMetadata> buns = u.getBuns();
+//			Collection<BunMetadata> b = buns;
+			return Response.ok().entity(buns ).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("User with id=" + userid + " not found in baker registry");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+
+	@POST
+	@Path("/users/{userid}/bun/")
+	public Response addBunMetadata(@PathParam("userid") int userid, BunMetadata bm) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	// Buns related API
 
 	@GET
 	@Path("/packages/{uuid}/{bunfile}")
@@ -63,7 +182,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI{
 
 		logger.info("bunfile: " + bunfile);
 		logger.info("uuid: " + uuid);
-		URL res = getClass().getResource("/files/"+bunfile);
+		URL res = getClass().getResource("/files/" + bunfile);
 		logger.info("TEST RESOURCE FILE: " + res);
 
 		File file = new File(res.getFile());
@@ -79,33 +198,34 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI{
 
 		logger.info("Received GET for uuid: " + uuid);
 		BunMetadata sm = null;
-		
-		if (uuid.equals("77777777-668b-4c75-99a9-39b24ed3d8be") ) {
-			sm = new BunMetadata( uuid, "IntegrTestLocal example service");
+
+		if (uuid.equals("77777777-668b-4c75-99a9-39b24ed3d8be")) {
+			sm = new BunMetadata(uuid, "IntegrTestLocal example service");
 			sm.setShortDescription("An example local service");
 			sm.setVersion("1.0.0");
 			sm.setIconsrc("");
 			sm.setLongDescription("");
 			URI endpointUrl = uri.getBaseUri();
-			
+
 			sm.setPackageLocation(endpointUrl + "repo/packages/77777777-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
-		}if ( uuid.equals("12cab8b8-668b-4c75-99a9-39b24ed3d8be") ) {
-			sm = new BunMetadata( uuid, "AN example service");
+		}
+		if (uuid.equals("12cab8b8-668b-4c75-99a9-39b24ed3d8be")) {
+			sm = new BunMetadata(uuid, "AN example service");
 			sm.setShortDescription("An example local service");
 			sm.setVersion("1.0.0rc1");
 			sm.setIconsrc("");
 			sm.setLongDescription("");
 			URI endpointUrl = uri.getBaseUri();
-			
+
 			sm.setPackageLocation(endpointUrl + "repo/packages/12cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
-		}else if (uuid.equals("22cab8b8-668b-4c75-99a9-39b24ed3d8be")) {
-			sm = new BunMetadata( uuid, "IntegrTestLocal example ErrInstall service");
+		} else if (uuid.equals("22cab8b8-668b-4c75-99a9-39b24ed3d8be")) {
+			sm = new BunMetadata(uuid, "IntegrTestLocal example ErrInstall service");
 			sm.setShortDescription("An example ErrInstall local service");
 			sm.setVersion("1.0.0");
 			sm.setIconsrc("");
 			sm.setLongDescription("");
 			URI endpointUrl = uri.getBaseUri();
-			
+
 			sm.setPackageLocation(endpointUrl + "repo/packages/22cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebunErrInstall.tar.gz");
 		}
 
@@ -124,19 +244,6 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI{
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
-	public Response getUsers() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Response getAllBunsofUser(String username) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 
 	@Override
 	public Response uploadBunMetadata(BunMetadata bm) {
@@ -186,4 +293,12 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI{
 	// }
 	// return "unknown";
 	// }
+
+	public BakerRepository getBakerRepositoryRef() {
+		return bakerRepositoryRef;
+	}
+
+	public void setBakerRepositoryRef(BakerRepository bakerRepositoryRef) {
+		this.bakerRepositoryRef = bakerRepositoryRef;
+	}
 }

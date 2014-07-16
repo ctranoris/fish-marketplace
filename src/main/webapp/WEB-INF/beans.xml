@@ -11,19 +11,24 @@
 	<bean
 		class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer" />
 
+	<bean id="bakerRepositoryBean" class="gr.upatras.ece.nam.baker.repo.BakerRepository">
+		<property name="bakerJpaController" ref="bakerJpaControllerRef" />
+	</bean>
 
 	<bean id="repoWebClientBean" class="gr.upatras.ece.nam.baker.impl.RepositoryWebClient" />
-	
-	<bean id="bakerInstallationMgmtBean" class="gr.upatras.ece.nam.baker.impl.BakerInstallationMgmt" >
+
+	<bean id="bakerInstallationMgmtBean" class="gr.upatras.ece.nam.baker.impl.BakerInstallationMgmt">
 		<property name="repoWebClient" ref="repoWebClientBean" />
 		<property name="bakerJpaController" ref="bakerJpaControllerRef" />
 	</bean>
 
 	<jaxrs:server id="services" address="/baker/">
 		<jaxrs:serviceBeans>
-			
-			<bean class="gr.upatras.ece.nam.baker.repo.BakerRepositoryAPIImpl" />
-			 
+
+			<bean class="gr.upatras.ece.nam.baker.repo.BakerRepositoryAPIImpl" >
+				<property name="bakerRepositoryRef" ref="bakerRepositoryBean" />
+			</bean>
+
 			<bean class="gr.upatras.ece.nam.baker.impl.BakerClientAPIImpl">
 				<property name="bakerInstallationMgmtRef" ref="bakerInstallationMgmtBean" />
 			</bean>
@@ -32,12 +37,11 @@
 			<bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" />
 		</jaxrs:providers>
 	</jaxrs:server>
-	
-	
-	
-	
-	<bean name="bakerJpaControllerRef"
-		class="gr.upatras.ece.nam.baker.impl.BakerJpaController">
+
+
+
+
+	<bean name="bakerJpaControllerRef" class="gr.upatras.ece.nam.baker.impl.BakerJpaController">
 	</bean>
 
 

@@ -105,6 +105,17 @@ public class BakerRepoTest {
 		assertNotNull(testbm.getOwner());
 		assertEquals("ausername", testbm.getOwner().getUsername() );
 		
+		
+		bu = new BakerUser();
+		bu.setOrganization("UoP2");
+		bu.setName("aname2");
+		bu.setUsername("ausername2");
+		bu.setPassword("apassword2");
+
+		bakerJpaControllerTest.saveUser(bu);
+		bakerJpaControllerTest.getAllUsersPrinted();
+		assertEquals(2, bakerJpaControllerTest.countUsers() );
+		
 
 	}
 
