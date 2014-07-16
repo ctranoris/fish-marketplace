@@ -22,7 +22,7 @@
 	<jaxrs:server id="services" address="/baker/">
 		<jaxrs:serviceBeans>
 			
-			<bean class="gr.upatras.ece.nam.baker.repo.UploadDownloadFileService" />
+			<bean class="gr.upatras.ece.nam.baker.repo.BakerRepositoryAPIImpl" />
 			 
 			<bean class="gr.upatras.ece.nam.baker.impl.BakerClientAPIImpl">
 				<property name="bakerInstallationMgmtRef" ref="bakerInstallationMgmtBean" />
