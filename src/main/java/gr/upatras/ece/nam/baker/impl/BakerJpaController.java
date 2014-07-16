@@ -126,17 +126,16 @@ public class BakerJpaController {
      	
 	        List<InstalledBun>lb = entityManager.createQuery( "select p from InstalledBun p").getResultList();
 	        for (Iterator iterator = lb.iterator(); iterator.hasNext();) {
-	        	InstalledBun iservice = (InstalledBun) iterator.next();
-				logger.info("=== InstalledBun found: "+iservice.getName() +
-						" Uuid: "+iservice.getUuid()+
-						" RepoUrl: "+iservice.getRepoUrl()+
-						" InstalledVersion: "+iservice.getInstalledVersion()+
-						" Status: "+iservice.getStatus() );
-				if (iservice.getBunMetadata()!=null)
-					logger.info("=== InstalledBunMetadata found: "+iservice.getBunMetadata().getName() +
-							" Uuid: "+iservice.getBunMetadata().getUuid()+
-							" getPackageLocation: "+iservice.getBunMetadata().getPackageLocation()+
-							" getVersion: "+iservice.getBunMetadata().getVersion() );
+	        	InstalledBun iBun = (InstalledBun) iterator.next();
+				logger.info("=== InstalledBun found: "+iBun.getName() +
+						", Id: "+iBun.getId()+
+						", Uuid: "+iBun.getUuid()+
+						", RepoUrl: "+iBun.getRepoUrl()+
+						", InstalledVersion: "+iBun.getInstalledVersion()+
+						", PackageURL: "+iBun.getPackageURL()+
+						", PackageLocalPath: "+iBun.getPackageLocalPath()+
+						", Status: "+iBun.getStatus() );
+				
 				
 			}
 	     
