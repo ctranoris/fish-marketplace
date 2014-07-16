@@ -19,9 +19,11 @@ import javax.ws.rs.core.Response;
 
 public interface IBakerClientAPI {
 
-	Response getJsonInstalledBun(String uuid);
+	Response getInstalledBunInfoByUUID(String uuid);
 	
-	Response getJsonInstalledBuns();
+	Response getInstalledBuns();
 	
-	Response jsonInstallBun(InstalledBun reqInstallBun);
+	Response installBun(InstalledBun reqInstallBun);
+	
+	Response deleteBun(String uuid);
 }
