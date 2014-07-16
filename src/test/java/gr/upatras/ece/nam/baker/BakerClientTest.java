@@ -41,12 +41,12 @@ import org.springframework.transaction.annotation.Transactional;
 @ContextConfiguration(locations = { "classpath:contextTest.xml" })
 @TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = false)
 @Transactional
-public class BakerServiceTest {
+public class BakerClientTest {
 
 	@Autowired
 	private BakerJpaController bakerJpaControllerTest;
 
-	private static final transient Log logger = LogFactory.getLog(BakerServiceTest.class.getName());
+	private static final transient Log logger = LogFactory.getLog(BakerClientTest.class.getName());
 
 	@Test
 	public void testGetManagedServices() {
@@ -96,7 +96,7 @@ public class BakerServiceTest {
 
 		// update it
 		ibuntest.setStatus(InstalledBunStatus.STARTED);
-		bakerJpaControllerTest.update(ibuntest);
+		bakerJpaControllerTest.updateInstalledBun(ibuntest);
 		retIs = bakerJpaControllerTest.readInstalledBunByUUID(uuid);
 		assertEquals(InstalledBunStatus.STARTED, retIs.getStatus());
 		// bakerJpaControllerTest.getAll();
