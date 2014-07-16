@@ -36,27 +36,28 @@ public class InstalledBunLifecycleMgmt {
 
 	private static final transient Log logger = LogFactory.getLog(InstalledBunLifecycleMgmt.class.getName());
 
-	InstalledBun installService;
+	InstalledBun installedBun;
 	IRepositoryWebClient repoWebClient;
 
 	BakerJpaController bakerJpaController;
 	private InstalledBunStatus targetStatus;
 	private Boolean restartTriggered = false;
+	private BunMetadata bunMetadata = null;
 
-	public InstalledBunLifecycleMgmt(InstalledBun s, IRepositoryWebClient rwc, BakerJpaController jpactr, InstalledBunStatus ts) {
-		installService = s;
+	public InstalledBunLifecycleMgmt(InstalledBun b, IRepositoryWebClient rwc, BakerJpaController jpactr, InstalledBunStatus ts) {
+		installedBun = b;
 		repoWebClient = rwc;
 		bakerJpaController = jpactr;
 		targetStatus = ts;
 
-		logger.info("ServiceLifecycleMgmt uuid:" + installService.getUuid() + " name:" + installService.getName());
+		logger.info("ServiceLifecycleMgmt uuid:" + installedBun.getUuid() + " name:" + installedBun.getName());
 		processState();
 	}
 
 	public void processState() {
 
-		logger.info("Task for uuid:" + installService.getUuid() + " is:" + installService.getStatus());
-		InstalledBunStatus entryState = installService.getStatus();
+		logger.info("Task for uuid:" + installedBun.getUuid() + " is:" + installedBun.getStatus());
+		InstalledBunStatus entryState = installedBun.getStatus();
 		
 		//this is used to restart the service. usefull if reconfiguring.
 		if ((targetStatus == InstalledBunStatus.STARTED) &&
@@ -97,11 +98,11 @@ public class InstalledBunLifecycleMgmt {
 			break;
 		case STARTED:
 			if (targetStatus == InstalledBunStatus.STOPPED) {
-				installService.setStatus(InstalledBunStatus.STOPPING);
+				installedBun.setStatus(InstalledBunStatus.STOPPING);
 			} else if (targetStatus == InstalledBunStatus.UNINSTALLED) {
-				installService.setStatus(InstalledBunStatus.STOPPING);
+				installedBun.setStatus(InstalledBunStatus.STOPPING);
 			} else if ( (targetStatus == InstalledBunStatus.STARTED) && restartTriggered) {
-				installService.setStatus(InstalledBunStatus.STOPPING);
+				installedBun.setStatus(InstalledBunStatus.STOPPING);
 			}
 
 			break;
@@ -112,9 +113,9 @@ public class InstalledBunLifecycleMgmt {
 
 		case STOPPED:
 			if (targetStatus == InstalledBunStatus.UNINSTALLED) {
-				installService.setStatus(InstalledBunStatus.UNINSTALLING);
+				installedBun.setStatus(InstalledBunStatus.UNINSTALLING);
 			} else if (targetStatus == InstalledBunStatus.STARTED) {
-				installService.setStatus(InstalledBunStatus.CONFIGURING);
+				installedBun.setStatus(InstalledBunStatus.CONFIGURING);
 			}
 			break;
 
@@ -132,43 +133,44 @@ public class InstalledBunLifecycleMgmt {
 			break;
 		}
 
-		bakerJpaController.update(installService);
+		bakerJpaController.update(installedBun);
 
-		if ((targetStatus != installService.getStatus()) && (installService.getStatus() != InstalledBunStatus.FAILED))
+		if ((targetStatus != installedBun.getStatus()) && (installedBun.getStatus() != InstalledBunStatus.FAILED))
 			processState();
 
 	}
 
 	private void downLoadMetadataInfo() {
+		
 		logger.info("Downloading metadata info...");
-		BunMetadata smetadata = null;
+		
+		bunMetadata = null;
 		if (repoWebClient != null)
-			smetadata = repoWebClient.fetchMetadata(installService.getUuid(), installService.getRepoUrl());
+			bunMetadata = repoWebClient.fetchMetadata(installedBun.getUuid(), installedBun.getRepoUrl());
 		else
-			logger.info("repoWebClient == null...FAILED");
+			logger.info("repoWebClient == null...FAILED PLEASE CHECK");
 
-		if (smetadata != null) {
-			installService.setBunMetadata(smetadata);
-			installService.setStatus(InstalledBunStatus.DOWNLOADING);
+		if (bunMetadata != null) {
+			installedBun.setStatus(InstalledBunStatus.DOWNLOADING);
 		} else {
 			logger.info("smetadata == null...FAILED");
-			installService.setStatus(InstalledBunStatus.FAILED);
+			installedBun.setStatus(InstalledBunStatus.FAILED);
 		}
 
 	}
 
 	private void startPackageDownloading() {
-		logger.info("Downloading installation package: " + installService.getBunMetadata().getPackageLocation());
+		logger.info("Downloading installation package: " + bunMetadata.getPackageLocation() );
 
-		Path destFile = repoWebClient.fetchPackageFromLocation(installService.getUuid(), installService.getBunMetadata().getPackageLocation());
+		Path destFile = repoWebClient.fetchPackageFromLocation(installedBun.getUuid(), bunMetadata.getPackageLocation());
 
 		if ((destFile != null) && (extractPackage(destFile) == 0)) {
-			installService.setStatus(InstalledBunStatus.DOWNLOADED);
+			installedBun.setStatus(InstalledBunStatus.DOWNLOADED);
 			Path packageLocalPath = destFile.getParent();
-			installService.setPackageLocalPath(packageLocalPath.toString());
+			installedBun.setPackageLocalPath(packageLocalPath.toString());
 		} else {
-			logger.info("FAILED Downloading installation package: " + installService.getBunMetadata().getPackageLocation());
-			installService.setStatus(InstalledBunStatus.FAILED);
+			logger.info("FAILED Downloading installation package from: " + bunMetadata.getPackageLocation());
+			installedBun.setStatus(InstalledBunStatus.FAILED);
 		}
 
 	}
@@ -180,83 +182,85 @@ public class InstalledBunLifecycleMgmt {
 
 	private void startPackageInstallation() {
 
-		installService.setStatus(InstalledBunStatus.INSTALLING);
+		installedBun.setStatus(InstalledBunStatus.INSTALLING);
 		logger.info("Installing...");
 
-		String cmdStr = installService.getPackageLocalPath() + "/recipes/onInstall";
+		String cmdStr = installedBun.getPackageLocalPath() + "/recipes/onInstall";
 		logger.info("Will execute recipe 'onInstall' of:" + cmdStr);
 
 		if (executeSystemCommand(cmdStr) == 0) {
 
-			installService.setStatus(InstalledBunStatus.INSTALLED);
+			installedBun.setStatus(InstalledBunStatus.INSTALLED);
 		} else
-			installService.setStatus(InstalledBunStatus.FAILED);
+			installedBun.setStatus(InstalledBunStatus.FAILED);
 
 	}
 
 	private void execInstalledPhase() {
 		logger.info("execInstalledPhase...");
-		String cmdStr = installService.getPackageLocalPath() + "/recipes/onInstallFinish";
+		String cmdStr = installedBun.getPackageLocalPath() + "/recipes/onInstallFinish";
 		logger.info("Will execute recipe 'onInstallFinish' of:" + cmdStr);
 
-		installService.setInstalledVersion(installService.getBunMetadata().getVersion());
-		installService.setName(installService.getBunMetadata().getName());
+		
 		executeSystemCommand(cmdStr); // we don't care for the exit code
 		if (executeSystemCommand(cmdStr) == 0) {
-			installService.setStatus(InstalledBunStatus.CONFIGURING);
+			installedBun.setStatus(InstalledBunStatus.CONFIGURING);
+			installedBun.setName(bunMetadata.getName());
+			installedBun.setPackageURL(bunMetadata.getPackageLocation() );
+			installedBun.setInstalledVersion(bunMetadata.getVersion());			
 		} else
-			installService.setStatus(InstalledBunStatus.FAILED);
+			installedBun.setStatus(InstalledBunStatus.FAILED);
 
 	}
 
 	private void execConfiguringPhase() {
 		logger.info("execInstalledPhase...");
-		String cmdStr = installService.getPackageLocalPath() + "/recipes/onApplyConf";
+		String cmdStr = installedBun.getPackageLocalPath() + "/recipes/onApplyConf";
 		logger.info("Will execute recipe 'onApplyConf' of:" + cmdStr);
 
 		executeSystemCommand(cmdStr); // we don't care for the exit code
 		if (executeSystemCommand(cmdStr) == 0) {
-			installService.setStatus(InstalledBunStatus.STARTING);
+			installedBun.setStatus(InstalledBunStatus.STARTING);
 		} else
-			installService.setStatus(InstalledBunStatus.FAILED);
+			installedBun.setStatus(InstalledBunStatus.FAILED);
 
 	}
 
 	private void execStartingPhase() {
 		logger.info("execStartingPhase...");
-		String cmdStr = installService.getPackageLocalPath() + "/recipes/onStart";
+		String cmdStr = installedBun.getPackageLocalPath() + "/recipes/onStart";
 		logger.info("Will execute recipe 'onStart' of:" + cmdStr);
 
 		if (executeSystemCommand(cmdStr) == 0) {
-			installService.setStatus(InstalledBunStatus.STARTED);
+			installedBun.setStatus(InstalledBunStatus.STARTED);
 		} else
-			installService.setStatus(InstalledBunStatus.STOPPED);
+			installedBun.setStatus(InstalledBunStatus.STOPPED);
 
 	}
 
 	private void execStoppingPhase() {
 
 		logger.info("execStoppingPhase...");
-		String cmdStr = installService.getPackageLocalPath() + "/recipes/onStop";
+		String cmdStr = installedBun.getPackageLocalPath() + "/recipes/onStop";
 		logger.info("Will execute recipe 'onStop' of:" + cmdStr);
 
 		// if (executeSystemCommand(cmdStr) == 0) {
 		// whatever is the return value...it will go to stopped
 		executeSystemCommand(cmdStr);
-		installService.setStatus(InstalledBunStatus.STOPPED);
+		installedBun.setStatus(InstalledBunStatus.STOPPED);
 
 	}
 
 	private void execUninstallingPhase() {
 
 		logger.info("execUninstallingPhase...");
-		String cmdStr = installService.getPackageLocalPath() + "/recipes/onUninstall";
+		String cmdStr = installedBun.getPackageLocalPath() + "/recipes/onUninstall";
 		logger.info("Will execute recipe 'onUninstall' of:" + cmdStr);
 
 		// if (executeSystemCommand(cmdStr) == 0) {
 		// whatever is the return value...it will go to stopped
 		executeSystemCommand(cmdStr);
-		installService.setStatus(InstalledBunStatus.UNINSTALLED);
+		installedBun.setStatus(InstalledBunStatus.UNINSTALLED);
 
 	}
 

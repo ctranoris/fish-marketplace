@@ -78,7 +78,7 @@ public class BakerClientAPIImpl implements IBakerClientAPI {
 		URI endpointUrl = uri.getBaseUri();
 
 		InstalledBun installedBun = new InstalledBun(("12cab8b8-668b-4c75-99a9-39b24ed3d8be"), endpointUrl
-				+ "localrepo/iservices/12cab8b8-668b-4c75-99a9-39b24ed3d8be");
+				+ "repo/ibuns/12cab8b8-668b-4c75-99a9-39b24ed3d8be");
 		installedBun.setName("ServiceName");
 
 		ResponseBuilder response = Response.ok(installedBun);

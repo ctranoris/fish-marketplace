@@ -35,35 +35,24 @@ public class InstalledBun {
 	
 
 
-//	@GeneratedValue( strategy = GenerationType.IDENTITY  )
-//	private long id = 0;
-	
-
 	@Id
-	private String uuid;
+	@GeneratedValue( strategy = GenerationType.IDENTITY  )
+	private long id = 0;	
 
+	@Basic()
+	private String uuid;
 	@Basic()
 	private String repoUrl;
 	@Basic()
-	private String installedVersion;
-	
+	private String installedVersion;	
 	@Basic()
 	private String name;
-
 	@Basic()
 	private InstalledBunStatus status = InstalledBunStatus.INIT;
-	
-
 	@Basic()
 	private String packageLocalPath;
-	
-	/**
-	 * this exist only after fetching metadata from repo. Otherwise is null when service is installed.
-	 */
-	
-	@Embedded
-	private BunMetadata bunMetadata; 
-	
+	@Basic()
+	private String packageURL;
 	
 	public InstalledBun() {
 		super();
@@ -74,6 +63,7 @@ public class InstalledBun {
 		this.uuid = uuid;
 		this.repoUrl = repoUrl;
 		this.name = "(pending)";
+		this.packageURL = "(pending url)";
 	}
 	
 	
@@ -112,20 +102,28 @@ public class InstalledBun {
 		this.status = status;
 	}
 
-	public BunMetadata getBunMetadata() {
-		return bunMetadata;
-	}
-
-	public void setBunMetadata(BunMetadata sm) {
-		this.bunMetadata = sm;
-	}
-
 	public String getPackageLocalPath() {
 		return packageLocalPath;
 	}
 
 	public void setPackageLocalPath(String packageLocalPath) {
 		this.packageLocalPath = packageLocalPath;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public String getPackageURL() {
+		return packageURL;
+	}
+
+	public void setPackageURL(String packageURL) {
+		this.packageURL = packageURL;
 	}
 
 	
