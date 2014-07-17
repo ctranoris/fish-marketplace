@@ -16,6 +16,7 @@
 package gr.upatras.ece.nam.baker.model;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.Basic;
@@ -133,5 +134,15 @@ public class BakerUser {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public BunMetadata getBunById(int bunid) {
+
+		for (Iterator iterator = buns.iterator(); iterator.hasNext();) {
+			BunMetadata bunMetadata = (BunMetadata) iterator.next();
+			if (bunMetadata.getId() == bunid)
+				return bunMetadata;
+		}
+		return null;
 	}
 }

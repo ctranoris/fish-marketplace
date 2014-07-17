@@ -57,6 +57,11 @@ public class BakerRepository {
 		BakerUser bm = bakerJpaController.updateBakerUser(user);
 		return bm;
 	}
+	
+	public BunMetadata updateBunInfo(int bunid, BunMetadata bm) {
+		BunMetadata bmr = bakerJpaController.updateBunMetadata(bm);
+		return bmr;
+	}
 
 
 	public void deleteUser(int userid) {

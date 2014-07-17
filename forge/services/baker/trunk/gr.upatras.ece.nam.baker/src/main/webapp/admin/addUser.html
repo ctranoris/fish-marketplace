@@ -1,0 +1,142 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>User Form</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css" />
+	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/jquery-ui.min.js"></script>
+	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">	
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div style="padding-left: 30px;padding-top: 30px;padding-bottom: 30px;">
+ <a href="index.html">Main</a> |
+ <a href="viewBuns.html">View Buns</a>  |
+ <a href="viewUsers.html">View Users</a> | 
+ <a href="addUser.html">Add User</a>
+  </div>
+  
+  
+	<div style="padding-left: 100px;">
+	<h1 id="headerTitle">Add new User</h1>
+	</div>
+
+	<form class="form-horizontal" role="form"
+		action="http://127.0.0.1:13000/jaxrs-service/services/baker/repo/users/"
+		id="addUserForm">
+		<input type="hidden" name="userid" value=""  />
+		<div class="form-group">
+			<label for="name" class="col-sm-2 control-label">Name</label>
+			<div class="col-sm-10">
+			<input type="text" name="name" value="" placeholder="name..." />
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="username" class="col-sm-2 control-label">Username</label>
+			<div class="col-sm-10">
+			 <input type="text" name="username" value="" placeholder="username..."/>
+			</div>
+		</div>
+		
+		<div class="form-group">
+			<label for="password" class="col-sm-2 control-label">Password</label>
+			<div class="col-sm-10">
+			 <input type="text" name="password" value="" />
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="organization" class="col-sm-2 control-label">Organization</label>
+			<div class="col-sm-10">
+			 <input type="text" name="organization" value="" />
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-sm-offset-2 col-sm-10">
+				<input class="btn btn-default" type="submit" value="Save" />
+			</div>
+		</div>
+	</form>
+	<!-- the result of the search will be rendered inside this div -->
+<div id="result"></div>
+
+	<script>	
+	
+	function getUrlVars() {
+        var vars = {};
+        var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+            vars[key] = value;
+        });
+        return vars;
+    }
+    
+    var userid = getUrlVars()["userid"];
+    
+    
+	
+    $(document).ready(function() {
+    	if (userid){
+    		document.getElementById("headerTitle").innerHTML = 'Edit user';
+    		 $.getJSON('http://127.0.0.1:13000/jaxrs-service/services/baker/repo/users/'+userid, function(data) {
+
+    			 $("#addUserForm input[name='userid']").val(data.id);
+    			 $("#addUserForm input[name='name']").val(data.name);
+    			 $("#addUserForm input[name='username']").val(data.username);
+    			 $("#addUserForm input[name='password']").val(data.password);
+    			 $("#addUserForm input[name='organization']").val(data.organization);
+    		 });
+    	}
+  	});
+    
+
+    
+
+    
+	
+		// Attach a submit handler to the form
+		$("#addUserForm").submit(
+				function(event) {
+					// Stop form from submitting normally
+					event.preventDefault();
+					// Get some values from elements on the page:
+					var $form = $(this), 
+						vid = $form.find("input[name='userid']").val(),
+						vname = $form.find("input[name='name']").val(),
+						vusername = $form.find("input[name='username']").val(), 
+						vpassword = $form.find("input[name='password']").val(), 
+						vorganization = $form.find("input[name='organization']").val(), 
+						url = $form.attr("action");
+						var action = 'POST';
+						
+						if (userid){
+							url = url +userid;	
+					    	action = 'PUT';
+						}
+					var postData={
+							id : vid,
+							name : vname,
+							username : vusername,
+							password : vpassword,
+							organization : vorganization};
+					// Send the data using post
+					$.ajax({
+					  url:url,
+					  type: action,
+					  data:JSON.stringify(postData),
+					  contentType:"application/json; charset=utf-8",
+					  dataType:"json",
+					  success: function(dataX){
+						  console.log( dataX );
+							$("#result").empty().append("managed user: "+dataX.name);
+					  }
+					});
+					
+					
+					
+				});
+	</script>
+</body>
+</html>
