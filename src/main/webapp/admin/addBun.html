@@ -1,0 +1,154 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>JAX-RS Upload Form</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css" />
+	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/jquery-ui.min.js"></script>
+	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">	
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+	<div style="padding-left: 30px;padding-top: 30px;padding-bottom: 30px;">
+ <a href="index.html">Main</a> |
+ <a href="viewBuns.html">View Buns</a>  |
+ <a href="viewUsers.html">View Users</a> | 
+ <a href="addUser.html">Add User</a>
+  </div>
+
+	<div style="padding-left: 100px; ">
+		<h1 id="headerTitle">Bun Upload Form</h1>
+		<h3 id="headerBunIDTitle"></h3>
+	</div>
+
+
+	<form class="form-horizontal" role="form" id="bunForm"
+		action="/jaxrs-service/services/baker/repo/users/" 
+			target="viewBuns.jsp" >
+			
+			
+		<input type="hidden" name="bunid" value=""  />
+		<input type="hidden" name="bunuuid" value=""  />
+		<div class="form-group">
+			<label for="bunname" class="col-sm-2 control-label">Bun name</label>
+			<div class="col-sm-10">
+		   		<input type="text" name="bunname" value="BunName!"/>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="version" class="col-sm-2 control-label">Version</label>
+			<div class="col-sm-10">
+				<input type="text" name="version" value="1.0.2rc1"/>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="shortDescription" class="col-sm-2 control-label"></label>
+			<div class="col-sm-10">
+				<input type="text" name="shortDescription" value="A shortDescription for this bun"/>
+			</div>
+		
+		</div>
+		<div class="form-group">
+			<label for="longDescription" class="col-sm-2 control-label">Long Description</label>
+			<div class="col-sm-10">
+				<textarea name="longDescription" ></textarea>
+			</div>
+		
+		</div>
+		<div class="form-group">
+				<label for="uploadedBunIcon" class="col-sm-2 control-label">Icon File</label>
+			<div class="col-sm-10">
+				<input type="file" name="uploadedBunIcon" size="50" />
+				<p class="help-block">Select logo image</p>
+			</div>
+		
+		</div>
+
+		
+		<div class="form-group">
+			<label for="uploadedBunFile" class="col-sm-2 control-label">Bun File</label>
+			<div class="col-sm-10">
+				<input type="file" name="uploadedBunFile" size="50" />
+				<p class="help-block">Select bun file in tar.gz format</p>
+			</div>
+		
+		</div>
+		<div class="form-group">
+			<div class="col-sm-offset-2 col-sm-10">
+				<input class="btn btn-default"  type="submit" value="Save" />
+			</div>
+		</div>
+	</form>
+	<!-- the result of the search will be rendered inside this div -->
+<div id="result"></div>
+	
+	<script>	
+	
+	function getUrlVars() {
+        var vars = {};
+        var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+            vars[key] = value;
+        });
+        return vars;
+    }
+
+    var userid = getUrlVars()["userid"];
+    var bunid = getUrlVars()["bunid"];
+	
+    $(document).ready(function() {
+    	if (userid){
+    		 $.getJSON('http://127.0.0.1:13000/jaxrs-service/services/baker/repo/users/'+userid+'/buns/'+bunid, function(data) {
+
+    			 document.getElementById("headerTitle").innerHTML = 'Edit Bun Form';
+    			 document.getElementById("headerBunIDTitle").innerHTML = data.uuid;
+    			 
+    			 $("#bunForm input[name='bunid']").val(data.id);
+    			 $("#bunForm input[name='bunuuid']").val(data.uuid);
+    			 $("#bunForm input[name='bunname']").val(data.name);
+    			 $("#bunForm input[name='version']").val(data.version);
+    			 $("#bunForm input[name='shortDescription']").val(data.shortDescription);
+    			 $("#bunForm textarea[name='longDescription']").val(data.longDescription);
+    		 });
+    	}
+  	});
+    
+
+	// Attach a submit handler to the form
+	$("#bunForm").submit(
+			function(event) {
+				// Stop form from submitting normally
+				event.preventDefault();
+				// Get some values from elements on the page:
+				
+					var url = 'http://127.0.0.1:13000/jaxrs-service/services/baker/repo/users/'+userid+'/buns/';	
+					var action = 'POST';
+					
+					if (bunid){
+						url = 'http://127.0.0.1:13000/jaxrs-service/services/baker/repo/users/'+userid+'/buns/'+bunid;	
+				    	action = 'PUT';
+					}
+					
+				
+				// Send the data using post
+				$.ajax({
+				  url:url,
+				  type: action,
+				  data: new FormData( this ),
+				  processData: false,
+			      contentType: false,
+				  success: function(){
+						$("#result").empty().append("Bun saved");
+				  }
+				});
+				
+				
+				
+			});
+	</script>
+    
+
+
+</body>
+</html>

@@ -181,6 +181,26 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			throw new WebApplicationException(builder.build());
 		}
 	}
+	
+	@GET
+	@Path("/users/{userid}/buns/{bunid}")
+	@Produces("application/json")
+	public Response getBunofUser(@PathParam("userid") int userid, @PathParam("bunid") int bunid) {
+		logger.info("getBunofUser for userid: " + userid + ", bunid="+bunid);
+		BakerUser u = bakerRepositoryRef.getUserByID(userid);
+
+		if (u != null) {
+			BunMetadata bun = u.getBunById(bunid);
+			// Collection<BunMetadata> b = buns;
+			return Response.ok().entity(bun).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("User with id=" + userid + " not found in baker registry");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+	
+	
 
 	@POST
 	@Path("/users/{userid}/buns/")
@@ -236,6 +256,66 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		sm.setOwner(bunOwner);
 		bunOwner.addBun(sm);
 		bakerRepositoryRef.updateUserInfo(userid, bunOwner);
+
+	}
+	
+	
+	@PUT
+	@Path("/users/{userid}/buns/{bid}")
+	@Consumes("multipart/form-data")
+	public void updateBunMetadata(@PathParam("userid") int userid, @PathParam("bid") int bid, 
+			@Multipart(value = "bunname", type = "text/plain") String bunname,
+			@Multipart(value = "bunid", type = "text/plain") int bunid,
+			@Multipart(value = "bunuuid", type = "text/plain") String uuid,
+			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription,
+			@Multipart(value = "longDescription", type = "text/plain") String longDescription,
+			@Multipart(value = "version", type = "text/plain") String version, @Multipart(value = "uploadedBunIcon") Attachment image,
+			@Multipart(value = "uploadedBunFile") Attachment bunFile) {
+
+		String imageFileNamePosted = getFileName(image.getHeaders());
+		String bunFileNamePosted = getFileName(bunFile.getHeaders());
+		logger.info("bunname = " + bunname);
+		logger.info("bunid = " + bunid);;
+		logger.info("bunuuid = " + uuid);
+		logger.info("version = " + version);
+		logger.info("shortDescription = " + shortDescription);
+		logger.info("longDescription = " + longDescription);
+		logger.info("image = " + imageFileNamePosted);
+		logger.info("bunFile = " + bunFileNamePosted);
+
+
+		// Save now bun for User
+		BakerUser bunOwner = bakerRepositoryRef.getUserByID(userid);
+		
+		BunMetadata sm =bunOwner.getBunById(bunid);
+		sm.setShortDescription(shortDescription);
+		sm.setLongDescription(longDescription);
+		sm.setVersion(version);
+
+		URI endpointUrl = uri.getBaseUri();
+
+		String tempDir = BUNSDATADIR+uuid+ File.separator;
+		try {
+			Files.createDirectories( Paths.get( tempDir ) );
+			
+			if (!imageFileNamePosted.equals("")) {
+				String imgfile = saveFile(image, tempDir+imageFileNamePosted);
+				logger.info("imgfile saved to = " + imgfile);
+				sm.setIconsrc(endpointUrl + "repo/images/" + uuid+ File.separator + imageFileNamePosted);
+			}
+
+			if (!bunFileNamePosted.equals("")) {
+				String bunfilepath = saveFile(bunFile, tempDir+bunFileNamePosted);
+				logger.info("bunfilepath saved to = " + bunfilepath);
+				sm.setPackageLocation(endpointUrl + "repo/packages/" + uuid + File.separator + bunFileNamePosted);
+			}
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		bakerRepositoryRef.updateBunInfo(bunid, sm); 
 
 	}
 

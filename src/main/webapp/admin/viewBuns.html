@@ -1,17 +1,27 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>View buns</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css" />
+	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/jquery-ui.min.js"></script>
+	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">	
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 </head>
 <body>
 
- <a href="index.html">Main</a> 
-    <div id="placeholder"></div>
+<div style="padding-left: 30px;padding-top: 30px;padding-bottom: 30px;">
+ <a href="index.html">Main</a> |
+ <a href="viewBuns.html">View Buns</a>  |
+ <a href="viewUsers.html">View Users</a> | 
+ <a href="addUser.html">Add User</a>
+  </div>
+  
+   
+    <div style="padding-left: 10px;padding-right: 10px; " id="placeholder"></div>
     
-    <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
     <script>
     
     function getUrlVars() {
@@ -30,7 +40,7 @@
     
     
   $.getJSON(bunsUrl, function(data) {
-      var output="<table>"+ 
+      var output="<table class='table table-bordered table-condensed table-hover table-striped' >"+ 
       		"<tr>" + 
    	  	   "<th>ID</th>" +
     	   "<th>Name</th>" +
@@ -41,6 +51,7 @@
     	   "<th>Image</th>" +
     	   "<th>packageLocation</th>" +
     	   "<th>owner</th>" +
+    	   "<th>action</th>" +
     	 	"</tr>";
         for (var i in data) {
             output+="<tr>" + 
@@ -52,8 +63,11 @@
             "<td>" + data[i].uuid + "</td> " + 
             "<td><img width='80px' src='" + data[i].iconsrc + "'</td> " + 
             "<td><a href='" + data[i].packageLocation + "'>Package</a> </td> " + 
-            "<td><a href='/jaxrs-service/services/baker/repo/users/" + data[i].owner.id + "'>" + data[i].owner.username + "</a></td> " + 
-            "</tr>";
+            "<td><a href='/jaxrs-service/admin/addUser.html?userid=" + data[i].owner.id + "'>" + data[i].owner.username + "</a></td> " + 
+            "<td><a href='addBun.html?userid=" + data[i].owner.id + "&bunid="+data[i].id+"'>Edit</a> <br> "+
+            "<a href='#' >Delete</a>"+
+            "</td> " + 
+             "</tr>";
         }
 
         output+="</table>";
