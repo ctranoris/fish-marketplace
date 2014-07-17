@@ -25,6 +25,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 
 @Entity(name = "BunMetadata")
 public class BunMetadata {
@@ -33,15 +35,16 @@ public class BunMetadata {
 	@Id
 	@GeneratedValue( strategy = GenerationType.IDENTITY  )
 	private long id = 0;
-	
-	@GeneratedValue( strategy = GenerationType.AUTO, generator = "uuid-hex"  )
-	private String uuid;
+
+
 	
 
 	@ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
 	@JoinColumns({ @JoinColumn() })
 	private BakerUser owner = null;
 
+	@Basic()
+	private String uuid = null;
 	@Basic()
 	private String name = null;
 	@Basic()

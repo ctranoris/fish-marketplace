@@ -26,9 +26,15 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
+import javax.xml.bind.annotation.XmlTransient;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonIgnoreType;
 
 
 @Entity(name = "BakerUser")
+@JsonIgnoreProperties(value = { "buns" })
 public class BakerUser {
 
 	@Id
@@ -45,6 +51,8 @@ public class BakerUser {
 	private String username = null;
 	@Basic()
 	private String password = null;
+	
+	
 
 	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
 	@JoinTable()
@@ -64,7 +72,7 @@ public class BakerUser {
 		return buns;
 	}
 
-	public void addToBuns(BunMetadata bunsValue) {
+	public void addBun(BunMetadata bunsValue) {
 		if (!buns.contains(bunsValue)) {
 			buns.add(bunsValue);
 		}

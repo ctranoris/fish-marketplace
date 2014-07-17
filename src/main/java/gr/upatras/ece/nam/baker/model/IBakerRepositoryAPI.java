@@ -27,7 +27,7 @@ public interface IBakerRepositoryAPI {
 	Response updateUserInfo( int userid, BakerUser user);
 	Response deleteUser( int userid);
 	Response getAllBunsofUser( int userid);
-	Response addBunMetadata( int userid, BunMetadata bm);
+//	Response addBunMetadata( int userid, BunMetadata bm);
 	Response getBunMetadataByUUID(String uuid);
 	Response downloadBunPackage(String uuid, String bunfile);
 	Response uploadBunMetadata(BunMetadata bm);

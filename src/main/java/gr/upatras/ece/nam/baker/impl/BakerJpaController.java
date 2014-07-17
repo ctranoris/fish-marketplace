@@ -313,11 +313,14 @@ public class BakerJpaController {
 	}
 	
 	public BakerUser readBakerUserById(int userid) {
+		
+		
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
-		Query q = entityManager.createQuery("SELECT m FROM BakerUser m WHERE m.id=" + userid );
+		return entityManager.find(BakerUser.class, userid);
 		
+//		Query q = entityManager.createQuery("SELECT m FROM BakerUser m WHERE m.id=" + userid );		
+//		return (q.getResultList().size()==0)?null:(BakerUser) q.getSingleResult();
 		
-		return (q.getResultList().size()==0)?null:(BakerUser) q.getSingleResult();
 	}
 
 	public BunMetadata readBunMetadataByUUID(String uuid) {
@@ -327,9 +330,10 @@ public class BakerJpaController {
 		return (q.getResultList().size()==0)?null:(BunMetadata) q.getSingleResult();
 	}
 
-	public void deleteUser(final BakerUser u) {
+	public void deleteUser(int userid) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
-
+		BakerUser u = entityManager.find(BakerUser.class, userid);
+		
 		EntityTransaction entityTransaction = entityManager.getTransaction();
 
 		entityTransaction.begin();
