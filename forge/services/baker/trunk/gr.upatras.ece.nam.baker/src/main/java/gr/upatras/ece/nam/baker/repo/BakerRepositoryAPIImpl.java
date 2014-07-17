@@ -20,11 +20,20 @@ import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.IBakerRepositoryAPI;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
+import javax.activation.DataHandler;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -36,6 +45,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
@@ -43,6 +54,9 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.cxf.jaxrs.ext.multipart.Multipart;
+import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
+import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 
 @Path("/repo")
 public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
@@ -51,6 +65,8 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	UriInfo uri;
 
 	private static final transient Log logger = LogFactory.getLog(BakerRepositoryAPIImpl.class.getName());
+
+	private static final String BUNSDATADIR = System.getProperty("user.home") + File.separator +".baker/bunsdata/";
 
 	private BakerRepository bakerRepositoryRef;
 
@@ -154,11 +170,11 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	public Response getAllBunsofUser(@PathParam("userid") int userid) {
 		logger.info("getAllBunsofUser for userid: " + userid);
 		BakerUser u = bakerRepositoryRef.getUserByID(userid);
-		
+
 		if (u != null) {
 			List<BunMetadata> buns = u.getBuns();
-//			Collection<BunMetadata> b = buns;
-			return Response.ok().entity(buns ).build();
+			// Collection<BunMetadata> b = buns;
+			return Response.ok().entity(buns).build();
 		} else {
 			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
 			builder.entity("User with id=" + userid + " not found in baker registry");
@@ -167,13 +183,88 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	}
 
 	@POST
-	@Path("/users/{userid}/bun/")
-	public Response addBunMetadata(@PathParam("userid") int userid, BunMetadata bm) {
-		// TODO Auto-generated method stub
-		return null;
+	@Path("/users/{userid}/buns/")
+	@Consumes("multipart/form-data")
+	public void addBunMetadata(@PathParam("userid") int userid, @Multipart(value = "bunname", type = "text/plain") String bunname,
+			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription,
+			@Multipart(value = "longDescription", type = "text/plain") String longDescription,
+			@Multipart(value = "version", type = "text/plain") String version, @Multipart(value = "uploadedBunIcon") Attachment image,
+			@Multipart(value = "uploadedBunFile") Attachment bunFile) {
+
+		String imageFileNamePosted = getFileName(image.getHeaders());
+		String bunFileNamePosted = getFileName(bunFile.getHeaders());
+		logger.info("bunname = " + bunname);
+		logger.info("version = " + version);
+		logger.info("shortDescription = " + shortDescription);
+		logger.info("longDescription = " + longDescription);
+		logger.info("image = " + imageFileNamePosted);
+		logger.info("bunFile = " + bunFileNamePosted);
+
+		String uuid = UUID.randomUUID().toString();
+		BunMetadata sm = new BunMetadata(uuid, bunname);
+		sm.setShortDescription(shortDescription);
+		sm.setLongDescription(longDescription);
+		sm.setVersion(version);
+
+		URI endpointUrl = uri.getBaseUri();
+
+		String tempDir = BUNSDATADIR+uuid+ File.separator;
+		try {
+			Files.createDirectories( Paths.get( tempDir ) );
+			
+			if (!imageFileNamePosted.equals("")) {
+				String imgfile = saveFile(image, tempDir+imageFileNamePosted);
+				logger.info("imgfile saved to = " + imgfile);
+				sm.setIconsrc(endpointUrl + "repo/images/" + uuid+ File.separator + imageFileNamePosted);
+			}
+
+			if (!bunFileNamePosted.equals("")) {
+				String bunfilepath = saveFile(bunFile, tempDir+bunFileNamePosted);
+				logger.info("bunfilepath saved to = " + bunfilepath);
+				sm.setPackageLocation(endpointUrl + "repo/packages/" + uuid + File.separator + bunFileNamePosted);
+			}
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+		// Save now bun for User
+		BakerUser bunOwner = bakerRepositoryRef.getUserByID(userid);
+		sm.setOwner(bunOwner);
+		bunOwner.addBun(sm);
+		bakerRepositoryRef.updateUserInfo(userid, bunOwner);
+
 	}
 
 	// Buns related API
+	
+	@GET
+	@Path("/buns")
+	@Produces("application/json")
+	public Response getBuns() {
+		logger.info("getBuns ");
+		
+		List<BunMetadata> buns = bakerRepositoryRef.getBuns();
+		return Response.ok().entity(buns).build();
+		
+	}
+	
+	@GET
+	@Path("/images/{uuid}/{imgfile}")
+    @Produces("image/*")
+	public Response getBunImage(@PathParam("uuid") String uuid, @PathParam("imgfile") String imgfile) { 
+		logger.info("getBunImage of uuid: " + uuid);
+		String imgAbsfile = BUNSDATADIR+uuid+ File.separator+imgfile;
+		logger.info("Image RESOURCE FILE: " + imgAbsfile);
+		File file = new File(imgAbsfile);
+		ResponseBuilder response = Response.ok((Object) file);
+		response.header("Content-Disposition", "attachment; filename=" + file.getName());
+		return response.build();
+		
+	}
 
 	@GET
 	@Path("/packages/{uuid}/{bunfile}")
@@ -182,10 +273,11 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 		logger.info("bunfile: " + bunfile);
 		logger.info("uuid: " + uuid);
-		URL res = getClass().getResource("/files/" + bunfile);
-		logger.info("TEST RESOURCE FILE: " + res);
 
-		File file = new File(res.getFile());
+		String bunAbsfile = BUNSDATADIR+uuid+ File.separator+bunfile;
+		logger.info("Bun RESOURCE FILE: " + bunAbsfile);
+		File file = new File(bunAbsfile);
+		
 		ResponseBuilder response = Response.ok((Object) file);
 		response.header("Content-Disposition", "attachment; filename=" + file.getName());
 		return response.build();
@@ -239,11 +331,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 	}
 
-	@Override
-	public Response getBuns() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+
 
 	@Override
 	public Response uploadBunMetadata(BunMetadata bm) {
@@ -251,48 +339,41 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		return null;
 	}
 
-	// @POST
-	// @Path("/uploadFile")
-	// @Consumes(MediaType.MULTIPART_FORM_DATA)
-	// public Response uploadFile(List<Attachment> attachments, @Context
-	// HttpServletRequest request) {
-	// for (Attachment attachment : attachments) {
-	// DataHandler handler = attachment.getDataHandler();
-	// try {
-	// InputStream stream = handler.getInputStream();
-	// MultivaluedMap<String, String> map = attachment.getHeaders();
-	// System.out.println("fileName Here" + getFileName(map));
-	// OutputStream out = new FileOutputStream(new File("C:/uploads/"
-	// + getFileName(map)));
-	//
-	// int read = 0;
-	// byte[] bytes = new byte[1024];
-	// while ((read = stream.read(bytes)) != -1) {
-	// out.write(bytes, 0, read);
-	// }
-	// stream.close();
-	// out.flush();
-	// out.close();
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// }
-	// }
-	//
-	// return Response.ok("file uploaded").build();
-	// }
-	//
-	// private String getFileName(MultivaluedMap<String, String> header) {
-	// String[] contentDisposition = header.getFirst("Content-Disposition")
-	// .split(";");
-	// for (String filename : contentDisposition) {
-	// if ((filename.trim().startsWith("filename"))) {
-	// String[] name = filename.split("=");
-	// String exactFileName = name[1].trim().replaceAll("\"", "");
-	// return exactFileName;
-	// }
-	// }
-	// return "unknown";
-	// }
+	private String saveFile(Attachment att, String filePath) {
+		DataHandler handler = att.getDataHandler();
+		try {
+			InputStream stream = handler.getInputStream();
+			MultivaluedMap map = att.getHeaders();
+			File f = new File( filePath );
+			OutputStream out = new FileOutputStream(f);
+
+			int read = 0;
+			byte[] bytes = new byte[1024];
+			while ((read = stream.read(bytes)) != -1) {
+				out.write(bytes, 0, read);
+			}
+			stream.close();
+			out.flush();
+			out.close();
+			return f.getAbsolutePath();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private String getFileName(MultivaluedMap<String, String> header) {
+		String[] contentDisposition = header.getFirst("Content-Disposition").split(";");
+		for (String filename : contentDisposition) {
+			if ((filename.trim().startsWith("filename"))) {
+				String[] name = filename.split("=");
+				String exactFileName = name[1].trim().replaceAll("\"", "");
+				return exactFileName;
+			}
+		}
+		return "unknown";
+	}
 
 	public BakerRepository getBakerRepositoryRef() {
 		return bakerRepositoryRef;

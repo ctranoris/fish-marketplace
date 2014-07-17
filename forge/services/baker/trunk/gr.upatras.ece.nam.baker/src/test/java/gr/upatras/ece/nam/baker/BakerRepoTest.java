@@ -60,7 +60,7 @@ public class BakerRepoTest {
 		bmeta.setShortDescription("shortDescription");
 		bmeta.setPackageLocation("packageLocation");
 		bmeta.setOwner(bu);
-		bu.addToBuns(bmeta);
+		bu.addBun(bmeta);
 
 
 		String uuid = bmeta.getUuid();
@@ -85,7 +85,7 @@ public class BakerRepoTest {
 		bmeta.setShortDescription("shortDescription2");
 		bmeta.setPackageLocation("packageLocation2");
 		bmeta.setOwner(bu);
-		bu.addToBuns(bmeta);
+		bu.addBun(bmeta);
 		
 		bakerJpaControllerTest.updateBakerUser(bu);
 //		bakerJpaControllerTest.getAllBunsPrinted();

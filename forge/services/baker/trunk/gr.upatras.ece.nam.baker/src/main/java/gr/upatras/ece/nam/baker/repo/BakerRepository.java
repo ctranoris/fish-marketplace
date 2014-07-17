@@ -44,13 +44,13 @@ public class BakerRepository {
 	public Collection<BakerUser> getUserValues() {
 
 		List<BakerUser> ls = bakerJpaController.readUsers(0, 100000);
-		HashMap<Integer, BakerUser> cb = new HashMap<>();
+//		HashMap<Integer, BakerUser> cb = new HashMap<>();
+//		
+//		for (BakerUser buser : ls) {
+//			cb.put(buser.getId() , buser);
+//		}
 		
-		for (BakerUser buser : ls) {
-			cb.put(buser.getId() , buser);
-		}
-		
-		return cb.values();
+		return ls;
 	}
 	
 	public BakerUser updateUserInfo(int userid, BakerUser user) {
@@ -60,10 +60,14 @@ public class BakerRepository {
 
 
 	public void deleteUser(int userid) {
-		BakerUser user = bakerJpaController.readBakerUserById(userid);
-		bakerJpaController.deleteUser(user);
+		bakerJpaController.deleteUser(userid);
 	}
 
+	public List<BunMetadata> getBuns() {
+		List<BunMetadata> ls = bakerJpaController.readBunsMetadata(0, 100000);
+		
+		return ls;
+	}
 
 
 
@@ -80,6 +84,9 @@ public class BakerRepository {
 	public void setBakerJpaController(BakerJpaController bakerJpaController) {
 		this.bakerJpaController = bakerJpaController;
 	}
+
+	
+
 
 
 	
