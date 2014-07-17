@@ -22,6 +22,7 @@
   
 	<div style="padding-left: 100px;">
 	<h1 id="headerTitle">Add new User</h1>
+	<div id="result"></div>
 	</div>
 
 	<form class="form-horizontal" role="form"
@@ -61,7 +62,6 @@
 		</div>
 	</form>
 	<!-- the result of the search will be rendered inside this div -->
-<div id="result"></div>
 
 	<script>	
 	
@@ -130,7 +130,7 @@
 					  dataType:"json",
 					  success: function(dataX){
 						  console.log( dataX );
-							$("#result").empty().append("managed user: "+dataX.name);
+							$("#result").empty().append("Saved user: "+dataX.name);
 					  }
 					});
 					
