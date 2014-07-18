@@ -57,7 +57,12 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
+import org.apache.cxf.rs.security.cors.CrossOriginResourceSharing;
 
+
+@CrossOriginResourceSharing(
+		allowAllOrigins = true
+)
 @Path("/repo")
 public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
