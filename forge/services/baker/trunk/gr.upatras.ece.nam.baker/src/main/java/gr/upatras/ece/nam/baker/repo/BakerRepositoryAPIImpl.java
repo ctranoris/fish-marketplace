@@ -226,7 +226,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		sm.setLongDescription(longDescription);
 		sm.setVersion(version);
 
-		URI endpointUrl = uri.getBaseUri();
+		//URI endpointUrl = uri.getBaseUri();
 
 		String tempDir = BUNSDATADIR+uuid+ File.separator;
 		try {
@@ -235,13 +235,13 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			if (!imageFileNamePosted.equals("")) {
 				String imgfile = saveFile(image, tempDir+imageFileNamePosted);
 				logger.info("imgfile saved to = " + imgfile);
-				sm.setIconsrc(endpointUrl + "repo/images/" + uuid+ File.separator + imageFileNamePosted);
+				sm.setIconsrc( "repo/images/" + uuid+ File.separator + imageFileNamePosted);
 			}
 
 			if (!bunFileNamePosted.equals("")) {
 				String bunfilepath = saveFile(bunFile, tempDir+bunFileNamePosted);
 				logger.info("bunfilepath saved to = " + bunfilepath);
-				sm.setPackageLocation(endpointUrl + "repo/packages/" + uuid + File.separator + bunFileNamePosted);
+				sm.setPackageLocation( "repo/packages/" + uuid + File.separator + bunFileNamePosted);
 			}
 			
 		} catch (IOException e) {
@@ -260,6 +260,9 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	}
 	
 	
+
+	
+	
 	@PUT
 	@Path("/users/{userid}/buns/{bid}")
 	@Consumes("multipart/form-data")
@@ -271,7 +274,9 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			@Multipart(value = "longDescription", type = "text/plain") String longDescription,
 			@Multipart(value = "version", type = "text/plain") String version, @Multipart(value = "uploadedBunIcon") Attachment image,
 			@Multipart(value = "uploadedBunFile") Attachment bunFile) {
-
+		
+	
+		
 		String imageFileNamePosted = getFileName(image.getHeaders());
 		String bunFileNamePosted = getFileName(bunFile.getHeaders());
 		logger.info("bunname = " + bunname);
@@ -292,7 +297,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		sm.setLongDescription(longDescription);
 		sm.setVersion(version);
 
-		URI endpointUrl = uri.getBaseUri();
+		//URI endpointUrl = uri.getBaseUri();
 
 		String tempDir = BUNSDATADIR+uuid+ File.separator;
 		try {
@@ -301,13 +306,13 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			if (!imageFileNamePosted.equals("")) {
 				String imgfile = saveFile(image, tempDir+imageFileNamePosted);
 				logger.info("imgfile saved to = " + imgfile);
-				sm.setIconsrc(endpointUrl + "repo/images/" + uuid+ File.separator + imageFileNamePosted);
+				sm.setIconsrc( "repo/images/" + uuid+ File.separator + imageFileNamePosted);
 			}
 
 			if (!bunFileNamePosted.equals("")) {
 				String bunfilepath = saveFile(bunFile, tempDir+bunFileNamePosted);
 				logger.info("bunfilepath saved to = " + bunfilepath);
-				sm.setPackageLocation(endpointUrl + "repo/packages/" + uuid + File.separator + bunFileNamePosted);
+				sm.setPackageLocation( "repo/packages/" + uuid + File.separator + bunFileNamePosted);
 			}
 			
 		} catch (IOException e) {
@@ -331,6 +336,8 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		return Response.ok().entity(buns).build();
 		
 	}
+	
+
 	
 	@GET
 	@Path("/images/{uuid}/{imgfile}")
@@ -362,9 +369,19 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		response.header("Content-Disposition", "attachment; filename=" + file.getName());
 		return response.build();
 	}
+	
+	
+
+	
+	@DELETE
+	@Path("/buns/{bunid}")
+	public void deleteBun(@PathParam("bunid") int bunid) {
+		bakerRepositoryRef.deleteBun(bunid);
+		
+	}
 
 	@GET
-	@Path("/ibuns/{uuid}")
+	@Path("/buns/{uuid}")
 	@Produces("application/json")
 	public Response getBunMetadataByUUID(@PathParam("uuid") String uuid) {
 
@@ -377,9 +394,9 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			sm.setVersion("1.0.0");
 			sm.setIconsrc("");
 			sm.setLongDescription("");
-			URI endpointUrl = uri.getBaseUri();
+			//URI endpointUrl = uri.getBaseUri();
 
-			sm.setPackageLocation(endpointUrl + "repo/packages/77777777-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
+			sm.setPackageLocation( "repo/packages/77777777-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
 		}
 		if (uuid.equals("12cab8b8-668b-4c75-99a9-39b24ed3d8be")) {
 			sm = new BunMetadata(uuid, "AN example service");
@@ -387,18 +404,18 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			sm.setVersion("1.0.0rc1");
 			sm.setIconsrc("");
 			sm.setLongDescription("");
-			URI endpointUrl = uri.getBaseUri();
+			//URI endpointUrl = uri.getBaseUri();
 
-			sm.setPackageLocation(endpointUrl + "repo/packages/12cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
+			sm.setPackageLocation( "repo/packages/12cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
 		} else if (uuid.equals("22cab8b8-668b-4c75-99a9-39b24ed3d8be")) {
 			sm = new BunMetadata(uuid, "IntegrTestLocal example ErrInstall service");
 			sm.setShortDescription("An example ErrInstall local service");
 			sm.setVersion("1.0.0");
 			sm.setIconsrc("");
 			sm.setLongDescription("");
-			URI endpointUrl = uri.getBaseUri();
+			//URI endpointUrl = uri.getBaseUri();
 
-			sm.setPackageLocation(endpointUrl + "repo/packages/22cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebunErrInstall.tar.gz");
+			sm.setPackageLocation( "repo/packages/22cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebunErrInstall.tar.gz");
 		}
 
 		if (sm != null) {
@@ -413,11 +430,6 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 
 
-	@Override
-	public Response uploadBunMetadata(BunMetadata bm) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	private String saveFile(Attachment att, String filePath) {
 		DataHandler handler = att.getDataHandler();
@@ -462,4 +474,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	public void setBakerRepositoryRef(BakerRepository bakerRepositoryRef) {
 		this.bakerRepositoryRef = bakerRepositoryRef;
 	}
+
+
+
 }

@@ -60,7 +60,7 @@ public class BakerServiceRSIT {
 	 String uuid = UUID.fromString("55cab8b8-668b-4c75-99a9-39b24ed3d8be").toString();
 	 InstalledBun is = prepareInstalledService(uuid);
 	
-	 WebClient client = WebClient.create(endpointUrl + "/services/baker/api/ibuns/", providers);
+	 WebClient client = WebClient.create(endpointUrl + "/services/api/client/ibuns/", providers);
 	 Response r = client.accept("application/json")
 	 .type("application/json")
 	 .post(is);
@@ -76,7 +76,7 @@ public class BakerServiceRSIT {
 	 //wait for 2 seconds
 	 Thread.sleep(2000);
 	 //ask again about this task
-	 client = WebClient.create(endpointUrl + "/services/baker/api/ibuns/"+uuid);
+	 client = WebClient.create(endpointUrl + "/services/api/client/ibuns/"+uuid);
 	 r = client.accept("application/json").type("application/json").get();
 	
 	
@@ -100,7 +100,7 @@ public class BakerServiceRSIT {
 
 		// first delete an existing installation if exists
 
-		WebClient client = WebClient.create(endpointUrl + "/services/baker/api/ibuns/" + uuid, providers);
+		WebClient client = WebClient.create(endpointUrl + "/services/api/client/ibuns/" + uuid, providers);
 		Response r = client.accept("application/json").type("application/json").delete();
 		if (Response.Status.NOT_FOUND.getStatusCode() != r.getStatus()) {
 			
@@ -111,7 +111,7 @@ public class BakerServiceRSIT {
 			do {
 
 				// ask again about this task
-				client = WebClient.create(endpointUrl + "/services/baker/api/ibuns/" + uuid);
+				client = WebClient.create(endpointUrl + "/services/api/client/ibuns/" + uuid);
 				r = client.accept("application/json").type("application/json").get();
 
 				MappingJsonFactory factory = new MappingJsonFactory();
@@ -129,7 +129,7 @@ public class BakerServiceRSIT {
 		}
 
 		// now post a new installation
-		client = WebClient.create(endpointUrl + "/services/baker/api/ibuns", providers);
+		client = WebClient.create(endpointUrl + "/services/api/client/ibuns/", providers);
 		InstalledBun is = prepareInstalledService(uuid);
 		r = client.accept("application/json").type("application/json").post(is);
 		assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
@@ -140,7 +140,7 @@ public class BakerServiceRSIT {
 		do {
 
 			// ask again about this task
-			client = WebClient.create(endpointUrl + "/services/baker/api/ibuns/" + uuid);
+			client = WebClient.create(endpointUrl + "/services/api/client/ibuns/" + uuid);
 			r = client.accept("application/json").type("application/json").get();
 
 			MappingJsonFactory factory = new MappingJsonFactory();
@@ -163,7 +163,7 @@ public class BakerServiceRSIT {
 	private InstalledBun prepareInstalledService(String uuid) {
 		InstalledBun is = new InstalledBun();
 		is.setUuid(uuid);
-		is.setRepoUrl(endpointUrl + "/services/baker/repo/ibuns/" + uuid);
+		is.setRepoUrl(endpointUrl + "/services/api/repo/ibuns/" + uuid);
 		return is;
 	}
 }

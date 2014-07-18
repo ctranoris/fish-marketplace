@@ -11,7 +11,8 @@
 	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 </head>
 <body>
-	<div style="padding-left: 30px;padding-top: 30px;padding-bottom: 30px;">
+ <h1>Baker admin</h1>
+ <div style="padding-left: 30px;padding-bottom: 10px;">>
  <a href="index.html">Main</a> |
  <a href="viewBuns.html">View Buns</a>  |
  <a href="viewUsers.html">View Users</a> | 
@@ -26,7 +27,7 @@
 
 
 	<form class="form-horizontal" role="form" id="bunForm"
-		action="/jaxrs-service/services/baker/repo/users/"  >
+		action="/baker/services/api/repo/users/"  >
 			
 			
 		<input type="hidden" name="bunid" value=""  />
@@ -98,7 +99,7 @@
 	
     $(document).ready(function() {
     	if (userid){
-    		 $.getJSON('http://127.0.0.1:13000/jaxrs-service/services/baker/repo/users/'+userid+'/buns/'+bunid, function(data) {
+    		 $.getJSON('/baker/services/api/repo/users/'+userid+'/buns/'+bunid, function(data) {
 
     			 document.getElementById("headerTitle").innerHTML = 'Edit Bun Form';
     			 document.getElementById("headerBunIDTitle").innerHTML = data.uuid;
@@ -121,11 +122,11 @@
 				event.preventDefault();
 				// Get some values from elements on the page:
 				
-					var url = 'http://127.0.0.1:13000/jaxrs-service/services/baker/repo/users/'+userid+'/buns/';	
+					var url = '/baker/services/api/repo/users/'+userid+'/buns/';	
 					var action = 'POST';
 					
 					if (bunid){
-						url = 'http://127.0.0.1:13000/jaxrs-service/services/baker/repo/users/'+userid+'/buns/'+bunid;	
+						url = '/baker/services/api/repo/users/'+userid+'/buns/'+bunid;	
 				    	action = 'PUT';
 					}
 					

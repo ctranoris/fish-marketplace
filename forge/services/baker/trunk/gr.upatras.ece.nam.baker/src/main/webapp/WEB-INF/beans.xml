@@ -22,7 +22,7 @@
 		<property name="bakerJpaController" ref="bakerJpaControllerRef" />
 	</bean>
 
-	<jaxrs:server id="services" address="/baker/">
+	<jaxrs:server id="services" address="/api/">
 		<jaxrs:serviceBeans>
 
 			<bean class="gr.upatras.ece.nam.baker.repo.BakerRepositoryAPIImpl" >

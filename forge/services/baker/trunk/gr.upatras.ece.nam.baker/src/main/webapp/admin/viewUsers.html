@@ -13,13 +13,14 @@
 </head>
 <body>
 
-<div style="padding-left: 30px;padding-top: 30px;padding-bottom: 30px;">
+ <h1>Baker admin</h1>
+ <div style="padding-left: 30px;padding-bottom: 10px;">
  <a href="index.html">Main</a> |
  <a href="viewBuns.html">View Buns</a>  |
  <a href="viewUsers.html">View Users</a> | 
  <a href="addUser.html">Add User</a>
   </div>
-    <div id="placeholder"></div>
+    <div style="padding-left: 10px;padding-right: 10px; " id="placeholder"></div>
     
 	    
     <script>
@@ -29,7 +30,7 @@
   	});
     
     function loadData(){
-		  $.getJSON('http://127.0.0.1:13000/jaxrs-service/services/baker/repo/users', function(data) {
+		  $.getJSON('/baker/services/api/repo/users', function(data) {
 		      var output="<table class='table table-bordered table-condensed table-hover table-striped' >"+ 
 		      		"<tr>" + 
 		   	  	   "<th>ID</th>" +
@@ -78,7 +79,7 @@
 	            },
 	            "Yes": function () {
 					$.ajax({
-					  url:'http://127.0.0.1:13000/jaxrs-service/services/baker/repo/users/'+checkID,
+					  url:'/baker/services/api/repo/users/'+checkID,
 					  type:"DELETE",
 					  success: function(dataX){
 						  console.log("result= "+ dataX );

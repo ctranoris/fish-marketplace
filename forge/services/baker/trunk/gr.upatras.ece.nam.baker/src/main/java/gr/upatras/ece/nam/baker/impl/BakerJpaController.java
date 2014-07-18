@@ -343,8 +343,10 @@ public class BakerJpaController {
 		entityTransaction.commit();
 	}
 
-	public void deleteBun(final BunMetadata bun) {
+	public void deleteBun(int bunId) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		BunMetadata bun = entityManager.find(BunMetadata.class, bunId);
+		
 
 		EntityTransaction entityTransaction = entityManager.getTransaction();
 

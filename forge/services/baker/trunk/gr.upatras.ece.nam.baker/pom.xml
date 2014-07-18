@@ -404,7 +404,7 @@
 								</httpConnector>
 								<scanIntervalSeconds>4</scanIntervalSeconds>
 								<webApp>
-									<contextPath>/jaxrs-service</contextPath>
+									<contextPath>/baker</contextPath>
 								</webApp>
 							</configuration>
 							<executions>
@@ -453,7 +453,7 @@
 										<port>${test.server.port}</port>
 									</httpConnector>
 									<webApp>
-										<contextPath>/jaxrs-srvtest</contextPath>
+										<contextPath>/rsbaker-srvtest</contextPath>
 									</webApp>
 									<stopPort>9999</stopPort>
 									<stopKey>STOP</stopKey>
@@ -486,7 +486,7 @@
 								</goals>
 								<configuration>
 									<systemPropertyVariables>
-										<service.url>http://localhost:${test.server.port}/jaxrs-srvtest</service.url>
+										<service.url>http://localhost:${test.server.port}/rsbaker-srvtest</service.url>
 									</systemPropertyVariables>
 								</configuration>
 							</execution>
@@ -523,7 +523,7 @@
 									</goals>
 									<configuration>
 										<port>13000</port>
-										<path>/jaxrs-service</path>
+										<path>/baker</path>
 										<useSeparateTomcatClassLoader>true</useSeparateTomcatClassLoader>
 									</configuration>
 								</execution>
@@ -563,7 +563,7 @@
 								<phase>pre-integration-test</phase>
 								<configuration>
 									<port>${test.server.port}</port>
-									<path>/jaxrs-srvtest</path>
+									<path>/rsbaker-srvtest</path>
 									<fork>true</fork>
 									<useSeparateTomcatClassLoader>true</useSeparateTomcatClassLoader>
 								</configuration>
@@ -575,7 +575,7 @@
 								</goals>
 								<phase>post-integration-test</phase>
 								<configuration>
-									<path>/jaxrs-service</path>
+									<path>/rsbaker-srvtest</path>
 								</configuration>
 							</execution>
 						</executions>
@@ -592,7 +592,7 @@
 								</goals>
 								<configuration>
 									<systemPropertyVariables>
-										<service.url>http://localhost:${test.server.port}/jaxrs-srvtest</service.url>
+										<service.url>http://localhost:${test.server.port}/rsbaker-srvtest</service.url>
 									</systemPropertyVariables>
 								</configuration>
 							</execution>
