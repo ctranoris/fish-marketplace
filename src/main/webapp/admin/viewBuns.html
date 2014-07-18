@@ -12,7 +12,8 @@
 </head>
 <body>
 
-<div style="padding-left: 30px;padding-top: 30px;padding-bottom: 30px;">
+ <h1>Baker admin</h1>
+ <div style="padding-left: 30px;padding-bottom: 10px;">
  <a href="index.html">Main</a> |
  <a href="viewBuns.html">View Buns</a>  |
  <a href="viewUsers.html">View Users</a> | 
@@ -24,6 +25,10 @@
     
     <script>
     
+    $(document).ready(function() {
+    	loadData();
+  	});
+    
     function getUrlVars() {
         var vars = {};
         var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
@@ -32,47 +37,99 @@
         return vars;
     }
     
-    var bunsUrl = 'http://127.0.0.1:13000/jaxrs-service/services/baker/repo/buns';
+    var bunsUrl = '/baker/services/api/repo/buns';
     var userid = getUrlVars()["userid"];
     if (userid){
-    	bunsUrl = 'http://127.0.0.1:13000/jaxrs-service/services/baker/repo/users/'+userid+'/buns';
+    	bunsUrl = '/baker/services/api/repo/users/'+userid+'/buns';
     }
     
-    
-  $.getJSON(bunsUrl, function(data) {
-      var output="<table class='table table-bordered table-condensed table-hover table-striped' >"+ 
-      		"<tr>" + 
-   	  	   "<th>ID</th>" +
-    	   "<th>Name</th>" +
-    	   "<th>Version</th>" +
-    	   "<th>shortDescription</th>" +
-    	   "<th>longDescription</th>" +
-    	   "<th>uuid</th>" +
-    	   "<th>Image</th>" +
-    	   "<th>packageLocation</th>" +
-    	   "<th>owner</th>" +
-    	   "<th>action</th>" +
-    	 	"</tr>";
-        for (var i in data) {
-            output+="<tr>" + 
-            "<td>" + data[i].id + "</td> " + 
-            "<td>" + data[i].name + "</td> " + 
-            "<td>" + data[i].version + "</td> " + 
-            "<td>" + data[i].shortDescription + "</td> " + 
-            "<td>" + data[i].longDescription + "</td> " + 
-            "<td>" + data[i].uuid + "</td> " + 
-            "<td><img width='80px' src='" + data[i].iconsrc + "'</td> " + 
-            "<td><a href='" + data[i].packageLocation + "'>Package</a> </td> " + 
-            "<td><a href='/jaxrs-service/admin/addUser.html?userid=" + data[i].owner.id + "'>" + data[i].owner.username + "</a></td> " + 
-            "<td><a href='addBun.html?userid=" + data[i].owner.id + "&bunid="+data[i].id+"'>Edit</a> <br> "+
-            "<a href='#' >Delete</a>"+
-            "</td> " + 
-             "</tr>";
-        }
 
-        output+="</table>";
-        document.getElementById("placeholder").innerHTML=output;
-  });
+    function loadData(){
+	  $.getJSON(bunsUrl, function(data) {
+	      var output="<table class='table table-bordered table-condensed table-hover table-striped' >"+ 
+	      		"<tr>" + 
+	   	  	   "<th>ID</th>" +
+	    	   "<th>Name</th>" +
+	    	   "<th>Version</th>" +
+	    	   "<th>shortDescription</th>" +
+	    	   "<th>longDescription</th>" +
+	    	   "<th>uuid</th>" +
+	    	   "<th>Image</th>" +
+	    	   "<th>packageLocation</th>" +
+	    	   "<th>owner</th>" +
+	    	   "<th>action</th>" +
+	    	 	"</tr>";
+	        for (var i in data) {
+	        	var ownerId = -1;
+	        	var ownerUsername = 'NULL';
+	        	
+	        	if (data[i].owner){
+	        		ownerId = data[i].owner.id;
+	        		ownerUsername = data[i].owner.username;
+	        	}
+	        	
+	        	
+	            output+="<tr>" + 
+	            "<td>" + data[i].id + "</td> " + 
+	            "<td>" + data[i].name + "</td> " + 
+	            "<td>" + data[i].version + "</td> " + 
+	            "<td>" + data[i].shortDescription + "</td> " + 
+	            "<td>" + data[i].longDescription + "</td> " + 
+	            "<td>" + data[i].uuid + "</td> " + 
+	            "<td><img width='80px' src='/baker/services/api/" + data[i].iconsrc + "'</td> " + 
+	            "<td><a href='/baker/services/api/" + data[i].packageLocation + "'>Package</a> </td> " + 
+	            "<td><a href='addUser.html?userid=" + ownerId + "'>" + ownerUsername + "</a></td> " + 
+	            "<td><a href='addBun.html?userid=" + ownerId + "&bunid="+data[i].id+"'>Edit</a> <br> "+
+	            "<a href='#' onClick='removeItem(" + data[i].id + ")'>Delete</a>"+
+	            "</td> " + 
+	             "</tr>";
+	        }
+	
+	        output+="</table>";
+	        document.getElementById("placeholder").innerHTML=output;
+	  });
+	  
+	  return false;
+    }
+
+  
+
+	var dialogMsg = "<p>Remove Bun?</p>";
+  
+  	function removeItem( bunId) {
+
+	    console.log(" bunid="+ bunId);
+	    
+	    $(dialogMsg).dialog( {
+	        buttons: {
+	            "No" : function () {
+	            	 $(this).dialog("destroy");
+	            },
+	            "Yes": function () {
+					$.ajax({
+					  url:'/baker/services/api/repo/buns/'+bunId,
+					  type:"DELETE",
+					  success: function(dataX){
+						  console.log("result= "+ dataX );
+						  $('#placeholder').html("");
+						  loadData();
+					  }
+					}); 
+		             $(this).dialog("destroy");  
+	            }
+	        }
+	    });
+	};
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
     </script>
     
 </body>

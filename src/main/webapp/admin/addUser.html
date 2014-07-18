@@ -12,7 +12,8 @@
 </head>
 <body>
 
-<div style="padding-left: 30px;padding-top: 30px;padding-bottom: 30px;">
+ <h1>Baker admin</h1>
+ <div style="padding-left: 30px;padding-bottom: 10px;">
  <a href="index.html">Main</a> |
  <a href="viewBuns.html">View Buns</a>  |
  <a href="viewUsers.html">View Users</a> | 
@@ -26,7 +27,7 @@
 	</div>
 
 	<form class="form-horizontal" role="form"
-		action="http://127.0.0.1:13000/jaxrs-service/services/baker/repo/users/"
+		action="/baker/services/api/repo/users/"
 		id="addUserForm">
 		<input type="hidden" name="userid" value=""  />
 		<div class="form-group">
@@ -80,7 +81,7 @@
     $(document).ready(function() {
     	if (userid){
     		document.getElementById("headerTitle").innerHTML = 'Edit user';
-    		 $.getJSON('http://127.0.0.1:13000/jaxrs-service/services/baker/repo/users/'+userid, function(data) {
+    		 $.getJSON('/baker/services/api/repo/users/'+userid, function(data) {
 
     			 $("#addUserForm input[name='userid']").val(data.id);
     			 $("#addUserForm input[name='name']").val(data.name);

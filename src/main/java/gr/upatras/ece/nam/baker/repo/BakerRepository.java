@@ -73,6 +73,13 @@ public class BakerRepository {
 		
 		return ls;
 	}
+	
+	public void deleteBun(int bunid) {
+		bakerJpaController.deleteBun(bunid);
+		
+	}
+
+	
 
 
 
@@ -90,7 +97,8 @@ public class BakerRepository {
 		this.bakerJpaController = bakerJpaController;
 	}
 
-	
+
+
 
 
 

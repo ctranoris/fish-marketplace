@@ -17,20 +17,36 @@ package gr.upatras.ece.nam.baker.model;
 
 import javax.ws.rs.core.Response;
 
+import org.apache.cxf.jaxrs.ext.multipart.Attachment;
+
 public interface IBakerRepositoryAPI {
 
-
 	Response getBuns();
+
 	Response getUsers();
-	Response getUserById( int userid);
-	Response addUser( BakerUser user );
-	Response updateUserInfo( int userid, BakerUser user);
-	Response deleteUser( int userid);
-	Response getAllBunsofUser( int userid);
-//	Response addBunMetadata( int userid, BunMetadata bm);
+
+	Response getUserById(int userid);
+
+	Response addUser(BakerUser user);
+
+	Response updateUserInfo(int userid, BakerUser user);
+
+	Response deleteUser(int userid);
+
+	Response getAllBunsofUser(int userid);
+
 	Response getBunMetadataByUUID(String uuid);
+	
+	Response getBunofUser( int userid, int bunid);
+
 	Response downloadBunPackage(String uuid, String bunfile);
-	Response uploadBunMetadata(BunMetadata bm);
 	
-	
+	Response getBunImage(String uuid, String imgfile);
+
+	void updateBunMetadata(int userid, int bid, String bunname, int bunid, String uuid, String shortDescription, String longDescription, String version,
+			Attachment image, Attachment bunFile);
+
+	void addBunMetadata(int userid, String bunname, String shortDescription, String longDescription, String version, Attachment image, Attachment bunFile);
+
+	void deleteBun( int bunid);
 }

@@ -44,7 +44,7 @@ import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
-@Path("/api")
+@Path("/client")
 public class BakerClientAPIImpl implements IBakerClientAPI {
 	private static final transient Log logger = LogFactory.getLog(BakerClientAPIImpl.class.getName());
 
