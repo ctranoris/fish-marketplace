@@ -239,7 +239,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		sm.setLongDescription(longDescription);
 		sm.setVersion(version);
 
-		//URI endpointUrl = uri.getBaseUri();
+		URI endpointUrl = uri.getBaseUri();
 
 		String tempDir = BUNSDATADIR+uuid+ File.separator;
 		try {
@@ -248,13 +248,13 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			if (!imageFileNamePosted.equals("")) {
 				String imgfile = saveFile(image, tempDir+imageFileNamePosted);
 				logger.info("imgfile saved to = " + imgfile);
-				sm.setIconsrc( "repo/images/" + uuid+ File.separator + imageFileNamePosted);
+				sm.setIconsrc( endpointUrl+"repo/images/" + uuid+ File.separator + imageFileNamePosted);
 			}
 
 			if (!bunFileNamePosted.equals("")) {
 				String bunfilepath = saveFile(bunFile, tempDir+bunFileNamePosted);
 				logger.info("bunfilepath saved to = " + bunfilepath);
-				sm.setPackageLocation( "repo/packages/" + uuid + File.separator + bunFileNamePosted);
+				sm.setPackageLocation( endpointUrl+"repo/packages/" + uuid + File.separator + bunFileNamePosted);
 			}
 			
 		} catch (IOException e) {
@@ -311,11 +311,11 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		sm.setShortDescription(shortDescription);
 		sm.setLongDescription(longDescription);
 		sm.setVersion(version);
+		sm.setName(bunname);
 		sm.setOwner(bunOwner);
-		if (bunOwner.getBunById(bunid)==null)
-			bunOwner.addBun(sm);
+		
 
-		//URI endpointUrl = uri.getBaseUri();
+		URI endpointUrl = uri.getBaseUri();
 
 		String tempDir = BUNSDATADIR+uuid+ File.separator;
 		try {
@@ -324,21 +324,24 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			if (!imageFileNamePosted.equals("")) {
 				String imgfile = saveFile(image, tempDir+imageFileNamePosted);
 				logger.info("imgfile saved to = " + imgfile);
-				sm.setIconsrc( "repo/images/" + uuid+ File.separator + imageFileNamePosted);
+				sm.setIconsrc( endpointUrl+"repo/images/" + uuid+ File.separator + imageFileNamePosted);
 			}
 
 			if (!bunFileNamePosted.equals("")) {
 				String bunfilepath = saveFile(bunFile, tempDir+bunFileNamePosted);
 				logger.info("bunfilepath saved to = " + bunfilepath);
-				sm.setPackageLocation( "repo/packages/" + uuid + File.separator + bunFileNamePosted);
+				sm.setPackageLocation( endpointUrl+"repo/packages/" + uuid + File.separator + bunFileNamePosted);
 			}
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		bakerRepositoryRef.updateBunInfo(bunid, sm); 
+		
+		if (bunOwner.getBunById(bunid)==null)
+			bunOwner.addBun(sm);
 		bakerRepositoryRef.updateUserInfo(userid, bunOwner);
 
 	}
@@ -384,6 +387,12 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		logger.info("Bun RESOURCE FILE: " + bunAbsfile);
 		File file = new File(bunAbsfile);
 		
+		if ( (uuid.equals("77777777-668b-4c75-99a9-39b24ed3d8be")) || (uuid.equals("22cab8b8-668b-4c75-99a9-39b24ed3d8be")) ){
+			URL res = getClass().getResource("/files/"+bunfile);
+			logger.info("TEST LOCAL RESOURCE FILE: " + res);
+			file = new File(res.getFile());
+		}
+		
 		ResponseBuilder response = Response.ok((Object) file);
 		response.header("Content-Disposition", "attachment; filename=" + file.getName());
 		return response.build();
@@ -424,25 +433,25 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		logger.info("Received GET for bun uuid: " + uuid);
 		BunMetadata bun = null;
 
+
+		URI endpointUrl = uri.getBaseUri();
 		if (uuid.equals("77777777-668b-4c75-99a9-39b24ed3d8be")) {
 			bun = new BunMetadata(uuid, "IntegrTestLocal example service");
 			bun.setShortDescription("An example local service");
 			bun.setVersion("1.0.0");
 			bun.setIconsrc("");
 			bun.setLongDescription("");
-			//URI endpointUrl = uri.getBaseUri();
 
-			bun.setPackageLocation( "repo/packages/77777777-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
-		}
-		if (uuid.equals("12cab8b8-668b-4c75-99a9-39b24ed3d8be")) {
-			bun = new BunMetadata(uuid, "AN example service");
-			bun.setShortDescription("An example local service");
-			bun.setVersion("1.0.0rc1");
-			bun.setIconsrc("");
-			bun.setLongDescription("");
-			//URI endpointUrl = uri.getBaseUri();
-
-			bun.setPackageLocation( "repo/packages/12cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
+			bun.setPackageLocation( endpointUrl +"repo/packages/77777777-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
+//		}else if (uuid.equals("12cab8b8-668b-4c75-99a9-39b24ed3d8be")) {
+//			bun = new BunMetadata(uuid, "AN example service");
+//			bun.setShortDescription("An example local service");
+//			bun.setVersion("1.0.0rc1");
+//			bun.setIconsrc("");
+//			bun.setLongDescription("");
+//			//URI endpointUrl = uri.getBaseUri();
+//
+//			bun.setPackageLocation( endpointUrl +"repo/packages/12cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
 		} else if (uuid.equals("22cab8b8-668b-4c75-99a9-39b24ed3d8be")) {
 			bun = new BunMetadata(uuid, "IntegrTestLocal example ErrInstall service");
 			bun.setShortDescription("An example ErrInstall local service");
@@ -451,9 +460,8 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			bun.setLongDescription("");
 			//URI endpointUrl = uri.getBaseUri();
 
-			bun.setPackageLocation( "repo/packages/22cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebunErrInstall.tar.gz");
+			bun.setPackageLocation( endpointUrl +"repo/packages/22cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebunErrInstall.tar.gz");
 		}else{
-
 			bun = bakerRepositoryRef.getBunByUUID(uuid); 
 		}
 

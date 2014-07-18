@@ -104,7 +104,7 @@
 					event.preventDefault();
 					// Get some values from elements on the page:
 					var $form = $(this), 
-						vid = $form.find("input[name='userid']").val(),
+						vid = 0,
 						vname = $form.find("input[name='name']").val(),
 						vusername = $form.find("input[name='username']").val(), 
 						vpassword = $form.find("input[name='password']").val(), 
@@ -115,7 +115,9 @@
 						if (userid){
 							url = url +userid;	
 					    	action = 'PUT';
+					    	vid = $form.find("input[name='userid']").val();
 						}
+						
 					var postData={
 							id : vid,
 							name : vname,

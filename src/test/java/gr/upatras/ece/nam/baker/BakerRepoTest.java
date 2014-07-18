@@ -16,6 +16,9 @@
 package gr.upatras.ece.nam.baker;
 
 import static org.junit.Assert.*;
+
+import java.util.UUID;
+
 import gr.upatras.ece.nam.baker.impl.BakerJpaController;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
@@ -56,23 +59,16 @@ public class BakerRepoTest {
 		
 		BunMetadata bmeta = new BunMetadata();
 		bmeta.setName("abun");
+		String uuid = UUID.randomUUID().toString();
+		bmeta.setUuid(uuid);
 		bmeta.setLongDescription("longDescription");
 		bmeta.setShortDescription("shortDescription");
 		bmeta.setPackageLocation("packageLocation");
 		bmeta.setOwner(bu);
 		bu.addBun(bmeta);
-
-
-		String uuid = bmeta.getUuid();
-		assertNull(uuid);
 		
 		bakerJpaControllerTest.saveUser(bu);
-//		bakerJpaControllerTest.getAllUsersPrinted();
-//		bakerJpaControllerTest.getAllBunsPrinted();
 		
-		uuid = bmeta.getUuid();
-		assertNotNull(uuid);
-		logger.info("UUID After saving= " + uuid);
 		//change name and reSave
 		bmeta.setName("NewBunName");
 		bakerJpaControllerTest.updateBunMetadata(bmeta);
