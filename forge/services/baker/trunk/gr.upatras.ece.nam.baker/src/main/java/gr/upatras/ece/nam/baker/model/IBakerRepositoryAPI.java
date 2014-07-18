@@ -43,7 +43,7 @@ public interface IBakerRepositoryAPI {
 	
 	Response getBunImage(String uuid, String imgfile);
 
-	void updateBunMetadata(int userid, int bid, String bunname, int bunid, String uuid, String shortDescription, String longDescription, String version,
+	void updateBunMetadata(int bid, int userid, String bunname, int bunid, String uuid, String shortDescription, String longDescription, String version,
 			Attachment image, Attachment bunFile);
 
 	void addBunMetadata(int userid, String bunname, String shortDescription, String longDescription, String version, Attachment image, Attachment bunFile);

@@ -12,7 +12,7 @@
 </head>
 <body>
  <h1>Baker admin</h1>
- <div style="padding-left: 30px;padding-bottom: 10px;">>
+ <div style="padding-left: 30px;padding-bottom: 10px;">
  <a href="index.html">Main</a> |
  <a href="viewBuns.html">View Buns</a>  |
  <a href="viewUsers.html">View Users</a> | 
@@ -35,19 +35,25 @@
 		<div class="form-group">
 			<label for="bunname" class="col-sm-2 control-label">Bun name</label>
 			<div class="col-sm-10">
-		   		<input type="text" name="bunname" value="BunName!"/>
+		   		<input type="text" name="bunname" value=""/>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="userid" class="col-sm-2 control-label">User ID</label>
+			<div class="col-sm-10">
+		   		<input type="text" name="userid" value=""/>
 			</div>
 		</div>
 		<div class="form-group">
 			<label for="version" class="col-sm-2 control-label">Version</label>
 			<div class="col-sm-10">
-				<input type="text" name="version" value="1.0.2rc1"/>
+				<input type="text" name="version" value=""/>
 			</div>
 		</div>
 		<div class="form-group">
 			<label for="shortDescription" class="col-sm-2 control-label"></label>
 			<div class="col-sm-10">
-				<input type="text" name="shortDescription" value="A shortDescription for this bun"/>
+				<input type="text" name="shortDescription"  placeholder="A shortDescription for this bun"/>
 			</div>
 		
 		</div>
@@ -98,12 +104,15 @@
     var bunid = getUrlVars()["bunid"];
 	
     $(document).ready(function() {
-    	if (userid){
-    		 $.getJSON('/baker/services/api/repo/users/'+userid+'/buns/'+bunid, function(data) {
+    	
+		 $("#bunForm input[name='userid']").val(userid);
+    	if (bunid){
+    		 $.getJSON('/baker/services/api/repo/buns/'+bunid, function(data) {
 
     			 document.getElementById("headerTitle").innerHTML = 'Edit Bun Form';
     			 document.getElementById("headerBunIDTitle").innerHTML = data.uuid;
-    			 
+
+    			 $("#bunForm input[name='bunid']").val(data.id);
     			 $("#bunForm input[name='bunid']").val(data.id);
     			 $("#bunForm input[name='bunuuid']").val(data.uuid);
     			 $("#bunForm input[name='bunname']").val(data.name);
@@ -126,7 +135,7 @@
 					var action = 'POST';
 					
 					if (bunid){
-						url = '/baker/services/api/repo/users/'+userid+'/buns/'+bunid;	
+						url = '/baker/services/api/repo/buns/'+bunid;	
 				    	action = 'PUT';
 					}
 					
