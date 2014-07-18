@@ -74,10 +74,14 @@ public class BakerInstallationMgmt {
 	 */
 	public InstalledBun installBunAndStart(String reqBunUUID, String bunRepoURL) {
 
-		logger.info("reqBunUUID= " + reqBunUUID);
+		logger.info("reqBunUUID= " + reqBunUUID+", bunRepoURL= "+ bunRepoURL);
 		InstalledBun s = managedInstalledBuns.get(reqBunUUID); // return existing if
 														// found
-		if ((s != null) && (s.getStatus() != InstalledBunStatus.FAILED) && (s.getStatus() != InstalledBunStatus.UNINSTALLED)) {
+		if ((s != null) && (s.getStatus() != InstalledBunStatus.FAILED)
+				 && (s.getStatus() != InstalledBunStatus.INIT)
+				  && (s.getStatus() != InstalledBunStatus.DOWNLOADING)
+				  && (s.getStatus() != InstalledBunStatus.DOWNLOADED)
+				  && (s.getStatus() != InstalledBunStatus.UNINSTALLED)) {
 			return s;
 		}
 
@@ -87,7 +91,10 @@ public class BakerInstallationMgmt {
 			s = new InstalledBun(reqBunUUID, bunRepoURL);
 			addBunToManagedBuns(s);
 			bakerJpaController.saveInstalledBun(s);
-		} else if ((s.getStatus() == InstalledBunStatus.FAILED) || (s.getStatus() == InstalledBunStatus.UNINSTALLED)) {
+		} else if ((s.getStatus() == InstalledBunStatus.FAILED) ||
+				(s.getStatus() == InstalledBunStatus.INIT) ||
+				(s.getStatus() == InstalledBunStatus.DOWNLOADING) ||
+				(s.getStatus() == InstalledBunStatus.DOWNLOADED) ||(s.getStatus() == InstalledBunStatus.UNINSTALLED)) {
 
 			logger.info("Will RESTART installation of existing " + s.getUuid() + ". HAD Status= " + s.getStatus());
 			s.setStatus(InstalledBunStatus.INIT); // restart installation

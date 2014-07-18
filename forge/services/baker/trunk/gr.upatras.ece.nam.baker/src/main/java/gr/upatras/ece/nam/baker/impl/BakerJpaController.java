@@ -266,6 +266,10 @@ public class BakerJpaController {
 	}
 	
 	public BunMetadata updateBunMetadata(BunMetadata bm) {
+		logger.info("================= updateBunMetadata ==================");
+		logger.info("bmgetId="+bm.getId());
+		logger.info("bm getName= "+bm.getName());
+		logger.info("bm getPackageLocation= "+bm.getPackageLocation());
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
 		EntityTransaction entityTransaction = entityManager.getTransaction();

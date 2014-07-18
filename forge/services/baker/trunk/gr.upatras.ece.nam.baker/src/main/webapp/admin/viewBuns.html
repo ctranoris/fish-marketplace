@@ -76,8 +76,8 @@
 	            "<td>" + data[i].shortDescription + "</td> " + 
 	            "<td>" + data[i].longDescription + "</td> " + 
 	            "<td>" + data[i].uuid + "</td> " + 
-	            "<td><img width='80px' src='/baker/services/api/" + data[i].iconsrc + "'</td> " + 
-	            "<td><a href='/baker/services/api/" + data[i].packageLocation + "'>Package</a> </td> " + 
+	            "<td><img width='80px' src='" + data[i].iconsrc + "'</td> " + 
+	            "<td><a href='" + data[i].packageLocation + "'>Package</a> </td> " + 
 	            "<td><a href='addUser.html?userid=" + ownerId + "'>" + ownerUsername + "</a></td> " + 
 	            "<td><a href='addBun.html?userid=" + ownerId + "&bunid="+data[i].id+"'>Edit</a> <br> "+
 	            "<a href='#' onClick='removeItem(" + data[i].id + ")'>Delete</a>"+

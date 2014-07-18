@@ -75,11 +75,24 @@ public class InstalledBunLifecycleMgmt {
 			break;
 
 		case DOWNLOADING:
-			startPackageDownloading();
+			if (targetStatus == InstalledBunStatus.STOPPED) {
+				installedBun.setStatus(InstalledBunStatus.STOPPING);
+			} else if (targetStatus == InstalledBunStatus.UNINSTALLED) {
+				installedBun.setStatus(InstalledBunStatus.STOPPING);
+			}else{
+				startPackageDownloading();
+			}
 			break;
 
 		case DOWNLOADED:
-			startPackageInstallation();
+			if (targetStatus == InstalledBunStatus.STOPPED) {
+				installedBun.setStatus(InstalledBunStatus.STOPPING);
+			} else if (targetStatus == InstalledBunStatus.UNINSTALLED) {
+				installedBun.setStatus(InstalledBunStatus.STOPPING);
+			}else{
+				startPackageInstallation();
+					
+			}
 			break;
 
 		case INSTALLING:
