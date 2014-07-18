@@ -147,6 +147,14 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	public Response updateUserInfo(@PathParam("userid") int userid, BakerUser user) {
 		logger.info("Received PUT for user: " + user.getUsername());
 
+		BakerUser previousUser = bakerRepositoryRef.getUserByID(userid);
+		
+		List<BunMetadata> previousBuns = previousUser.getBuns();
+		
+		if (user.getBuns().size() == 0 ){
+			user.getBuns().addAll(previousBuns);
+		}
+		
 		BakerUser u = bakerRepositoryRef.updateUserInfo(userid, user);
 
 		if (u != null) {
@@ -269,9 +277,10 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	
 	
 	@PUT
-	@Path("/users/{userid}/buns/{bid}")
+	@Path("/buns/{bid}")
 	@Consumes("multipart/form-data")
-	public void updateBunMetadata(@PathParam("userid") int userid, @PathParam("bid") int bid, 
+	public void updateBunMetadata( @PathParam("bid") int bid, 
+			@Multipart(value = "userid", type = "text/plain") int userid,
 			@Multipart(value = "bunname", type = "text/plain") String bunname,
 			@Multipart(value = "bunid", type = "text/plain") int bunid,
 			@Multipart(value = "bunuuid", type = "text/plain") String uuid,
@@ -284,6 +293,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		
 		String imageFileNamePosted = getFileName(image.getHeaders());
 		String bunFileNamePosted = getFileName(bunFile.getHeaders());
+		logger.info("userid = " + userid);
 		logger.info("bunname = " + bunname);
 		logger.info("bunid = " + bunid);;
 		logger.info("bunuuid = " + uuid);
@@ -297,10 +307,13 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		// Save now bun for User
 		BakerUser bunOwner = bakerRepositoryRef.getUserByID(userid);
 		
-		BunMetadata sm =bunOwner.getBunById(bunid);
+		BunMetadata sm =bakerRepositoryRef.getBunByID(bunid);
 		sm.setShortDescription(shortDescription);
 		sm.setLongDescription(longDescription);
 		sm.setVersion(version);
+		sm.setOwner(bunOwner);
+		if (bunOwner.getBunById(bunid)==null)
+			bunOwner.addBun(sm);
 
 		//URI endpointUrl = uri.getBaseUri();
 
@@ -326,6 +339,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		}
 		
 		bakerRepositoryRef.updateBunInfo(bunid, sm); 
+		bakerRepositoryRef.updateUserInfo(userid, bunOwner);
 
 	}
 
@@ -384,47 +398,67 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		bakerRepositoryRef.deleteBun(bunid);
 		
 	}
+	
+	
+	@GET
+	@Path("/buns/{bunid}")
+	@Produces("application/json")
+	public Response getBunMetadataByID( @PathParam("bunid") int bunid) {
+		logger.info("getBunMetadataByID  bunid="+bunid);
+		BunMetadata bun = bakerRepositoryRef.getBunByID(bunid);
+
+		if (bun != null) {
+			return Response.ok().entity(bun).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("bun with id=" + bunid + " not found in baker registry");
+			throw new WebApplicationException(builder.build());
+		}
+	}
 
 	@GET
-	@Path("/buns/{uuid}")
+	@Path("/buns/uuid/{uuid}")
 	@Produces("application/json")
 	public Response getBunMetadataByUUID(@PathParam("uuid") String uuid) {
 
-		logger.info("Received GET for uuid: " + uuid);
-		BunMetadata sm = null;
+		logger.info("Received GET for bun uuid: " + uuid);
+		BunMetadata bun = null;
 
 		if (uuid.equals("77777777-668b-4c75-99a9-39b24ed3d8be")) {
-			sm = new BunMetadata(uuid, "IntegrTestLocal example service");
-			sm.setShortDescription("An example local service");
-			sm.setVersion("1.0.0");
-			sm.setIconsrc("");
-			sm.setLongDescription("");
+			bun = new BunMetadata(uuid, "IntegrTestLocal example service");
+			bun.setShortDescription("An example local service");
+			bun.setVersion("1.0.0");
+			bun.setIconsrc("");
+			bun.setLongDescription("");
 			//URI endpointUrl = uri.getBaseUri();
 
-			sm.setPackageLocation( "repo/packages/77777777-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
+			bun.setPackageLocation( "repo/packages/77777777-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
 		}
 		if (uuid.equals("12cab8b8-668b-4c75-99a9-39b24ed3d8be")) {
-			sm = new BunMetadata(uuid, "AN example service");
-			sm.setShortDescription("An example local service");
-			sm.setVersion("1.0.0rc1");
-			sm.setIconsrc("");
-			sm.setLongDescription("");
+			bun = new BunMetadata(uuid, "AN example service");
+			bun.setShortDescription("An example local service");
+			bun.setVersion("1.0.0rc1");
+			bun.setIconsrc("");
+			bun.setLongDescription("");
 			//URI endpointUrl = uri.getBaseUri();
 
-			sm.setPackageLocation( "repo/packages/12cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
+			bun.setPackageLocation( "repo/packages/12cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
 		} else if (uuid.equals("22cab8b8-668b-4c75-99a9-39b24ed3d8be")) {
-			sm = new BunMetadata(uuid, "IntegrTestLocal example ErrInstall service");
-			sm.setShortDescription("An example ErrInstall local service");
-			sm.setVersion("1.0.0");
-			sm.setIconsrc("");
-			sm.setLongDescription("");
+			bun = new BunMetadata(uuid, "IntegrTestLocal example ErrInstall service");
+			bun.setShortDescription("An example ErrInstall local service");
+			bun.setVersion("1.0.0");
+			bun.setIconsrc("");
+			bun.setLongDescription("");
 			//URI endpointUrl = uri.getBaseUri();
 
-			sm.setPackageLocation( "repo/packages/22cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebunErrInstall.tar.gz");
+			bun.setPackageLocation( "repo/packages/22cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebunErrInstall.tar.gz");
+		}else{
+
+			bun = bakerRepositoryRef.getBunByUUID(uuid); 
 		}
 
-		if (sm != null) {
-			return Response.ok().entity(sm).build();
+		if (bun != null) {
+			return Response.ok().entity(bun).build();
 		} else {
 			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
 			builder.entity("Installed bun with uuid=" + uuid + " not found in local registry");
