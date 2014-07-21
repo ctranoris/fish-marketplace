@@ -17,6 +17,7 @@ package gr.upatras.ece.nam.baker.model;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -51,7 +52,9 @@ public class BunMetadata {
 	private String iconsrc = null;
 	@Basic()
 	private String shortDescription = null;
+	
 	@Basic()
+	@Column(name="LONGDESCRIPTION", length=1024)
 	private String longDescription = null;
 	@Basic()
 	private String version = null;

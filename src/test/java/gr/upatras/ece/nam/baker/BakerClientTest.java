@@ -134,7 +134,7 @@ public class BakerClientTest {
 			}
 		}
 
-		InstalledBun istest = bs.getService(uuid);
+		InstalledBun istest = bs.getBun(uuid);
 		assertNotNull(istest);
 		assertEquals(uuid, istest.getUuid());
 		assertEquals(is.getUuid(), istest.getUuid());
@@ -172,7 +172,7 @@ public class BakerClientTest {
 		}
 
 		assertEquals(InstalledBunStatus.STARTED, is.getStatus());
-		bs.stopService(uuid);
+		bs.stopBun(uuid);
 
 		guard = 0;
 		while ((is.getStatus() != InstalledBunStatus.STOPPED) && (guard <= 10)) {
@@ -185,10 +185,10 @@ public class BakerClientTest {
 			}
 		}
 
-		InstalledBun istest = bs.getService(uuid);
+		InstalledBun istest = bs.getBun(uuid);
 		assertEquals(InstalledBunStatus.STOPPED, istest.getStatus());
 
-		bs.uninstallService(uuid);
+		bs.uninstallBun(uuid);
 		guard = 0;
 		while ((is.getStatus() != InstalledBunStatus.UNINSTALLED) && (guard <= 10)) {
 			logger.info("Waiting for UNINSTALLED for test service UUID=" + uuid + " . Now is: " + is.getStatus());
@@ -200,7 +200,7 @@ public class BakerClientTest {
 			}
 		}
 
-		istest = bs.getService(uuid);
+		istest = bs.getBun(uuid);
 		assertEquals(InstalledBunStatus.UNINSTALLED, istest.getStatus());
 
 		bakerJpaControllerTest.deleteAllInstalledBuns();
@@ -229,7 +229,7 @@ public class BakerClientTest {
 			}
 		}
 
-		bs.uninstallService(uuid);
+		bs.uninstallBun(uuid);
 		guard = 0;
 		while ((is.getStatus() != InstalledBunStatus.UNINSTALLED) && (guard <= 10)) {
 			logger.info("Waiting for UNINSTALLED for test service UUID=" + uuid + " . Now is: " + is.getStatus());
@@ -241,7 +241,7 @@ public class BakerClientTest {
 			}
 		}
 
-		InstalledBun istest = bs.getService(uuid);
+		InstalledBun istest = bs.getBun(uuid);
 		assertEquals(InstalledBunStatus.UNINSTALLED, istest.getStatus());
 
 		bakerJpaControllerTest.deleteAllInstalledBuns();
@@ -274,7 +274,7 @@ public class BakerClientTest {
 		logger.info("===========================================================================");
 		logger.info("Service STARTED UUID=" + uuid + " . Now will reconfigure and restart");
 
-		bs.configureService(uuid);
+		bs.configureBun(uuid);
 
 		try {
 
@@ -309,7 +309,7 @@ public class BakerClientTest {
 		}
 
 		logger.info("Service CONFIGURED and reSTARTED UUID=" + uuid + ". ");
-		InstalledBun istest = bs.getService(uuid); // check also DB
+		InstalledBun istest = bs.getBun(uuid); // check also DB
 		assertEquals(InstalledBunStatus.STARTED, istest.getStatus());
 
 		bakerJpaControllerTest.deleteAllInstalledBuns();
@@ -345,7 +345,7 @@ public class BakerClientTest {
 			}
 		}
 
-		InstalledBun istest = bs.getService(uuid);
+		InstalledBun istest = bs.getBun(uuid);
 		assertNotNull(istest);
 		assertEquals(uuid, istest.getUuid());
 		assertEquals(is.getUuid(), istest.getUuid());
@@ -391,7 +391,7 @@ public class BakerClientTest {
 			}
 		}
 
-		InstalledBun istest = bs.getService(uuid);
+		InstalledBun istest = bs.getBun(uuid);
 		assertEquals(uuid, istest.getUuid());
 		assertEquals(InstalledBunStatus.STARTED, istest.getStatus());
 		assertEquals(1, bs.getManagedInstalledBuns().size());
@@ -405,7 +405,7 @@ public class BakerClientTest {
 		// bakerJpaControllerTest.getAll();
 
 		assertEquals("Persistence not implemented yet?!?", 1, bsNew.getManagedInstalledBuns().size());// there should be one
-		InstalledBun istestNew = bsNew.getService(uuid); // req the service with the previous uuid
+		InstalledBun istestNew = bsNew.getBun(uuid); // req the service with the previous uuid
 		assertEquals(uuid, istestNew.getUuid());
 		assertEquals(InstalledBunStatus.STARTED, istestNew.getStatus());
 

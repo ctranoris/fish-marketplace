@@ -12,78 +12,54 @@
 </head>
 <body>
 
- <h1>Bun Marketplace</h1>
+ <h1>View Installed Buns</h1>
   
    
     <div style="padding-left: 10px;padding-right: 10px; " id="placeholder"></div>
     
     <script>
     
-    var repoMarketplaceURL = 'http://127.0.0.1:13000/baker/services/api/repo/buns';
     var bakerURLatFORGEBoxInstall = 'http://localhost:13000';
     
     $(document).ready(function() {
     	loadData();
   	});
     
-    function getUrlVars() {
-        var vars = {};
-        var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-            vars[key] = value;
-        });
-        return vars;
-    }
-    
-    
-    
+   
 
     function loadData(){
-	  $.getJSON(repoMarketplaceURL, function(data) {
+	  $.getJSON(bakerURLatFORGEBoxInstall+'/baker/services/api/client/ibuns/', function(data) {
 	      var output="<table class='table table-bordered table-condensed ' >"+ 
 	      		"<tr>" + 
 	   	  	   "<th>ID</th>" +
 	    	   "<th>Name</th>" +
 	    	   "<th>Status</th>" +
-	    	   "<th>Version</th>" +
-	    	   "<th>shortDescription</th>" +
-	    	   "<th>longDescription</th>" +
-	    	   "<th>Image</th>" +
-	    	   "<th>owner</th>" +
+	    	   "<th>Installed Version</th>" +
 	    	   "<th>action</th>" +
 	    	 	"</tr>";
-	        for (var i in data) {
-	        	var ownerId = -1;
-	        	var ownerUsername = 'NULL';
-	        	
-	        	if (data[i].owner){
-	        		ownerId = data[i].owner.id;
-	        		ownerUsername = data[i].owner.username;
-	        		ownerOrganization = data[i].owner.organization;
-	        	}
-	        	
-	        	//data[i].uuid;
-	        	//data[i].packageLocation
-	        	
-	            output+='<tr>' + 
-	            '<td>' + data[i].id + '</td> ' + 
-	            '<td><p>' + data[i].name + '</p>'+ '</td> ' +
-	            '<td>'+
-	            	'<p><span class="label label-default" id="bunStatusLabel'+ data[i].id+'">...</span></p>'+
-	            	'<button type="button" id="uninstBtn'+data[i].id+'" style="display:none;" class=" btn btn-primary" NEXTACTION="UNINSTALL" onClick="execInstallButton('+ data[i].id+',\''+data[i].uuid +'\', true);" >Uninstall</button>'+
-            	 	'</td> ' + 
-	            '<td>' + data[i].version + '</td> ' + 
-	            '<td>' + data[i].shortDescription + '</td> ' + 
-	            '<td>' + data[i].longDescription + '</td> ' + 
-	            '<td><img width="80px" src="' + data[i].iconsrc + '"</td> ' + 
-	            '<td>' + ownerUsername + '<br>('+ownerOrganization+')</td> ' + 
-	            '<td><div id="bunaction'+data[i].id+'" bunuuid="'+data[i].uuid+'">'+
-	            	'<button type="button" id="execBtn'+data[i].id+'" class="btn btn-primary" onClick="execInstallButton('+ data[i].id+',\''+data[i].uuid +'\');" >waiting action...</button>';
-	            	getAvailableAction( data[i].id, data[i].uuid)+
-	            	
-	            	'</div>'+
-	            '</td> ' + 
-	            '</tr>';
-	        }
+	        for (var i in data) 
+		        if ((data[i].status!='FAILED') && (data[i].status!='UNINSTALLED')){
+		        	
+		        	
+		        	//data[i].uuid;
+		        	//data[i].packageLocation
+		        	
+		            output+='<tr>' + 
+		            '<td>' + data[i].id + '</td> ' + 
+		            '<td><p>' + data[i].name + '</p>'+ '</td> ' +
+		            '<td>'+
+		            	'<p><span class="label label-default" id="bunStatusLabel'+ data[i].id+'">...</span></p>'+
+		            	'<button type="button" id="uninstBtn'+data[i].id+'" style="display:none;" class=" btn btn-primary" NEXTACTION="UNINSTALL" onClick="execInstallButton('+ data[i].id+',\''+data[i].uuid +'\', true);" >Uninstall</button>'+
+	            	 	'</td> ' + 
+		            '<td>' + data[i].installedVersion + '</td> ' + 
+		            '<td><div id="bunaction'+data[i].id+'" bunuuid="'+data[i].uuid+'">'+
+		            	'<button type="button" id="execBtn'+data[i].id+'" class="btn btn-primary" onClick="execInstallButton('+ data[i].id+',\''+data[i].uuid +'\');" >waiting action...</button>';
+		            	getAvailableAction( data[i].id, data[i].uuid)+
+		            	
+		            	'</div>'+
+		            '</td> ' + 
+		            '</tr>';
+		        }
 	
 	        output+='</table>';
 	        document.getElementById('placeholder').innerHTML=output;
