@@ -31,6 +31,7 @@ import javax.servlet.http.HttpSession;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -97,7 +98,7 @@ public class BakerClientAPIImpl implements IBakerClientAPI {
 
 		logger.info("Received GET for uuid: " + uuid);
 
-		InstalledBun installedBun = bakerInstallationMgmtRef.getService(uuid);
+		InstalledBun installedBun = bakerInstallationMgmtRef.getBun(uuid);
 
 		if (installedBun != null) {
 			return Response.ok().entity(installedBun).build();
@@ -140,18 +141,20 @@ public class BakerClientAPIImpl implements IBakerClientAPI {
 		}
 
 	}
+	
+	
 
 	@DELETE
 	@Path("/ibuns/{uuid}")
 	@Produces("application/json")
-	public Response deleteBun(@PathParam("uuid") String uuid) {
+	public Response uninstallBun(@PathParam("uuid") String uuid) {
 
 		logger.info("Received @DELETE for uuid: " + uuid);
 
-		InstalledBun installedBun = bakerInstallationMgmtRef.getService(uuid);
+		InstalledBun installedBun = bakerInstallationMgmtRef.getBun(uuid);
 
 		if (installedBun != null) {
-			bakerInstallationMgmtRef.uninstallService(uuid);
+			bakerInstallationMgmtRef.uninstallBun(uuid);
 			return Response.ok().entity(installedBun).build();
 		} else {
 			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
@@ -160,5 +163,62 @@ public class BakerClientAPIImpl implements IBakerClientAPI {
 		}
 
 	}
+
+	@PUT
+	@Path("/ibuns/{uuid}/stop")
+	@Produces("application/json")
+	public Response stopBun(@PathParam("uuid") String uuid) {
+
+		logger.info("Received @PUT (stop) for uuid: " + uuid);
+
+		InstalledBun installedBun = bakerInstallationMgmtRef.getBun(uuid);
+
+		if (installedBun != null) {
+			bakerInstallationMgmtRef.stopBun(uuid);
+			return Response.ok().entity(installedBun).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("Installed bun with uuid=" + uuid + " not found in baker client registry");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+
+	@PUT
+	@Path("/ibuns/{uuid}/start")
+	@Produces("application/json")
+	public Response startBun(@PathParam("uuid") String uuid) {
+
+		logger.info("Received  @PUT (start) for uuid: " + uuid);
+
+		InstalledBun installedBun = bakerInstallationMgmtRef.getBun(uuid);
+
+		if (installedBun != null) {
+			bakerInstallationMgmtRef.startBun(uuid);
+			return Response.ok().entity(installedBun).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("Installed bun with uuid=" + uuid + " not found in baker client registry");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+
+	@PUT
+	@Path("/ibuns/{uuid}/reconfigure")
+	@Produces("application/json")
+	public Response reConfigureBun(String uuid) {
+		logger.info("Received  @PUT (reconfigure) for uuid: " + uuid);
+
+		InstalledBun installedBun = bakerInstallationMgmtRef.getBun(uuid);
+
+		if (installedBun != null) {
+			bakerInstallationMgmtRef.configureBun(uuid);
+			return Response.ok().entity(installedBun).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("Installed bun with uuid=" + uuid + " not found in baker client registry");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+
 
 }

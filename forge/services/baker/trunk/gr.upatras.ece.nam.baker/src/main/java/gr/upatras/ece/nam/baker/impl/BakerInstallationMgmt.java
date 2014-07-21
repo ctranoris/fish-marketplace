@@ -129,7 +129,7 @@ public class BakerInstallationMgmt {
 
 	}
 
-	public InstalledBun getService(String uuid) {
+	public InstalledBun getBun(String uuid) {
 		InstalledBun is = managedInstalledBuns.get(uuid);
 		return is;
 	}
@@ -157,7 +157,7 @@ public class BakerInstallationMgmt {
 		}
 	}
 
-	public void stopService(String uuid) {
+	public void stopBun(String uuid) {
 		InstalledBun is = managedInstalledBuns.get(uuid);
 
 		if (is.getStatus() != InstalledBunStatus.STARTED)
@@ -169,8 +169,21 @@ public class BakerInstallationMgmt {
 		processBunLifecycleJob(is, this.bakerJpaController, InstalledBunStatus.STOPPED);
 
 	}
+	
+	public void startBun(String uuid) {
+		InstalledBun is = managedInstalledBuns.get(uuid);
 
-	public void uninstallService(String uuid) {
+		if (is.getStatus() != InstalledBunStatus.STOPPED)
+			return;
+
+		logger.info("will start service uuid= " + uuid);
+
+
+		processBunLifecycleJob(is, this.bakerJpaController, InstalledBunStatus.STARTED);
+
+	}
+
+	public void uninstallBun(String uuid) {
 		InstalledBun is = managedInstalledBuns.get(uuid);
 
 		logger.info("will uninstall bun uuid= " + uuid);
@@ -179,7 +192,7 @@ public class BakerInstallationMgmt {
 
 	}
 
-	public void configureService(String uuid) {
+	public void configureBun(String uuid) {
 		InstalledBun is = managedInstalledBuns.get(uuid);
 
 		logger.info("will configure bun uuid= " + uuid);
