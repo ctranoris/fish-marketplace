@@ -158,6 +158,8 @@
     	else if (vstatus === 'UNINSTALLED'){
     		$("#execBtn"+vid).text('INSTALL');
     		$("#execBtn"+vid).addClass('btn-info').attr('NEXTACTION', 'INSTALL');		
+        	$("#execBtn"+vid).prop('disabled', false);//use can install only from marketplace view
+        	$("#execBtn"+vid).hide();
     	}
     	else if (vstatus === 'FAILED'){
     		$("#execBtn"+vid).text('INSTALL')
