@@ -44,7 +44,7 @@
 	   	  	   "<th>ID</th>" +
 	    	   "<th>Name</th>" +
 	    	   "<th>Status</th>" +
-	    	   "<th>Version</th>" +
+	    	   "<th nowrap >Version <br> (Installed Version)</th>" +
 	    	   "<th>shortDescription</th>" +
 	    	   "<th>longDescription</th>" +
 	    	   "<th>Image</th>" +
@@ -71,11 +71,11 @@
 	            	'<p><span class="label label-default" id="bunStatusLabel'+ data[i].id+'">...</span></p>'+
 	            	'<button type="button" id="uninstBtn'+data[i].id+'" style="display:none;" class=" btn btn-primary" NEXTACTION="UNINSTALL" onClick="execInstallButton('+ data[i].id+',\''+data[i].uuid +'\', true);" >Uninstall</button>'+
             	 	'</td> ' + 
-	            '<td>' + data[i].version + '</td> ' + 
+	            '<td nowrap>' + data[i].version + '<br><div id="installedVersion'+data[i].id+'"></div></td> ' + 
 	            '<td>' + data[i].shortDescription + '</td> ' + 
 	            '<td>' + data[i].longDescription + '</td> ' + 
 	            '<td><img width="80px" src="' + data[i].iconsrc + '"</td> ' + 
-	            '<td>' + ownerUsername + '<br>('+ownerOrganization+')</td> ' + 
+	            '<td nowrap >' + ownerUsername + '<br>('+ownerOrganization+')</td> ' + 
 	            '<td><div id="bunaction'+data[i].id+'" bunuuid="'+data[i].uuid+'">'+
 	            	'<button type="button" id="execBtn'+data[i].id+'" class="btn btn-primary" onClick="execInstallButton('+ data[i].id+',\''+data[i].uuid +'\');" >waiting action...</button>';
 	            	getAvailableAction( data[i].id, data[i].uuid)+
@@ -102,11 +102,12 @@
 			  type:"GET",
 			  dataType:"json",
 			  success: function(dataX){
-				  console.log("success result="+dataX);
-				  console.log("success result status ="+dataX.status);
-				  console.log("success result uuid ="+dataX.uuid);
-
+				  //console.log("success result="+dataX);
+				  //console.log("success result status ="+dataX.status);
+				  //console.log("success result uuid ="+dataX.uuid);
 				   
+			      $("#installedVersion"+vid).append('<b>('+dataX.installedVersion+')</b>');
+			      
 				  if (dataX.status){
 						setLabelStatus(vid, dataX.status);		  
 						setButtonText(vid, dataX.status);		  
