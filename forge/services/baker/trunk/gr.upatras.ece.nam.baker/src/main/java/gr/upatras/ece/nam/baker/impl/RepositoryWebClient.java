@@ -89,9 +89,9 @@ public class RepositoryWebClient implements IRepositoryWebClient {
 
 			
 			//Path tempDir = Files.createTempDirectory("baker");
-			String tempDir = System.getProperty("user.home") + File.separator +".baker/extractedbuns";
-			File destFile = new File(tempDir+"/"+uuid+"/bun.tar.gz" );
-			Files.createDirectories( Paths.get( tempDir+"/"+uuid ) );
+			String tempDir = System.getProperty("user.home") + File.separator +".baker"+File.separator+"extractedbuns";
+			File destFile = new File(tempDir+File.separator+uuid+File.separator+"bun.tar.gz" );
+			Files.createDirectories( Paths.get( tempDir+File.separator+uuid ) );
 			Path targetPath = destFile.toPath();
             OutputStream output = new FileOutputStream(targetPath.toFile());			
 			IOUtils.copy(inputStream, output);			
