@@ -34,8 +34,7 @@ public class InstalledServiceTest {
 	@Test
 	public void testGetUuid() {
 		InstalledBun is = installedServiceInit();
-		assertNotNull(is.getUuid());		
-				
+		assertNotNull(is.getUuid());				
 	}
 
 	@Test

@@ -21,6 +21,7 @@ import gr.upatras.ece.nam.baker.model.InstalledBunStatus;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -189,7 +190,7 @@ public class InstalledBunLifecycleMgmt {
 	}
 
 	public int extractPackage(Path targetPath) {
-		String cmdStr = "tar --strip-components=1 -xvzf " + targetPath + " -C " + targetPath.getParent() + "/";
+		String cmdStr = "tar --strip-components=1 -xvzf " + targetPath + " -C " + targetPath.getParent() + File.separator;
 		return executeSystemCommand(cmdStr);
 	}
 

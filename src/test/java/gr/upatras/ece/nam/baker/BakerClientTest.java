@@ -127,6 +127,7 @@ public class BakerClientTest {
 			logger.info("Waiting for STARTED for test service UUID=" + uuid + " . Now is: " + is.getStatus());
 			try {
 				Thread.sleep(1000);
+				
 				guard++;
 			} catch (InterruptedException e) {
 

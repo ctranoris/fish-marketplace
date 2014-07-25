@@ -49,6 +49,12 @@ import javax.ws.rs.core.Response.Status;
 public class BakerClientAPIImpl implements IBakerClientAPI {
 	private static final transient Log logger = LogFactory.getLog(BakerClientAPIImpl.class.getName());
 
+	
+	
+//	Add everywhere a Header showing a version
+//	X-Baker-API-Version : 1.0.0
+	
+	
 	@Context
 	UriInfo uri;
 	//see more about COntext at example http://www.blackpepper.co.uk/custom-context-providers-for-cxf-with-the-context-annotation/
@@ -68,9 +74,16 @@ public class BakerClientAPIImpl implements IBakerClientAPI {
 	@Path("/ibuns/example")
 	@Produces("application/json")
 	public Response getJsonInstalledBunExample(@Context HttpHeaders headers, @Context  HttpServletRequest request) {
-
+		
+		
 		String userAgent = headers.getRequestHeader("user-agent").get(0);
 		logger.info("Received GET for Example. user-agent= " + userAgent);
+		
+		if ( headers.getRequestHeaders().get("X-Baker-API-Version") != null ){
+			String XBakerAPIVersion = headers.getRequestHeader("X-Baker-API-Version").get(0);
+			logger.info("Received GET for Example. X-Baker-API-Version= " + XBakerAPIVersion);
+		}
+		
 		Map<String, Cookie> cookies = headers.getCookies();		
 		logger.info("cookies for Example = " + cookies.toString() );
 		HttpSession  session = request.getSession(true);
