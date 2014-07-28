@@ -15,8 +15,7 @@
 
 package gr.upatras.ece.nam.baker;
 
-import static org.junit.Assert.*;
-import gr.upatras.ece.nam.baker.impl.BakerJpaController;
+import static org.junit.Assert.assertEquals;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
 import gr.upatras.ece.nam.baker.model.InstalledBunStatus;
 
@@ -29,21 +28,16 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.MappingJsonFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
-public class BakerServiceRSIT {
+public class BakerClientIT {
 
 	private static String endpointUrl;
-	private static final transient Log logger = LogFactory.getLog(BakerServiceRSIT.class.getName());
-
-	@Autowired
-	private static BakerJpaController bakerJpaControllerTest;
+	private static final transient Log logger = LogFactory.getLog(BakerClientIT.class.getName());
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -52,7 +46,7 @@ public class BakerServiceRSIT {
 	}
 
 	@Test
-	public void testBakerRSInstallServiceNotFoundAndFail() throws Exception {
+	public void testBakerClientInstallServiceNotFoundAndFail() throws Exception {
 
 		logger.info("Executing TEST = testBakerRSInstallServiceNotFound");
 		List<Object> providers = new ArrayList<Object>();
@@ -90,7 +84,7 @@ public class BakerServiceRSIT {
 	}
 
 	@Test
-	public void testBakerRSInstallBunAndGetStatus() throws Exception {
+	public void testBakerClientInstallBunAndGetStatus() throws Exception {
 
 		logger.info("Executing TEST = testBakerRSInstallServiceAndGetStatus");
 
