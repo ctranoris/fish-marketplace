@@ -63,6 +63,10 @@ public class BakerServiceRSIT {
 		WebClient client = WebClient.create(endpointUrl + "/services/api/client/ibuns/", providers);
 		Response r = client.accept("application/json").type("application/json").post(is);
 		assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
+		
+
+		String bakerAPIVersionListHeaders = (String) r.getHeaders().getFirst("X-Baker-API-Version");
+		assertEquals("1.0.0", bakerAPIVersionListHeaders);
 
 		MappingJsonFactory factory = new MappingJsonFactory();
 		JsonParser parser = factory.createJsonParser((InputStream) r.getEntity());
