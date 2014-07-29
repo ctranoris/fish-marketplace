@@ -16,13 +16,12 @@
 package gr.upatras.ece.nam.baker;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import gr.upatras.ece.nam.baker.model.BakerUser;
-import gr.upatras.ece.nam.baker.model.BunMetadata;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
@@ -31,13 +30,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.MappingJsonFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 
 //RUN a single Integration Test only, but runs all unit tests
 //mvn clean -Pjetty.integration -Dit.test=BakerRepositoryIT verify
@@ -51,57 +50,156 @@ public class BakerRepositoryIT {
 	public static void beforeClass() {
 		endpointUrl = System.getProperty("service.url");
 		logger.info("EbeforeClass endpointUrl = " + endpointUrl);
-	}
-	
-	@Test
-	public void testGetUsers() throws Exception {
 
-		logger.info("Executing TEST = testGetUsers");
+	}
+
+	@Test
+	public void testManagementOfRepo() throws Exception {
+		List<BakerUser> busers = getUsers();
+		int initialBakerUserList = busers.size();
+		BakerUser bu = new BakerUser();
+		bu.setName("ATESTUSER");
+		bu.setOrganization("ANORGANIZATION");
+		bu.setPassword("APASS");
+		bu.setUsername("AUSERNAME");
+
+		// add a user...
+		BakerUser retBU = addUser(bu);
+		assertNotNull(bu.getId());
+		assertEquals(bu.getName(), retBU.getName());
+		assertEquals(bu.getOrganization(), retBU.getOrganization());
+		assertEquals(bu.getPassword(), retBU.getPassword());
+		assertEquals(bu.getUsername(), retBU.getUsername());
+
+		// should be one more user in the DB
+		assertEquals(initialBakerUserList + 1, getUsers().size());
+
+		// GET a user by Id
+		BakerUser retBUbyGET = getUserById(retBU.getId());
+		assertEquals(retBU.getName(), retBUbyGET.getName());
+		assertEquals(retBU.getOrganization(), retBUbyGET.getOrganization());
+		assertEquals(retBU.getPassword(), retBUbyGET.getPassword());
+		assertEquals(retBU.getUsername(), retBUbyGET.getUsername());
+
+		// update user
+		bu = new BakerUser();
+		bu.setName("ATESTUSERNEW");
+		bu.setOrganization("ANORGANIZATIONNEW");
+		bu.setPassword("APASSNEW");
+		bu.setUsername("AUSERNAMENEW");
+		bu.setId(retBU.getId());
+		BakerUser retBUUpdated = updateUser(retBU.getId(), bu);
+		assertEquals(retBU.getId(), retBUUpdated.getId());
+		assertEquals(bu.getName(), retBUUpdated.getName());
+		assertEquals(bu.getOrganization(), retBUUpdated.getOrganization());
+		assertEquals(bu.getPassword(), retBUUpdated.getPassword());
+		assertEquals(bu.getUsername(), retBUUpdated.getUsername());
+
+		// should be again the same user count in the DB
+		assertEquals(initialBakerUserList + 1, getUsers().size());
+
+		// GET the updated user by Id
+		retBUbyGET = getUserById(retBU.getId());
+		assertEquals(bu.getId(), retBUbyGET.getId());
+		assertEquals(bu.getName(), retBUbyGET.getName());
+		assertEquals(bu.getOrganization(), retBUbyGET.getOrganization());
+		assertEquals(bu.getPassword(), retBUbyGET.getPassword());
+		assertEquals(bu.getUsername(), retBUbyGET.getUsername());
+		
+		
+		//delete our added user
+		deleteUserById(retBU.getId());
+
+		assertEquals(initialBakerUserList , getUsers().size());
+		
+
+	}
+
+	private void deleteUserById(int id) {
 		List<Object> providers = new ArrayList<Object>();
 		providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
 
+		WebClient client = WebClient.create(endpointUrl + "/services/api/repo/users/" + id, providers);
+		Response r = client.accept("application/json").type("application/json").delete();
+		assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
+		
+	}
+
+	private BakerUser updateUser(int id, BakerUser bu) throws JsonParseException, IOException {
+		List<Object> providers = new ArrayList<Object>();
+		providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
+
+		WebClient client = WebClient.create(endpointUrl + "/services/api/repo/users/" + id, providers);
+		Response r = client.accept("application/json").type("application/json").put(bu);
+		assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
+
+		MappingJsonFactory factory = new MappingJsonFactory();
+		JsonParser parser = factory.createJsonParser((InputStream) r.getEntity());
+		BakerUser output = parser.readValueAs(BakerUser.class);
+		return output;
+	}
+
+	private BakerUser getUserById(int id) throws JsonParseException, IOException {
+		List<Object> providers = new ArrayList<Object>();
+		providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
+
+		WebClient client = WebClient.create(endpointUrl + "/services/api/repo/users/" + id, providers);
+		Response r = client.accept("application/json").type("application/json").get();
+		assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
+
+		MappingJsonFactory factory = new MappingJsonFactory();
+		JsonParser parser = factory.createJsonParser((InputStream) r.getEntity());
+		BakerUser output = parser.readValueAs(BakerUser.class);
+		return output;
+	}
+
+	private BakerUser addUser(BakerUser bu) throws JsonParseException, IOException {
+
+		List<Object> providers = new ArrayList<Object>();
+		providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
 
 		WebClient client = WebClient.create(endpointUrl + "/services/api/repo/users", providers);
-		Response r = client.accept("application/json").type("application/json").get(); 
-		assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());		
+		Response r = client.accept("application/json").type("application/json").post(bu);
+		assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
+
+		MappingJsonFactory factory = new MappingJsonFactory();
+		JsonParser parser = factory.createJsonParser((InputStream) r.getEntity());
+		BakerUser output = parser.readValueAs(BakerUser.class);
+		return output;
+	}
+
+	public List<BakerUser> getUsers() throws Exception {
+
+		logger.info("Executing TEST = testGetUsers");
+
+		Response r = execGETonURL(endpointUrl + "/services/api/repo/users");
+		assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
 
 		String bakerAPIVersionListHeaders = (String) r.getHeaders().getFirst("X-Baker-API-Version");
 		assertEquals("1.0.0", bakerAPIVersionListHeaders);
-		
+
 		MappingJsonFactory factory = new MappingJsonFactory();
 		JsonParser parser = factory.createJsonParser((InputStream) r.getEntity());
-		
 
-		//Collection<BakerUser> users = parser.readValueAs(Collection.class);		
-		
 		JsonNode node = parser.readValueAsTree();
-        //node = node.get("someArray");
-		 ObjectMapper mapper = new ObjectMapper();
-        TypeReference<List<BakerUser>> typeRef = new TypeReference<List<BakerUser>>(){};
-        List<BakerUser> list = mapper.readValue(node.traverse(), typeRef);
-        for (BakerUser f : list) {
-        	logger.info("user = " + f.getName());
-        }
-        
+		ObjectMapper mapper = new ObjectMapper();
+		TypeReference<List<BakerUser>> typeRef = new TypeReference<List<BakerUser>>() {
+		};
+		List<BakerUser> bakerUsersList = mapper.readValue(node.traverse(), typeRef);
+		for (BakerUser f : bakerUsersList) {
+			logger.info("user = " + f.getName() + ", ID = " + f.getId());
+		}
 
-//		logger.info("users = " + users.size());
-//		
-//		for (Iterator<BakerUser> iterator = users.iterator(); iterator.hasNext();) {
-//			BakerUser bu = iterator.next();
-//			logger.info("	======> BakerUser found: " + bu.getName() + ", Id: " + bu.getId() + ", Id: " + bu.getOrganization() + ", Id: " + bu.getUsername());
-//
-//			List<BunMetadata> buns = bu.getBuns();
-//			for (BunMetadata bunMetadata : buns) {
-//
-//				logger.info("	======> bunMetadata found: " + bunMetadata.getName() + ", Id: " + bunMetadata.getId() + ", getUuid: " + bunMetadata.getUuid()
-//						+ ", getName: " + bunMetadata.getName());
-//			}
-//
-//		}
-//		logger.info("================= getAll() ==================END");
-		
-		
+		return bakerUsersList;
 	}
-	
+
+	private Response execGETonURL(String url) {
+		List<Object> providers = new ArrayList<Object>();
+		providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
+
+		WebClient client = WebClient.create(url, providers);
+		Response r = client.accept("application/json").type("application/json").get();
+		return r;
+	}
 
 }
