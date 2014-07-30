@@ -60,6 +60,7 @@ import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.rs.security.cors.CrossOriginResourceSharing;
 
 
+//CORS support
 @CrossOriginResourceSharing(
 		allowAllOrigins = true
 )

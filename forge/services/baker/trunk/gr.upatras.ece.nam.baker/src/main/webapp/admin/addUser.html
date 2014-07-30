@@ -51,6 +51,13 @@
 			 <input type="text" name="password" value="" />
 			</div>
 		</div>
+		
+		<div class="form-group">
+			<label for="email" class="col-sm-2 control-label">e-mail</label>
+			<div class="col-sm-10">
+			 <input type="text" name="email" value="" />
+			</div>
+		</div>
 		<div class="form-group">
 			<label for="organization" class="col-sm-2 control-label">Organization</label>
 			<div class="col-sm-10">
@@ -90,6 +97,7 @@
     			 $("#addUserForm input[name='username']").val(data.username);
     			 $("#addUserForm input[name='password']").val(data.password);
     			 $("#addUserForm input[name='organization']").val(data.organization);
+    			 $("#addUserForm input[name='email']").val(data.email);
     		 });
     	}
   	});
@@ -111,6 +119,7 @@
 						vusername = $form.find("input[name='username']").val(), 
 						vpassword = $form.find("input[name='password']").val(), 
 						vorganization = $form.find("input[name='organization']").val(), 
+						vemail = $form.find("input[name='email']").val(), 
 						url = $form.attr("action");
 						var action = 'POST';
 						
@@ -125,6 +134,7 @@
 							name : vname,
 							username : vusername,
 							password : vpassword,
+							email : vemail,
 							organization : vorganization};
 					// Send the data using post
 					$.ajax({

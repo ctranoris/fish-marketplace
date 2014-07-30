@@ -45,9 +45,10 @@ public class BakerUser {
 
 	@Basic()
 	private String organization = null;
-
 	@Basic()
 	private String name = null;
+	@Basic()
+	private String email = null;
 	@Basic()
 	private String username = null;
 	@Basic()
@@ -144,5 +145,13 @@ public class BakerUser {
 				return bunMetadata;
 		}
 		return null;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 }
