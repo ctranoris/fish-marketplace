@@ -56,6 +56,7 @@ public class BakerRepoTest {
 		bu.setName("aname");
 		bu.setUsername("ausername");
 		bu.setPassword("apassword");
+		bu.setEmail("e@e.com");
 		
 		BunMetadata bmeta = new BunMetadata();
 		bmeta.setName("abun");
@@ -92,6 +93,8 @@ public class BakerRepoTest {
 		assertEquals("aname", testbu.getName());
 		assertEquals("apassword", testbu.getPassword());
 		assertEquals("UoP", testbu.getOrganization());
+		assertEquals("e@e.com", testbu.getEmail());
+
 		assertEquals(2, testbu.getBuns().size() );
 		
 
