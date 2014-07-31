@@ -28,12 +28,10 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
 import javax.activation.DataHandler;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -45,18 +43,18 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.cxf.jaxrs.ext.multipart.Multipart;
-import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
+import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
+import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 import org.apache.cxf.rs.security.cors.CrossOriginResourceSharing;
 
 
@@ -68,7 +66,11 @@ import org.apache.cxf.rs.security.cors.CrossOriginResourceSharing;
 public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 	@Context
-	UriInfo uri;
+	UriInfo uri;	
+	@Context 
+	MessageContext   ws;	
+	@Context 
+	protected SecurityContext securityContext; 
 
 	private static final transient Log logger = LogFactory.getLog(BakerRepositoryAPIImpl.class.getName());
 
@@ -81,7 +83,22 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@GET
 	@Path("/users/")
 	@Produces("application/json")
+    //@RolesAllowed("admin") //see this for this annotation http://pic.dhe.ibm.com/infocenter/radhelp/v9/index.jsp?topic=%2Fcom.ibm.javaee.doc%2Ftopics%2Ftsecuringejee.html
 	public Response getUsers() {
+		
+		if (securityContext!=null){
+			logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().getName()+"<");
+		
+		}
+//
+//		// Only the sales role may access this operation
+//	    if (!securityContext.isUserInRole("admin")) {
+//
+//			ResponseBuilder builder = Response.status(Status.UNAUTHORIZED);
+//			throw new WebApplicationException(builder.build());
+//	    }
+	    
+		
 		return Response.ok().entity(bakerRepositoryRef.getUserValues()).build();
 	}
 
@@ -92,6 +109,18 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@Path("/users/example")
 	@Produces("application/json")
 	public Response getUserExample() {
+
+		if (securityContext!=null){
+			logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().toString()+"<");
+		
+		}
+
+		if (ws!=null){
+			if (ws.getHttpServletRequest()!=null)
+				if (ws.getHttpServletRequest().getUserPrincipal()!=null)	
+					logger.info(" ws.getUserPrincipal().toString(): " + ws.getHttpServletRequest().getUserPrincipal().toString());
+		}
+		
 		BakerUser b = new BakerUser();
 		b.setName("Christos");
 		b.setUsername("ctran");

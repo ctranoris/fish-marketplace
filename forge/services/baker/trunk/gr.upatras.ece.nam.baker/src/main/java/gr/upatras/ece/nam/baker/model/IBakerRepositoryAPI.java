@@ -15,16 +15,20 @@
 
 package gr.upatras.ece.nam.baker.model;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 
+
 public interface IBakerRepositoryAPI {
 
 	Response getBuns();
-
+	
+	//@RolesAllowed("admin") 
 	Response getUsers();
 
+	//@RolesAllowed("admin") 
 	Response getUserById(int userid);
 
 	Response addUser(BakerUser user);

@@ -4,7 +4,8 @@
 	xmlns:jaxrs="http://cxf.apache.org/jaxrs"
 	xmlns:cxf="http://cxf.apache.org/core"
 	xmlns:context="http://www.springframework.org/schema/context"
-	xsi:schemaLocation=" http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd  ">
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation=" http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd  http://www.springframework.org/schema/util  http://www.springframework.org/schema/util/spring-util.xsd ">
 	<import resource="classpath:META-INF/cxf/cxf.xml" />
 	<context:property-placeholder />
 	<context:annotation-config />
@@ -39,23 +40,51 @@
 			<bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" />			
 			<bean class="org.apache.cxf.rs.security.cors.CrossOriginResourceSharingFilter"/>
 		</jaxrs:providers>
+		
+        <jaxrs:inInterceptors>
+            <ref bean="authenticationInterceptorWithConfig"/>
+            <ref bean="authorizationInterceptor"/>
+        </jaxrs:inInterceptors>
+        <jaxrs:outFaultInterceptors>
+            <bean class="gr.upatras.ece.nam.baker.util.SecurityOutFaultInterceptor"/>
+        </jaxrs:outFaultInterceptors>
 	</jaxrs:server>
 
 
+	<bean id="bakerLoginConfig" class="gr.upatras.ece.nam.baker.util.BakerLoginJaasConfiguration"/>
+    <bean id="authenticationInterceptorWithConfig" class="org.apache.cxf.interceptor.security.JAASLoginInterceptor">
+        <property name="loginConfig" ref="bakerLoginConfig"/>
+    </bean>
+
+	<bean id="authorizationInterceptor" class="gr.upatras.ece.nam.baker.util.MySimpleAuthorizingInterceptor">
+		<property name="methodRolesMap">
+			<map>
+				<!-- no wildcard support, names need to match exactly -->
+				<entry key="getUserById" value="ROLE_USER ROLE_ADMIN" />
+				<entry key="getUserExample" value="ROLE_USER ROLE_ADMIN" />
+			</map>
+		</property>
+		<!-- its possible to define global roles that apply to all WSDL operations 
+			not listed above -->
+		<property name="globalRoles" value="ROLE_ADMIN" />
+		<property name="checkConfiguredRolesOnly" value="true"></property>
+	</bean>
+ 
+	<!--  HEADERS OUT INTERCEPTOR  -->
 
 	<bean id="headersOutInterceptor" class="gr.upatras.ece.nam.baker.util.HeadersOutInterceptor" />
 
-	<!-- We are adding the interceptors to the bus as we will have only one 
-		endpoint/service/bus. -->
+	<!-- We are adding the interceptors to the bus as we will have only one  endpoint/service/bus. -->
 
 	<cxf:bus>
 		<cxf:outInterceptors>
 			<ref bean="headersOutInterceptor" />
 		</cxf:outInterceptors>
+		
 	</cxf:bus>
 
 
-
+	<!-- JPA Beans configuration -->
 
 	<bean name="bakerJpaControllerRef" class="gr.upatras.ece.nam.baker.impl.BakerJpaController">
 	</bean>
