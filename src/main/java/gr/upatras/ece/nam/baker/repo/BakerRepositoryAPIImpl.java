@@ -90,13 +90,6 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().getName()+"<");
 		
 		}
-//
-//		// Only the sales role may access this operation
-//	    if (!securityContext.isUserInRole("admin")) {
-//
-//			ResponseBuilder builder = Response.status(Status.UNAUTHORIZED);
-//			throw new WebApplicationException(builder.build());
-//	    }
 	    
 		
 		return Response.ok().entity(bakerRepositoryRef.getUserValues()).build();

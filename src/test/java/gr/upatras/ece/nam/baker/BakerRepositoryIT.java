@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.logging.Log;
@@ -198,6 +199,9 @@ public class BakerRepositoryIT {
 		providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
 
 		WebClient client = WebClient.create(url, providers);
+		Cookie cookie = new Cookie("X-Baker-Key", "123456") ;
+		client.cookie(cookie );
+		
 		Response r = client.accept("application/json").type("application/json").get();
 		return r;
 	}
