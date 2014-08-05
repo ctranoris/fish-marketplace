@@ -85,9 +85,10 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@Produces("application/json")
     //@RolesAllowed("admin") //see this for this annotation http://pic.dhe.ibm.com/infocenter/radhelp/v9/index.jsp?topic=%2Fcom.ibm.javaee.doc%2Ftopics%2Ftsecuringejee.html
 	public Response getUsers() {
-		
+
 		if (securityContext!=null){
-			logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().getName()+"<");
+			if (securityContext.getUserPrincipal()!=null)
+				logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().getName()+"<");
 		
 		}
 	    
