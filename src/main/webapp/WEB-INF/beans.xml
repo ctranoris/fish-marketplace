@@ -41,6 +41,10 @@
 			<bean class="org.apache.cxf.rs.security.cors.CrossOriginResourceSharingFilter"/>
 		</jaxrs:providers>
 		
+		<jaxrs:inInterceptors>
+			<ref bean="basicAuthValidator"/>
+		</jaxrs:inInterceptors>
+		
 
 	</jaxrs:server>
  
@@ -56,6 +60,18 @@
 		</cxf:outInterceptors>
 		
 	</cxf:bus>
+	
+	
+	<!-- Apapche Shiro -->
+ 	<bean class="gr.upatras.ece.nam.baker.util.ShiroUTValidator" id="utValidator">
+		<constructor-arg value="src/main/resources/securityconfig.ini"/>
+	</bean>
+	<bean id="basicAuthValidator" class="gr.upatras.ece.nam.baker.util.ShiroBasicAuthInterceptor">
+		<property name="validator" ref="utValidator" />
+	</bean>
+	
+	
+	
 
 
 	<!-- JPA Beans configuration -->

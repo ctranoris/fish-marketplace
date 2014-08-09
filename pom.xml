@@ -41,6 +41,7 @@
 		<openjpa.version>2.3.0</openjpa.version>
 		<spring.version>4.0.5.RELEASE</spring.version>
 
+		<shiro.version>1.2.3</shiro.version>
 	</properties>
 
 
@@ -141,6 +142,18 @@
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.1.0</version>
+		</dependency>
+
+		<!-- Shiro dependencies: -->
+		<dependency>
+			<groupId>org.apache.shiro</groupId>
+			<artifactId>shiro-core</artifactId>
+			<version>${shiro.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.shiro</groupId>
+			<artifactId>shiro-web</artifactId>
+			<version>${shiro.version}</version>
 		</dependency>
 	</dependencies>
 

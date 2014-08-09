@@ -56,6 +56,8 @@ import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 import org.apache.cxf.rs.security.cors.CrossOriginResourceSharing;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 
 
 //CORS support
@@ -67,10 +69,14 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 	@Context
 	UriInfo uri;	
+	
 	@Context 
 	MessageContext   ws;	
+	
 	@Context 
 	protected SecurityContext securityContext; 
+	
+	
 
 	private static final transient Log logger = LogFactory.getLog(BakerRepositoryAPIImpl.class.getName());
 
@@ -105,14 +111,30 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	public Response getUserExample() {
 
 		if (securityContext!=null){
+			if (securityContext.getUserPrincipal()!=null)
 			logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().toString()+"<");
 		
 		}
 
+
+		Subject currentUser = SecurityUtils.getSubject();
+		if (currentUser !=null){
+			logger.info(" currentUser = " + currentUser.toString() );
+			logger.info( "User [" + currentUser.getPrincipal() + "] logged in successfully." );
+			logger.info(" currentUser  employee  = " + currentUser.hasRole("employee")  );
+			logger.info(" currentUser  boss  = " + currentUser.hasRole("boss")  );
+		}
+
 		if (ws!=null){
-			if (ws.getHttpServletRequest()!=null)
+			logger.info("ws = "+ws.toString() );
+			if (ws.getHttpServletRequest()!=null){
+				//sessionid
+				logger.info("ws.getHttpServletRequest() = "+ws.getHttpServletRequest().getSession().getId()  );
+				
 				if (ws.getHttpServletRequest().getUserPrincipal()!=null)	
 					logger.info(" ws.getUserPrincipal().toString(): " + ws.getHttpServletRequest().getUserPrincipal().toString());
+		
+			}
 		}
 		
 		BakerUser b = new BakerUser();
