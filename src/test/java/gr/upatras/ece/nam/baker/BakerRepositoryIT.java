@@ -120,7 +120,7 @@ public class BakerRepositoryIT {
 		List<Object> providers = new ArrayList<Object>();
 		providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
 
-		WebClient client = WebClient.create(endpointUrl + "/services/api/repo/users/" + id, providers, "ctran", "12345", null);
+		WebClient client = WebClient.create(endpointUrl + "/services/api/repo/users/" + id, providers, "admin", "changeme", null);
 		Response r = client.accept("application/json").type("application/json").delete();
 		assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
 		
@@ -130,7 +130,7 @@ public class BakerRepositoryIT {
 		List<Object> providers = new ArrayList<Object>();
 		providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
 
-		WebClient client = WebClient.create(endpointUrl + "/services/api/repo/users/" + id, providers, "ctran", "12345", null);
+		WebClient client = WebClient.create(endpointUrl + "/services/api/repo/users/" + id, providers, "admin", "changeme", null);
 		Response r = client.accept("application/json").type("application/json").put(bu);
 		assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
 
@@ -144,7 +144,7 @@ public class BakerRepositoryIT {
 		List<Object> providers = new ArrayList<Object>();
 		providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
 
-		WebClient client = WebClient.create(endpointUrl + "/services/api/repo/users/" + id, providers, "ctran", "12345", null);
+		WebClient client = WebClient.create(endpointUrl + "/services/api/repo/users/" + id, providers, "admin", "changeme", null);
 		Response r = client.accept("application/json").type("application/json").get();
 		assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
 
@@ -159,7 +159,7 @@ public class BakerRepositoryIT {
 		List<Object> providers = new ArrayList<Object>();
 		providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
 
-		WebClient client = WebClient.create(endpointUrl + "/services/api/repo/users", providers, "ctran", "12345", null);
+		WebClient client = WebClient.create(endpointUrl + "/services/api/repo/users", providers, "admin", "changeme", null);
 		Response r = client.accept("application/json").type("application/json").post(bu);
 		assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
 
@@ -173,7 +173,7 @@ public class BakerRepositoryIT {
 
 		logger.info("Executing TEST = testGetUsers");
 
-		Response r = execGETonURL(endpointUrl + "/services/api/repo/users", "ctran", "12345");
+		Response r = execGETonURL(endpointUrl + "/services/api/repo/users", "admin", "changeme");
 		assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
 
 		String bakerAPIVersionListHeaders = (String) r.getHeaders().getFirst("X-Baker-API-Version");
