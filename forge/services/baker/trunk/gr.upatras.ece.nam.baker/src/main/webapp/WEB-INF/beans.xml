@@ -42,7 +42,7 @@
 		</jaxrs:providers>
 		
 		<jaxrs:inInterceptors>
-			<ref bean="basicAuthValidator"/>
+			<!-- <ref bean="basicAuthValidator"/>  -->
 		</jaxrs:inInterceptors>
 		
 
@@ -66,10 +66,11 @@
  	<bean class="gr.upatras.ece.nam.baker.util.ShiroUTValidator" id="utValidator">
  		<property name="securityManager" ref="securityManagerBean"/>
 	</bean>
+	<!-- 
 	<bean id="basicAuthValidator" class="gr.upatras.ece.nam.baker.util.ShiroBasicAuthInterceptor">
 		<property name="validator" ref="utValidator" />
 	</bean>
-	
+	 -->
 	
 	
 	<bean id="securityManagerBean" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
@@ -80,7 +81,7 @@
 	    <!-- <property name="sessionMode" value="native"/> -->
 	    <property name="sessionManager">
 		    <bean class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager">
-		    <property name="sessionIdCookie" ref="cookieBAKERref"></property>
+		    <!-- <property name="sessionIdCookie" ref="cookieBAKERref"></property>  -->
 		    </bean>
 		    
 		  </property>
@@ -92,15 +93,17 @@
 	<bean id="myRealm" class="gr.upatras.ece.nam.baker.util.ShiroUTAuthorizingRealm">
 	</bean>
 	
+	<!-- 
 	<bean id ="cookieBAKERref" class="org.apache.shiro.web.servlet.SimpleCookie">
 		<property name="name" value="BAKERCOOKIEMAN"></property>
 		<property name="path" value="/"></property>
 	</bean>
-	
+	 -->
+	 
 	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
         <property name="securityManager" ref="securityManagerBean"/>
-        <property name="loginUrl" value="login.jsp"/>
-        <property name="successUrl" value="index.html"/>
+        <property name="loginUrl" value="/login.jsp"/>
+        <property name="successUrl" value="/index.html"/>
         <property name="unauthorizedUrl" value=""/>
         <!-- The 'filters' property is not necessary since any declared javax.servlet.Filter bean
              defined will be automatically acquired and available via its beanName in chain
@@ -114,7 +117,19 @@
         <property name="filterChainDefinitions">
             <value>
                 # everything else requires authentication:
+                /index.html = anon
+                /viewBunMarketplace.html = anon
+                /viewInstalledBuns.html = anon
+                /services/api/repo/users/example/** = anon, rest
+                /services/api/client/** = anon, rest
+                /services/api/repo/buns/** = anon, rest
+                /services/api/repo/packages/** = anon, rest
+                /services/api/repo/images/** = anon, rest
+                /services/api/** = authcBasic, rest, roles[boss]
+                /admin/logout = logout
+                /admin/** = authc, roles[boss]
                 /** = authc
+                
             </value>
         </property>
     </bean>

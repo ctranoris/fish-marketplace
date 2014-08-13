@@ -1,3 +1,18 @@
+/**
+ * Copyright 2014 University of Patras 
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License.
+ * You may obtain a copy of the License at:
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * 
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
+
 package gr.upatras.ece.nam.baker.util;
 
 import java.util.ArrayList;
@@ -30,11 +45,10 @@ public class ShiroUTAuthorizingRealm extends AuthorizingRealm {
 	private final List<String> requiredRoles = new ArrayList<String>();
 	private static final transient Log logger = LogFactory.getLog(ShiroUTAuthorizingRealm.class.getName());
 
-
 	@Override
 	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection arg0) {
 		logger.info("doGetAuthorizationInfo PrincipalCollection=" + arg0.toString());
-		
+
 		SimpleAuthorizationInfo ai = new SimpleAuthorizationInfo();
 		ai.addRole("boss");
 		return ai;
@@ -46,30 +60,34 @@ public class ShiroUTAuthorizingRealm extends AuthorizingRealm {
 		logger.info("AuthenticationToken at=" + at.toString());
 
 		UsernamePasswordToken token = (UsernamePasswordToken) at;
-		logger.info("tokengetUsername at=" + token.getUsername() );
-		logger.info("tokengetPassword at=" + String.valueOf(token.getPassword()) );
+		logger.info("tokengetUsername at=" + token.getUsername());
+		logger.info("tokengetPassword at=" + String.valueOf(token.getPassword()));
 		logger.info("tokengetPrincipal at=" + token.getPrincipal());
 
-//		// Validate it via Shiro
-//		Subject currentUser = SecurityUtils.getSubject();
-//		try {
-//			currentUser.login(token);
-//		} catch (AuthenticationException ex) {
-//			logger.info(ex.getMessage(), ex);
-//			throw new AuthenticationException("Sorry! No login for you.");
-//		}
-//		// Perform authorization check
-//		if (!requiredRoles.isEmpty() && !currentUser.hasAllRoles(requiredRoles)) {
-//			logger.info("Authorization failed for authenticated user");
-//			throw new AuthenticationException("Sorry! No login for you.");
-//		}
-		
+		if (("ctran".equals(token.getUsername())) && ("12345".equals(  String.valueOf(token.getPassword())  ))) {
+
+		} else {
+			throw new AuthenticationException("Sorry! No login for you.");
+		}
+
+		// try {
+		// currentUser.login(token);
+		// } catch (AuthenticationException ex) {
+		// logger.info(ex.getMessage(), ex);
+		// throw new AuthenticationException("Sorry! No login for you.");
+		// }
+		// // Perform authorization check
+		// if (!requiredRoles.isEmpty() && !currentUser.hasAllRoles(requiredRoles)) {
+		// logger.info("Authorization failed for authenticated user");
+		// throw new AuthenticationException("Sorry! No login for you.");
+		// }
+
 		SimpleAuthenticationInfo sa = new SimpleAuthenticationInfo();
 		sa.setCredentials(token.getCredentials());
 		SimplePrincipalCollection principals = new org.apache.shiro.subject.SimplePrincipalCollection();
-		principals.add( token.getPrincipal(), "realmmmmNAMM");
-		//principals.add("employee", "realmmmmNAMM");
-		//principals.add("boss", "realmmmmNAMM");
+		principals.add(token.getPrincipal(), "realmmmmNAMM");
+		// principals.add("employee", "realmmmmNAMM");
+		// principals.add("boss", "realmmmmNAMM");
 		sa.setPrincipals(principals);
 		return sa;
 	}
@@ -91,6 +109,7 @@ public class ShiroUTAuthorizingRealm extends AuthorizingRealm {
 
 		String pwType = usernameToken.getPasswordType();
 		logger.info("UsernameToken user " + usernameToken.getName());
+		logger.info("UsernameToken password " + usernameToken.getPassword());
 		logger.info("UsernameToken password type " + pwType);
 
 		// if (!WSConstants.PASSWORD_TEXT.equals(pwType)) {
