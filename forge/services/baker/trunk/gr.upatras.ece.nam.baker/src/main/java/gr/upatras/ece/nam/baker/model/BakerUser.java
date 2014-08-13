@@ -142,6 +142,12 @@ public class BakerUser {
 		
 		//this.password = password;
 	}
+	
+	public void setPasswordUnencrypted(String password) {
+
+		
+		this.password = password;
+	}
 
 	public BunMetadata getBunById(int bunid) {
 

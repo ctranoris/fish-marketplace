@@ -22,6 +22,7 @@ import java.util.UUID;
 import gr.upatras.ece.nam.baker.impl.BakerJpaController;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
+import gr.upatras.ece.nam.baker.util.EncryptionUtil;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -91,7 +92,7 @@ public class BakerRepoTest {
 		
 		BakerUser testbu = bakerJpaControllerTest.readBakerUserByUsername("ausername");
 		assertEquals("aname", testbu.getName());
-		assertEquals("apassword", testbu.getPassword());
+		assertEquals( EncryptionUtil.hash(  "apassword" ), testbu.getPassword());
 		assertEquals("UoP", testbu.getOrganization());
 		assertEquals("e@e.com", testbu.getEmail());
 
