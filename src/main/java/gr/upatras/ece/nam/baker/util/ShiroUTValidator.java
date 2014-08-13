@@ -1,7 +1,9 @@
 package gr.upatras.ece.nam.baker.util;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
@@ -22,10 +24,15 @@ public class ShiroUTValidator {
 	private final List<String> requiredRoles = new ArrayList<String>();
 	private static final transient Log logger = LogFactory.getLog(ShiroUTValidator.class.getName());
 
-	public ShiroUTValidator(String iniResourcePath) {
-		Factory<SecurityManager> factory = new IniSecurityManagerFactory(iniResourcePath);
-		SecurityUtils.setSecurityManager(factory.getInstance());
-	}
+	private SecurityManager securityManager;
+	
+	
+//	public ShiroUTValidator(String iniResourcePath) {
+//		Factory<SecurityManager> factory = new IniSecurityManagerFactory(iniResourcePath);
+//		SecurityUtils.setSecurityManager(factory.getInstance());
+//		
+//		
+//	}
 
 	public List<String> getRequiredRoles() {
 		return requiredRoles;
@@ -35,7 +42,7 @@ public class ShiroUTValidator {
 		requiredRoles.addAll(roles);
 	}
 
-	public boolean validate(UsernameToken usernameToken) throws LoginException {
+	public String validate(UsernameToken usernameToken) throws LoginException {
 		
 		if (usernameToken == null ) {
 			throw new SecurityException("noCredential");
@@ -43,7 +50,8 @@ public class ShiroUTValidator {
 		// Validate the UsernameToken
 
 		String pwType = usernameToken.getPasswordType();
-			logger.info("UsernameToken user " + usernameToken.getName());
+		logger.info("UsernameToken user " + usernameToken.getName());
+		logger.info("UsernameToken password " + usernameToken.getPassword());
 			logger.info("UsernameToken password type " + pwType);
 
 //		if (!WSConstants.PASSWORD_TEXT.equals(pwType)) {
@@ -66,6 +74,7 @@ public class ShiroUTValidator {
 		token.setRememberMe(true);
 		try {
 			currentUser.login(token);
+			currentUser.getSession().setAttribute("aKey", UUID.randomUUID().toString());
 		} catch (AuthenticationException ex) {
 			logger.info(ex.getMessage(), ex);
 			throw new FailedLoginException("Sorry! No login for you.");
@@ -76,8 +85,17 @@ public class ShiroUTValidator {
 			throw new FailedLoginException("Sorry! No login for you.");
 		}
 
-		boolean succeeded = true;
+		
+		return  (String) currentUser.getPrincipal();
+	}
 
-		return succeeded;
+	public SecurityManager getSecurityManager() {
+		return securityManager;
+	}
+
+	public void setSecurityManager(SecurityManager securityManager) {
+		logger.info("=============== setSecurityManager ===================================================");
+		this.securityManager = securityManager;
+		SecurityUtils.setSecurityManager( this.securityManager );
 	}
 }

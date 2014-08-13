@@ -64,7 +64,7 @@
 	
 	<!-- Apapche Shiro -->
  	<bean class="gr.upatras.ece.nam.baker.util.ShiroUTValidator" id="utValidator">
-		<constructor-arg value="src/main/resources/securityconfig.ini"/>
+ 		<property name="securityManager" ref="securityManagerBean"/>
 	</bean>
 	<bean id="basicAuthValidator" class="gr.upatras.ece.nam.baker.util.ShiroBasicAuthInterceptor">
 		<property name="validator" ref="utValidator" />
@@ -72,7 +72,53 @@
 	
 	
 	
-
+	<bean id="securityManagerBean" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+	    <!-- Single realm app.  If you have multiple realms, use the 'realms' property instead. -->
+	    <property name="realm" ref="myRealm"/>
+	    <!-- By default the servlet container sessions will be used.  Uncomment this line
+	         to use shiro's native sessions (see the JavaDoc for more): -->
+	    <!-- <property name="sessionMode" value="native"/> -->
+	    <property name="sessionManager">
+		    <bean class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager">
+		    <property name="sessionIdCookie" ref="cookieBAKERref"></property>
+		    </bean>
+		    
+		  </property>
+	</bean>
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+	
+	<!-- Define the Shiro Realm implementation you want to use to connect to your back-end -->
+	<!-- security datasource: -->
+	<bean id="myRealm" class="gr.upatras.ece.nam.baker.util.ShiroUTAuthorizingRealm">
+	</bean>
+	
+	<bean id ="cookieBAKERref" class="org.apache.shiro.web.servlet.SimpleCookie">
+		<property name="name" value="BAKERCOOKIEMAN"></property>
+		<property name="path" value="/"></property>
+	</bean>
+	
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManagerBean"/>
+        <property name="loginUrl" value="login.jsp"/>
+        <property name="successUrl" value="index.html"/>
+        <property name="unauthorizedUrl" value=""/>
+        <!-- The 'filters' property is not necessary since any declared javax.servlet.Filter bean
+             defined will be automatically acquired and available via its beanName in chain
+             definitions, but you can perform overrides or parent/child consolidated configuration
+             here if you like: -->
+        <!-- <property name="filters">
+            <util:map>
+                <entry key="aName" value-ref="someFilterPojo"/>
+            </util:map>
+        </property> -->
+        <property name="filterChainDefinitions">
+            <value>
+                # everything else requires authentication:
+                /** = authc
+            </value>
+        </property>
+    </bean>
+	
 
 	<!-- JPA Beans configuration -->
 
