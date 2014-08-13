@@ -173,7 +173,10 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@Consumes("application/json")
 	public Response addUser(BakerUser user) {
 
-		logger.info("Received POST for user: " + user.getUsername());
+		logger.info("Received POST for usergetName: " + user.getName());
+		logger.info("Received POST for usergetUsername: " + user.getUsername());
+//		logger.info("Received POST for usergetPassword: " + user.getPassword());
+//		logger.info("Received POST for usergetOrganization: " + user.getOrganization());
 
 		BakerUser u = bakerRepositoryRef.addBakerUserToUsers(user);
 

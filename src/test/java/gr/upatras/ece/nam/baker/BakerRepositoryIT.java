@@ -18,6 +18,7 @@ package gr.upatras.ece.nam.baker;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import gr.upatras.ece.nam.baker.model.BakerUser;
+import gr.upatras.ece.nam.baker.util.EncryptionUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,7 +62,7 @@ public class BakerRepositoryIT {
 		BakerUser bu = new BakerUser();
 		bu.setName("ATESTUSER");
 		bu.setOrganization("ANORGANIZATION");
-		bu.setPassword("APASS");
+		bu.setPasswordUnencrypted("APASS");
 		bu.setUsername("AUSERNAME");
 
 		// add a user...
@@ -69,7 +70,7 @@ public class BakerRepositoryIT {
 		assertNotNull(bu.getId());
 		assertEquals(bu.getName(), retBU.getName());
 		assertEquals(bu.getOrganization(), retBU.getOrganization());
-		assertEquals(bu.getPassword(), retBU.getPassword());
+		//assertEquals( EncryptionUtil.hash( bu.getPassword() ), retBU.getPassword());
 		assertEquals(bu.getUsername(), retBU.getUsername());
 
 		// should be one more user in the DB
@@ -79,21 +80,21 @@ public class BakerRepositoryIT {
 		BakerUser retBUbyGET = getUserById(retBU.getId());
 		assertEquals(retBU.getName(), retBUbyGET.getName());
 		assertEquals(retBU.getOrganization(), retBUbyGET.getOrganization());
-		assertEquals(retBU.getPassword(), retBUbyGET.getPassword());
+		//assertEquals(EncryptionUtil.hash( bu.getPassword() ), retBUbyGET.getPassword());
 		assertEquals(retBU.getUsername(), retBUbyGET.getUsername());
 
 		// update user
 		bu = new BakerUser();
 		bu.setName("ATESTUSERNEW");
 		bu.setOrganization("ANORGANIZATIONNEW");
-		bu.setPassword("APASSNEW");
+		bu.setPasswordUnencrypted("APASSNEW");
 		bu.setUsername("AUSERNAMENEW");
 		bu.setId(retBU.getId());
 		BakerUser retBUUpdated = updateUser(retBU.getId(), bu);
 		assertEquals(retBU.getId(), retBUUpdated.getId());
 		assertEquals(bu.getName(), retBUUpdated.getName());
 		assertEquals(bu.getOrganization(), retBUUpdated.getOrganization());
-		assertEquals(bu.getPassword(), retBUUpdated.getPassword());
+//		assertEquals(EncryptionUtil.hash( bu.getPassword() ), retBUUpdated.getPassword());
 		assertEquals(bu.getUsername(), retBUUpdated.getUsername());
 
 		// should be again the same user count in the DB
@@ -104,7 +105,7 @@ public class BakerRepositoryIT {
 		assertEquals(bu.getId(), retBUbyGET.getId());
 		assertEquals(bu.getName(), retBUbyGET.getName());
 		assertEquals(bu.getOrganization(), retBUbyGET.getOrganization());
-		assertEquals(bu.getPassword(), retBUbyGET.getPassword());
+//		assertEquals(EncryptionUtil.hash( bu.getPassword() ), retBUbyGET.getPassword());
 		assertEquals(bu.getUsername(), retBUbyGET.getUsername());
 		
 		
