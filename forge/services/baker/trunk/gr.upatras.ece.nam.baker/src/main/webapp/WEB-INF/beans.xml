@@ -63,10 +63,11 @@
 	
 	
 	<!-- Apapche Shiro -->
- 	<bean class="gr.upatras.ece.nam.baker.util.ShiroUTValidator" id="utValidator">
+ 	
+	<!-- 
+	<bean class="gr.upatras.ece.nam.baker.util.ShiroUTValidator" id="utValidator">
  		<property name="securityManager" ref="securityManagerBean"/>
 	</bean>
-	<!-- 
 	<bean id="basicAuthValidator" class="gr.upatras.ece.nam.baker.util.ShiroBasicAuthInterceptor">
 		<property name="validator" ref="utValidator" />
 	</bean>
@@ -91,6 +92,7 @@
 	<!-- Define the Shiro Realm implementation you want to use to connect to your back-end -->
 	<!-- security datasource: -->
 	<bean id="myRealm" class="gr.upatras.ece.nam.baker.util.ShiroUTAuthorizingRealm">
+				<property name="bakerRepositoryRef" ref="bakerRepositoryBean" />
 	</bean>
 	
 	<!-- 
@@ -125,9 +127,10 @@
                 /services/api/repo/buns/** = anon, rest
                 /services/api/repo/packages/** = anon, rest
                 /services/api/repo/images/** = anon, rest
-                /services/api/** = authcBasic, rest, roles[boss]
+                /services/api/** = authcBasic, rest
                 /admin/logout = logout
-                /admin/** = authc, roles[boss]
+                /admin/viewUsers.html = authc, roles[ROLE_BOSS]         
+                /admin/** = authc
                 /** = authc
                 
             </value>

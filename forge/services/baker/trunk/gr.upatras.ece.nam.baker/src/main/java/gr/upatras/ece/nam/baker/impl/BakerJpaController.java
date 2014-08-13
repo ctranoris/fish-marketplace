@@ -46,6 +46,24 @@ public class BakerJpaController {
 	@PersistenceUnit
 	private EntityManagerFactory entityManagerFactory;
 
+
+	public void initData() {
+		BakerUser admin = readBakerUserByUsername("admin");
+		logger.info("======================== admin  = " + admin);
+		
+		if (admin==null){
+			BakerUser bu = new BakerUser();
+			bu.setName("Baker Administrator");
+			bu.setUsername("admin");
+			bu.setPassword("changeme");
+			bu.setEmail("");
+			bu.setOrganization("");
+			bu.setRole("ROLE_BOSS");			
+			saveUser(bu);
+		}
+		
+	}
+
 	public long countInstalledBuns() {
 
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -135,6 +153,9 @@ public class BakerJpaController {
 
 	public BakerJpaController() {
 		logger.info(">>>>>>>>>>>>>> BakerJpaController constructor  <<<<<<<<<<<<<<<<<<");
+		
+		
+		
 	}
 
 	public String echo(String message) {

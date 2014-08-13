@@ -15,7 +15,6 @@
 
 package gr.upatras.ece.nam.baker.util;
 
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -29,11 +28,16 @@ import org.apache.cxf.common.security.UsernameToken;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.config.IniSecurityManagerFactory;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.subject.Subject;
-import org.apache.shiro.util.Factory;
 
+/**
+ * 
+ * This class is not used. See in beans.xml it is commented
+ * @author ctranoris
+ *
+ * 
+ */
 public class ShiroUTValidator {
 
 	private final List<String> requiredRoles = new ArrayList<String>();
@@ -67,7 +71,7 @@ public class ShiroUTValidator {
 		String pwType = usernameToken.getPasswordType();
 		logger.info("UsernameToken user " + usernameToken.getName());
 		logger.info("UsernameToken password " + usernameToken.getPassword());
-			logger.info("UsernameToken password type " + pwType);
+		logger.info("UsernameToken password type " + pwType);
 
 //		if (!WSConstants.PASSWORD_TEXT.equals(pwType)) {
 //			if (log.isDebugEnabled()) {

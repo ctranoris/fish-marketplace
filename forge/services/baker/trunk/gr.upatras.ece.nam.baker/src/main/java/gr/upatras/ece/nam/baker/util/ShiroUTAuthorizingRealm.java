@@ -15,7 +15,11 @@
 
 package gr.upatras.ece.nam.baker.util;
 
+import gr.upatras.ece.nam.baker.model.BakerUser;
+import gr.upatras.ece.nam.baker.repo.BakerRepository;
+
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.security.auth.login.FailedLoginException;
@@ -44,13 +48,29 @@ public class ShiroUTAuthorizingRealm extends AuthorizingRealm {
 
 	private final List<String> requiredRoles = new ArrayList<String>();
 	private static final transient Log logger = LogFactory.getLog(ShiroUTAuthorizingRealm.class.getName());
+	
+	private BakerRepository bakerRepositoryRef;
 
+	
+	
 	@Override
 	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection arg0) {
 		logger.info("doGetAuthorizationInfo PrincipalCollection=" + arg0.toString());
 
 		SimpleAuthorizationInfo ai = new SimpleAuthorizationInfo();
-		ai.addRole("boss");
+
+		BakerUser bu = bakerRepositoryRef.getUserByName( arg0.toString() );
+		if (bu!=null){
+
+			String r = bu.getRole();
+			if ((r==null) || (r.isEmpty())){
+				r="ROLE_BUNDEVELOPER";
+			}
+			logger.info("PrincipalCollection Role=" + r);
+			ai.addRole(r);
+		}
+		
+		
 		return ai;
 	}
 
@@ -61,11 +81,21 @@ public class ShiroUTAuthorizingRealm extends AuthorizingRealm {
 
 		UsernamePasswordToken token = (UsernamePasswordToken) at;
 		logger.info("tokengetUsername at=" + token.getUsername());
-		logger.info("tokengetPassword at=" + String.valueOf(token.getPassword()));
-		logger.info("tokengetPrincipal at=" + token.getPrincipal());
+		//logger.info("tokengetPassword at=" + String.valueOf(token.getPassword()));
+		//logger.info("tokengetPrincipal at=" + token.getPrincipal());
+		
+		
+		BakerUser bu = bakerRepositoryRef.getUserByName(token.getUsername());
+		if (bu == null ){
+			throw new AuthenticationException("Sorry! No login for you.");			
+		}
 
-		if (("ctran".equals(token.getUsername())) && ("12345".equals(  String.valueOf(token.getPassword())  ))) {
-
+		String originalPass = bu.getPassword();
+		String suppliedPass = EncryptionUtil.hash(   String.valueOf(token.getPassword())  );
+		logger.info("originalPass =" + originalPass );
+		logger.info("suppliedPass =" + suppliedPass );
+		if  (originalPass.equals( suppliedPass   )) {
+			logger.info("======= USER is AUTHENTICATED OK =======");
 		} else {
 			throw new AuthenticationException("Sorry! No login for you.");
 		}
@@ -85,9 +115,9 @@ public class ShiroUTAuthorizingRealm extends AuthorizingRealm {
 		SimpleAuthenticationInfo sa = new SimpleAuthenticationInfo();
 		sa.setCredentials(token.getCredentials());
 		SimplePrincipalCollection principals = new org.apache.shiro.subject.SimplePrincipalCollection();
-		principals.add(token.getPrincipal(), "realmmmmNAMM");
-		// principals.add("employee", "realmmmmNAMM");
-		// principals.add("boss", "realmmmmNAMM");
+		principals.add(token.getPrincipal(), "bakerrealm");
+		
+		
 		sa.setPrincipals(principals);
 		return sa;
 	}
@@ -145,6 +175,14 @@ public class ShiroUTAuthorizingRealm extends AuthorizingRealm {
 		boolean succeeded = true;
 
 		return succeeded;
+	}
+
+	public BakerRepository getBakerRepositoryRef() {
+		return bakerRepositoryRef;
+	}
+
+	public void setBakerRepositoryRef(BakerRepository bakerRepositoryRef) {
+		this.bakerRepositoryRef = bakerRepositoryRef;
 	}
 
 }

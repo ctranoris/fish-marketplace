@@ -15,6 +15,9 @@
 
 package gr.upatras.ece.nam.baker.model;
 
+import gr.upatras.ece.nam.baker.util.EncryptionUtil;
+
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,19 +32,24 @@ import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.apache.shiro.codec.CodecSupport;
+import org.apache.shiro.crypto.AesCipherService;
+import org.apache.shiro.crypto.hash.DefaultHashService;
+import org.apache.shiro.crypto.hash.Hash;
+import org.apache.shiro.crypto.hash.HashRequest;
+import org.apache.shiro.crypto.hash.SimpleHashRequest;
+import org.apache.shiro.util.ByteSource;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonIgnoreType;
-
 
 @Entity(name = "BakerUser")
 @JsonIgnoreProperties(value = { "buns" })
 public class BakerUser {
 
 	@Id
-	@GeneratedValue( strategy = GenerationType.IDENTITY  )
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id = 0;
-
 
 	@Basic()
 	private String organization = null;
@@ -53,14 +61,13 @@ public class BakerUser {
 	private String username = null;
 	@Basic()
 	private String password = null;
-	
-	
+	@Basic()
+	private String role = null;
 
 	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
 	@JoinTable()
 	private List<BunMetadata> buns = new ArrayList<BunMetadata>();
 
-	
 	public String getOrganization() {
 		return organization;
 	}
@@ -69,7 +76,6 @@ public class BakerUser {
 		organization = newOrganization;
 	}
 
-	
 	public List<BunMetadata> getBuns() {
 		return buns;
 	}
@@ -80,20 +86,17 @@ public class BakerUser {
 		}
 	}
 
-	
 	public void removeFromBuns(BunMetadata bunsValue) {
 		if (buns.contains(bunsValue)) {
 			buns.remove(bunsValue);
 		}
 	}
 
-	
 	public void clearBuns() {
 		while (!buns.isEmpty()) {
 			removeFromBuns(buns.iterator().next());
 		}
 	}
-
 
 	public void setBuns(List<BunMetadata> newBuns) {
 		buns = newBuns;
@@ -103,7 +106,6 @@ public class BakerUser {
 		return id;
 	}
 
-	
 	public void setId(int newId) {
 		id = newId;
 	}
@@ -134,7 +136,11 @@ public class BakerUser {
 	}
 
 	public void setPassword(String password) {
-		this.password = password;
+
+		
+		this.password = EncryptionUtil.hash(password);
+		
+		//this.password = password;
 	}
 
 	public BunMetadata getBunById(int bunid) {
@@ -153,5 +159,13 @@ public class BakerUser {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
 	}
 }

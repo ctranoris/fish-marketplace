@@ -98,7 +98,10 @@ public class BakerRepository {
 	public BakerUser getUserByID(int userid) {
 		return bakerJpaController.readBakerUserById(userid);
 	}
-	
+
+	public BakerUser getUserByName(String un) {
+		return bakerJpaController.readBakerUserByUsername(un);
+	}
 	
 
 	public BunMetadata getBunByID(int bunid) {
@@ -118,6 +121,8 @@ public class BakerRepository {
 
 	public void setBakerJpaController(BakerJpaController bakerJpaController) {
 		this.bakerJpaController = bakerJpaController;
+		logger.info("======================== SETing setBakerJpaController ========================");
+		this.bakerJpaController.initData();
 	}
 
 
