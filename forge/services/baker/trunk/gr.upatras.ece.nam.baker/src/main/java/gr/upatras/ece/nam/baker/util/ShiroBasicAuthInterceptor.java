@@ -1,6 +1,7 @@
 package gr.upatras.ece.nam.baker.util;
 
 import java.security.Principal;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,7 +20,9 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.security.SecurityContext;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.mgt.SessionsSecurityManager;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.web.servlet.SimpleCookie;
 
 public class ShiroBasicAuthInterceptor extends AbstractPhaseInterceptor<Message> {
 	private static final transient Log logger = LogFactory.getLog(ShiroBasicAuthInterceptor.class.getName());
@@ -40,21 +43,33 @@ public class ShiroBasicAuthInterceptor extends AbstractPhaseInterceptor<Message>
 		if (currentUser != null) {
 			logger.info("handleMessage currentUser = " + currentUser.toString());
 			logger.info("currentUser.getPrincipal() = " + currentUser.getPrincipal());
-			logger.info("SecurityUtils.getSubject().getSession() = " + SecurityUtils.getSubject().getSession().getId() );
+			logger.info("SecurityUtils.getSubject().getSession() = " + currentUser.getSession().getId() );
+			logger.info("currentUser.getSession().getAttribute(  aKey ) = " + currentUser.getSession().getAttribute("aKey") );
 			logger.info("message.getId() = " + message.getId() );
 			
-			 // Here We are getting session from Message
+			
+			
+			// Here We are getting session from Message
 		    HttpServletRequest request = (HttpServletRequest)message.get(AbstractHTTPDestination.HTTP_REQUEST);
-		    HttpSession  session = request.getSession(true);
-			logger.info("session.getId() = " + session.getId() );
+		    HttpSession  session = request.getSession();
+		   
+			logger.info("HttpSession session.getId() = " + session.getId() );
 			
 			if (currentUser.getPrincipal() != null) {
-				logger.info("User [" + currentUser.getPrincipal() + "] IS ALREADY logged in successfully.");
+				logger.info("User [" + currentUser.getPrincipal() + "] IS ALREADY logged in successfully. =========================");
+
+				if (currentUser.isAuthenticated()) {
+					logger.info("User [" + currentUser.getPrincipal() + "] IS isAuthenticated and logged in successfully. =========================");
+					return;
+				}
+
 				if (currentUser.isRemembered()) {
+					logger.info("User [" + currentUser.getPrincipal() + "] IS REMEMBERED and logged in successfully. =========================");
 					return;
 				}
 			}
 		}
+		
 		AuthorizationPolicy policy = message.get(AuthorizationPolicy.class);
 		if (policy == null || policy.getUserName() == null || policy.getPassword() == null) {
 			String name = null;
@@ -70,26 +85,19 @@ public class ShiroBasicAuthInterceptor extends AbstractPhaseInterceptor<Message>
 
 			UsernameToken token = convertPolicyToToken(policy);
 
-			// Credential credential = new Credential();
-			// credential.setUsernametoken(token);
-			//
-			// RequestData data = new RequestData();
-			// data.setMsgContext(message);
-			Boolean succeed = validator.validate(token);
+
+			String s = validator.validate(token);
 			//
 			// Create a Principal/SecurityContext
-			Principal p = null;
-			if (succeed) {
-				p = new SimplePrincipal(policy.getUserName());
-			}
-			// if (credential != null && credential.getPrincipal() != null) {
-			// p = credential.getPrincipal();
-			// } else {
-			// p = new WSUsernameTokenPrincipalImpl(policy.getUserName(), false);
-			// ((WSUsernameTokenPrincipalImpl)p).setPassword(policy.getPassword());
-			// }
-			message.put(SecurityContext.class, createSecurityContext(p));
-
+			//bale principal apo to validator
+//			Principal p = null;
+//			if (s!=null) {
+//				p = new SimplePrincipal( s );
+//			}
+//
+//			message.put(SecurityContext.class, createSecurityContext(p));
+			currentUser.getSession().setAttribute("aKey", UUID.randomUUID().toString());
+			
 		} catch (Exception ex) {
 			throw new Fault(ex);
 		}
