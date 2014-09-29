@@ -28,7 +28,7 @@
 <body  ng-app='bakerapp' ng-init="username='{{username}}'">
 
 	
-	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" ng-controller="NavCtrl">
 		<div class="container-fluid">
 			<!-- Brand and toggle get grouped for better mobile display -->
 			<div class="navbar-header">
@@ -41,16 +41,36 @@
 				<a class="navbar-brand" href="#/">FI-STAR Marketplace</a>
 			</div>
 			<!-- Collect the nav links, forms, and other content for toggling -->
-			<div class="collapse navbar-collapse"
-				id="bs-example-navbar-collapse-1">
-				<ul class="nav navbar-nav">
+			<div class="collapse navbar-collapse"id="bs-example-navbar-collapse-1">
+				<ul class="nav navbar-nav" >
+						<li ng-class="navClass('marketplace')" ><a href="#/marketplace">Marketplace</a></li>
+						<li ng-class="navClass('installedbuns')"><a href="#/installedbuns">Installed Buns</a></li>
 
-
-					<ul class="nav navbar-nav">
-						<li><a href="#/marketplace">Marketplace</a></li>
-						<li><a href="#/installed">Installed Buns</a></li>
-						<li ng-show="loggedIn"><a href="#/logout">Logout</a></li>
-					</ul>
+						<li class="dropdown"><a href="#" class="dropdown-toggle"
+							data-toggle="dropdown">Dropdown <span class="caret"></span></a>
+							<ul class="dropdown-menu" role="menu">
+								<li><a href="#">Action</a></li>
+								<li><a href="#">Another action</a></li>
+								<li><a href="#">Something else here</a></li>
+								<li class="divider"></li>
+								<li><a href="#">Separated link</a></li>
+								<li class="divider"></li>
+								<li><a href="#">One more separated link</a></li>
+							</ul></li>
+			
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					<li class="dropdown"><a href="#" class="dropdown-toggle"
+						data-toggle="dropdown">My Account <span class="caret"></span></a>
+						<ul class="dropdown-menu" role="menu">
+							<li><a href="#">Action</a></li>
+							<li><a href="#">Another action</a></li>
+							<li><a href="#">Something else here</a></li>
+							<li class="divider"></li>
+							<li><a href="#">Separated link</a></li>
+						</ul>
+					</li>
+					<li ng-show="loggedIn"><a href="#/logout">Logout</a></li>		
 				</ul>
 			</div>
 
@@ -59,256 +79,17 @@
 
 
 
-<div ng-show="!loggedIn" class="section section-signup">
-	<div  class="container">
-		<div class="row" >
-			<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-				<h1>&nbsp;</h1>
-				<h2 >
-					Welcome to FI-STAR Application Marketplace!
-				</h2>
-				<p >Use the fields on the right to login
-					to the FI-STAR Application Marketplace and easily deploy application over FI-STAR and FI-WARE infrastructure!</p>
-				
-				
-			</div>
-			<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-				<h1>Sign In</h1>
-				<p >Use the following fields to sign in FISH
-					Marketplace</p>
-				<form action="" method="post">
-					<div class="form-group">
-						<input class="form-control" type="text" value="" placeholder="username"
-							name="username" />
-					</div>
-					<div class="form-group">
-						<input type="password" class="form-control" value=""
-							placeholder="Your FI-STAR Marketplace password" name="password" />
-					</div>
-					 <button type="submit" class="btn btn-default">Sign In</button> or <a style="color: white;" href="#/signup" ><b>Sign up</b> for FI-STAR Marketplace!</a>
-					
-					<h1>&nbsp;</h1>
-				</form>
-			</div>
-		</div>
-	</div>
-</div>
-
-
-<div ng-show="!loggedIn" class="section" >
-	<div  class="container">
-			<div class="row">
-				<!--  ------------------------  START CONTENT      ------------------------      -->
-				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-					<h1>Learn by experimenting on real hardware!</h1>
-					<p>Interactive Courses with Real Infrastructures! Access, create
-						and share interactive courses with widgets accessing real
-						infrastructures and resources available from FIRE testbeds across
-						Europe!</p>
-					<h1>&nbsp;</h1>
-				</div>
-				
-			
-			</div>
-			<!--  ------------------------  END CONTENT      ------------------------      -->
-	</div>
-</div>
-
-<div ng-show="!loggedIn" class="section section-teaser-apps" id="headerMainApps">
-	<div  class="container">
-			
-		<div class="row"  > 
-			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-			
-			<h1  >Featured FI-STAR Applications</h1>
-			</div>	
-		</div>
-
-			<div class="row">
-
-				<div class="col-xs-6 col-sm-4 col-md-3 col-lg-3">
-					<div class="app-tile">
-							<div id="courseHeaderTitle" style="height: 150px">
-								<table>
-									<tr>
-										<td width="50px" style="vertical-align: top;"><img
-											style="margin-top: 10px;" src="images/course_smallico.PNG"></td>
-										<td><a href="#"><span style="color: #525789">AppTitle</span></a>
-											<p style="color: #cecece">by Publisher</p>
-											<p>&nbsp;</p></td>
-									</tr>
-								</table>
-							</div>
-							<p style="color: #636365">A short description about this
-								app...</p>
-
-						<a
-							style="bottom: 0; margin: 5px; border-style: solid; border-width: 1px; padding: 10px; background-color: #525789; text-align: center; color: white; right: 15px; position: absolute; left: 15px;"
-							href="#">View app</a>
-					</div>
-				</div>
-				<div class="col-xs-6 col-sm-4 col-md-3 col-lg-3">
-					<div class="app-tile">
-							<div id="courseHeaderTitle" style="height: 150px">
-								<table>
-									<tr>
-										<td width="50px" style="vertical-align: top;"><img
-											style="margin-top: 10px;" src="images/course_smallico.PNG"></td>
-										<td><a href="#"><span style="color: #525789">AppTitle</span></a>
-											<p style="color: #cecece">by Publisher</p>
-											<p>&nbsp;</p></td>
-									</tr>
-								</table>
-							</div>
-							<p style="color: #636365">A short description about this
-								app...</p>
-
-						<a
-							style="bottom: 0; margin: 5px; border-style: solid; border-width: 1px; padding: 10px; background-color: #525789; text-align: center; color: white; right: 15px; position: absolute; left: 15px;"
-							href="#">View app</a>
-					</div>
-				</div>
-				<div class="col-xs-6 col-sm-4 col-md-3 col-lg-3">
-					<div class="app-tile">
-							<div id="courseHeaderTitle" style="height: 150px">
-								<table>
-									<tr>
-										<td width="50px" style="vertical-align: top;"><img
-											style="margin-top: 10px;" src="images/course_smallico.PNG"></td>
-										<td><a href="#"><span style="color: #525789">AppTitle</span></a>
-											<p style="color: #cecece">by Publisher</p>
-											<p>&nbsp;</p></td>
-									</tr>
-								</table>
-							</div>
-							<p style="color: #636365">A short description about this
-								app...</p>
-
-						<a
-							style="bottom: 0; margin: 5px; border-style: solid; border-width: 1px; padding: 10px; background-color: #525789; text-align: center; color: white; right: 15px; position: absolute; left: 15px;"
-							href="#">View app</a>
-					</div>
-				</div>
-				<div class="col-xs-6 col-sm-4 col-md-3 col-lg-3">
-					<div class="app-tile">
-							<div id="courseHeaderTitle" style="height: 150px">
-								<table>
-									<tr>
-										<td width="50px" style="vertical-align: top;"><img
-											style="margin-top: 10px;" src="images/course_smallico.PNG"></td>
-										<td><a href="#"><span style="color: #525789">AppTitle</span></a>
-											<p style="color: #cecece">by Publisher</p>
-											<p>&nbsp;</p></td>
-									</tr>
-								</table>
-							</div>
-							<p style="color: #636365">A short description about this
-								app...</p>
-
-						<a
-							style="bottom: 0; margin: 5px; border-style: solid; border-width: 1px; padding: 10px; background-color: #525789; text-align: center; color: white; right: 15px; position: absolute; left: 15px;"
-							href="#">View app</a>
-					</div>
-				</div>
-				
-
-
-
-			</div>
-
-			<div class="row"   >  <!--  ------------------------  START CONTENT      ------------------------      -->			
-			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="text-align: right;padding-top:50px;padding-bottom:50px">
-			<h2><a style="color: white;" href="#">More applications...</a></h2>
-			</div>
-		</div><!--  ------------------------  END CONTENT      ------------------------      -->
-		
-	</div>	
-</div>
-
 <div  class="container">
 	<div class="content" ng-view >
 	</div>
 	
 </div>
 
+<div ng-show="!loggedIn"  class="slide-animate" ng-include="'SignInHomeSection.html'"></div>
+<div class="slide-animate" ng-include="'FeaturedAppsHome.html'"></div>
+<div class="slide-animate" ng-include="'Footer.html'"></div>
 
 
-<section id="contact" style="background-color: #6c6c6c; color: #FFFFFF;">
-<br>
-	<div class="container">
-			<div class="row">
-				<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-					<h1>Who we are</h1>
-							<address>
-                               <strong>FI-STAR FP7 Project</strong> | <a href="http://ict-forge.eu/">www.fi-star.eu</a><br>
-                                The FI-STAR project has received funding from the European Union's 
-								Seventh Framework Programme for research, technological
-								development and demonstration under grant agreement
-								no. xxx
-							</address>
-							<address>
-                             <strong>FISH</strong> | <a href="http://#/">www.fi-star.eu</a><br>
-                                 A middleware that interconnects learning interactive content with
-                                 Future Internet Research resources.<br>
-                               </address>
-							
-
-
-
-				</div>
-				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-					
-					<h1>Connect with us</h1>
-                            <div><a href="#" style="color:#FFFFFF;"><i class="fa fa-linkedin fa-2x" style="font-size:32px;"></i> Linkedin</a></div>
-                            <div><a href="#" style="color:#FFFFFF;"><i class="fa fa-twitter fa-2x" style="font-size:32px;"></i> Twitter</a></div>
-							<div><a href="#" style="color:#FFFFFF;"><i class="fa fa-vimeo-square fa-2x" style="font-size:32px;"></i> Vimeo</a></div>
-						
-				</div>
-				
-				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-					
-					<h1>&nbsp</h1>
-						
-						
-							<div><a href="#" style="color:#FFFFFF;"><i class="fa fa-facebook fa-2x" style="font-size:32px;"></i> Facebook</a></div>
-							<div><a href="#" style="color:#FFFFFF;"><i class="fa fa-google-plus fa-2x" style="font-size:32px;"></i> Google Plus</a></div>
-							<div><a href="#" style="color:#FFFFFF;"><i class="fa fa-youtube fa-2x" style="font-size:32px;"></i> Youtube</a></div>
-						
-				</div>
-			</div>
-	</div>
-	<br><br>
-</section>
-
-
-<footer id="footer">
-			<section>
-				<div class="container">
-					<div class="row"> 
-							<div class="col-sm-12">
-							&nbsp;
-							</div>
-					</div>
-					<div class="row"> 
-							<div class="col-sm-12">
-								<a href="https://www.fi-star.eu/" target="_blank"><img src="https://www.fi-star.eu/uploads/tf/newLogo.png"/></a>
-								<img src="images/eu-commission.png"/>
-							</div>
-							<div class="col-sm-12">Running FISH version | <a href="#" >Terms and Conditions</a> | 
-							&copy; 2014 <a target="_blank" href="http://www.fi-star.eu/" title="www.forgebox.eu">fi-star.eu</a> on behalf of the <a target="_blank" href="http://#" title="http://#">fi-star</a> consortium
-							</div>  
-							
-					</div>
-					<div class="row"> 
-							<div class="col-sm-12">
-							&nbsp;
-							</div>
-					</div>
-				</div>
-				
-			</section>
-			
-</footer><!--/#footer-->
 			
 </body>
 </html>

@@ -4,7 +4,7 @@ app.config(function($routeProvider) {
 	$routeProvider.when('/marketplace', {
 		templateUrl : 'viewBunMarketplaceJS.html',
 		controller : 'bunsCtrl'
-	}).when('/installed', {
+	}).when('/installedbuns', {
 		templateUrl : 'viewInstalledBunsJS.html',
 		controller : 'bakerCtrl'
 	}).when('/login', {
@@ -21,7 +21,17 @@ app.config(function($routeProvider) {
 	});
 });
 
+
+app.controller('NavCtrl', 
+		['$scope', '$location', function ($scope, $location) {  
+		  $scope.navClass = function (page) {
+		    var currentRoute = $location.path().substring(1) || 'home';
+		    return page === currentRoute ? 'active' : '';
+		  };
+}]);
+
 app.controller('bakerCtrl', function($scope, BakerUser) {
+	  console.log('inside bakerCtrl controller');
 	$scope.bakerusers = BakerUser.query();
 });
 
