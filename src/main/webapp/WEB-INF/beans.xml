@@ -120,6 +120,7 @@
             <value>
                 # everything else requires authentication:
                 /index.html = anon
+                /mpui/** = anon
                 /viewBunMarketplace.html = anon
                 /viewInstalledBuns.html = anon
                 /services/api/repo/users/example/** = anon, rest
