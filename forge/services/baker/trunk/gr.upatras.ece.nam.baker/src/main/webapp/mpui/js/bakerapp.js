@@ -8,7 +8,6 @@ app.config(function($routeProvider, $locationProvider) {
 		templateUrl : 'viewInstalledBunsJS.html',
 		controller : 'bakerCtrl'
 	}).when('/login', {
-		templateUrl : 'SignInHomeSection.html',
 		controller : 'LoginCtrl'
 	}).when('/logout', {
 		templateUrl : 'logout.html',
@@ -43,6 +42,22 @@ app.controller('NavCtrl', [ '$scope', '$location', function($scope, $location) {
 		var currentRoute = $location.path().substring(1) || 'home';
 		return page === currentRoute ? 'active' : '';
 	};
+	
+    
+} ]);
+
+app.controller('LogoutCtrl', [ '$scope', '$location', 'authenticationSvc', '$log',function($scope, $location, authenticationSvc, $log) {
+	
+	$log.debug('In LogoutCtrl');
+	authenticationSvc.logout().then(function(result) {
+				$scope.userInfo = null;
+				$location.path("/login");
+			}, function(error) {
+				$log.debug(error);
+			});
+   
+    
+    
 } ]);
 
 app.controller('bakerCtrl', function($scope, BakerUser) {
@@ -50,8 +65,8 @@ app.controller('bakerCtrl', function($scope, BakerUser) {
 	$scope.bakerusers = BakerUser.query();
 });
 
-app.controller('bunsCtrl', function($scope, Buns) {
-	console.log('========== > inside bunsCtrl controller');
+app.controller('bunsCtrl', function($scope, Buns, $log) {
+	$log.debug('========== > inside bunsCtrl controller');
 	$scope.buns = Buns.query();
 	$scope.lalakis = 'Lalaks';
 });
@@ -100,29 +115,31 @@ app.factory('SessionService', function($resource) {
 });
 
 
-app.controller('LoginCtrl', function($scope, $log,  $rootScope, $location,
-		SessionService) {
-    
-	$scope.user = {
-		username : '',
-		password : ''
-	};
-
+app.controller("LoginCtrl", ["$scope", "$location", "$window", "authenticationSvc", "$log", "$rootScope",function ($scope, $location, $window, authenticationSvc, $log, $rootScope) {
 	$log.debug('========== > inside LoginCtrl controller');
+    $scope.userInfo = null;
+    $scope.user = {
+    		username : '',
+    		password : ''
+    	};
+    $scope.login = function () {
+        authenticationSvc.login($scope.user.username, $scope.user.password)
+            .then(function (result) {
+    			$rootScope.loggedIn = true;
+                $scope.userInfo = result;
+                $location.path("/");
+            }, function (error) {
+                //$window.alert("Invalid credentials");
+    			$scope.loginError = true;
+    			$log.debug(error);
+            });
+    };
 
-	$scope.login = function() {
-
-		$log.debug('========== > inside LoginCtrl:login function');
-		$scope.user = SessionService.save($scope.user, function(success) {
-			$rootScope.loggedIn = true;
-			$location.path('/');
-			$window.sessionStorage["loggedIn"] = JSON.stringify($rootScope.loggedIn);
-			
-		}, function(error) {
-			$scope.loginError = true;
-		});
-	};
-});
+    $scope.cancel = function () {
+        $scope.user.userName = "";
+        $scope.user.password = "";
+    };
+}]);
 
 
 
@@ -133,7 +150,7 @@ app.controller('LoginCtrl', function($scope, $log,  $rootScope, $location,
 // github.com/witoldsz/angular-http-auth
 
 app.config(function($httpProvider) {
-	$httpProvider.interceptors.push(function($rootScope, $location, $q, $log) {
+	$httpProvider.interceptors.push(function($rootScope, $location, $q, $log,$window) {
 		return {
 			'request' : function(request) { // if we're not logged-in to the
 				// AngularJS app, redirect to // login
@@ -141,7 +158,16 @@ app.config(function($httpProvider) {
 				$rootScope.loggedIn = $rootScope.loggedIn || $rootScope.username;
 				$log.debug('========== > inside httpProvider.interceptors');
 				
-				if (!$rootScope.loggedIn && $location.path() != '/login') {
+				if ($window.sessionStorage["userInfo"]!=null) {
+		            userInfo = JSON.parse($window.sessionStorage["userInfo"]);
+		            if (userInfo){
+		            	$rootScope.loggedIn = true;
+		            	$log.debug('========== > $rootScope.loggedIn set to TRUE because userInf o= '+userInfo);
+		            }
+		        }
+				
+				if (!$rootScope.loggedIn && $location.path() != '/login' && $location.path() != '/marketplace') {
+					$log.debug('========== > $rootScope.loggedIn IS FALSE');
 					$location.path('/login');
 				}
 				return request;
@@ -159,42 +185,85 @@ app.config(function($httpProvider) {
 	});
 });
 
-/**
- * app.config(function($routeProvider) { $routeProvider.when('/', { templateUrl :
- * 'viewBunMarketplaceJS.html', controller : 'EventListCtrl' }).when('/login', {
- * templateUrl : 'login.html', controller : 'LoginCtrl' }).when('/logout', {
- * templateUrl : 'login.html', controller : 'LogoutCtrl' }).otherwise({
- * redirectTo : '/' }); });
- * 
- * 
- * 
- * app.controller('LoginCtrl', function($scope, $rootScope, $location,
- * SessionService) { $scope.user = { username : '', password : '' };
- * 
- * $scope.login = function() { $rootScope.loggedIn = true; $location.path('/'); //
- * $scope.user = SessionService.save($scope.user, function(success) { //
- * $rootScope.loggedIn = true; // $location.path('/'); // }, function(error) { //
- * $scope.loginError = true; // }); };
- * 
- * });
- * 
- * 
- * app.factory('SessionService', function($resource) { return
- * $resource('/api/sessions'); }); // The code below is heavily inspired by
- * Witold Szczerba's plugin for AngularJS. // I have modified the code in order //
- * to reduce its complexity and make for easier explanation to novice JS //
- * developers. You can find his plugin here: //
- * https://github.com/witoldsz/angular-http-auth
- * 
- * app.config(function($httpProvider) {
- * $httpProvider.interceptors.push(function($rootScope, $location, $q) { return {
- * 'request' : function(request) { // if we're not logged-in to the AngularJS
- * app, redirect to // login page $rootScope.loggedIn = $rootScope.loggedIn ||
- * $rootScope.username; if (!$rootScope.loggedIn && $location.path() !=
- * '/login') { $location.path('/login'); } return request; }, 'responseError' :
- * function(rejection) { // if we're not logged-in to the web service, redirect
- * to login // page if (rejection.status === 401 && $location.path() !=
- * '/login') { $rootScope.loggedIn = false; $location.path('/login'); } return
- * $q.reject(rejection); } }; }); });
- */
+
+
+
+app.factory("authenticationSvc", ["$http","$q","$window","$rootScope", "$log", function ($http, $q, $window,$rootScope, $log) {
+    var userInfo;
+
+	$log.debug('========== > authenticationSvc');
+	
+    function login(userName, password) {
+        var deferred = $q.defer();
+
+        $http.post("/baker/services/api/repo/sessions/", { username: userName, password: password })
+            .then(function (result) {
+                userInfo = {
+                    accesstoken: "NOTIMPLEMENTED",//result.data.access_token,
+                    username: result.data.username
+                };
+                $window.sessionStorage["userInfo"] = JSON.stringify(userInfo);
+                deferred.resolve(userInfo);
+            }, function (error) {
+                deferred.reject(error);
+            });
+
+        return deferred.promise;
+    }
+
+    function logout() {
+    	$log.debug('========== > authenticationSvc logout' );
+        var deferred = $q.defer();
+
+        $http({
+            method: "GET",
+            url: "/baker/admin/logout",
+            headers: {
+                "access_token": "NOT_IMPLEMENTED"//userInfo.accessToken
+            }
+        }).then(function (result) {
+        	$log.debug('========== > authenticationSvc logout RESET everything' );
+            userInfo = null;
+			$rootScope.loggedIn = false;
+            $window.sessionStorage["userInfo"] = null;
+            deferred.resolve(result);
+        }, function (error) {
+            deferred.reject(error);
+        });
+
+        return deferred.promise;
+    }
+
+    function getUserInfo() {
+        return userInfo;
+    }
+
+    function init() {
+		$log.debug('========== > authenticationSvc inside init');
+        if ($window.sessionStorage["userInfo"]) {
+            userInfo = JSON.parse($window.sessionStorage["userInfo"]);
+            if (userInfo){
+            	$rootScope.loggedIn = true;
+            	$log.debug('========== > $rootScope.loggedIn set to TRUE because userInfo ='+userInfo);
+            }
+        }
+    }
+    init();
+
+    return {
+        login: login,
+        logout: logout,
+        getUserInfo: getUserInfo
+    };
+}]);
+
+
+
+
+
+
+
+
+
+
 
