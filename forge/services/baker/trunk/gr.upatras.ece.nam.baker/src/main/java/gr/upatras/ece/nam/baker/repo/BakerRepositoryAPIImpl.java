@@ -18,6 +18,7 @@ package gr.upatras.ece.nam.baker.repo;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.IBakerRepositoryAPI;
+import gr.upatras.ece.nam.baker.model.UserSession;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -57,30 +58,28 @@ import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 import org.apache.cxf.rs.security.cors.CrossOriginResourceSharing;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 
-
 //CORS support
-@CrossOriginResourceSharing(
-		allowAllOrigins = true
-)
+@CrossOriginResourceSharing(allowAllOrigins = true)
 @Path("/repo")
 public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 	@Context
-	UriInfo uri;	
-	
-	@Context 
-	MessageContext   ws;	
-	
-	@Context 
-	protected SecurityContext securityContext; 
-	
-	
+	UriInfo uri;
+
+	@Context
+	MessageContext ws;
+
+	@Context
+	protected SecurityContext securityContext;
 
 	private static final transient Log logger = LogFactory.getLog(BakerRepositoryAPIImpl.class.getName());
 
-	private static final String BUNSDATADIR = System.getProperty("user.home") + File.separator +".baker/bunsdata/";
+	private static final String BUNSDATADIR = System.getProperty("user.home") + File.separator + ".baker/bunsdata/";
 
 	private BakerRepository bakerRepositoryRef;
 
@@ -89,16 +88,16 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@GET
 	@Path("/users/")
 	@Produces("application/json")
-    //@RolesAllowed("admin") //see this for this annotation http://pic.dhe.ibm.com/infocenter/radhelp/v9/index.jsp?topic=%2Fcom.ibm.javaee.doc%2Ftopics%2Ftsecuringejee.html
+	// @RolesAllowed("admin") //see this for this annotation
+	// http://pic.dhe.ibm.com/infocenter/radhelp/v9/index.jsp?topic=%2Fcom.ibm.javaee.doc%2Ftopics%2Ftsecuringejee.html
 	public Response getUsers() {
 
-		if (securityContext!=null){
-			if (securityContext.getUserPrincipal()!=null)
-				logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().getName()+"<");
-		
+		if (securityContext != null) {
+			if (securityContext.getUserPrincipal() != null)
+				logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().getName() + "<");
+
 		}
-	    
-		
+
 		return Response.ok().entity(bakerRepositoryRef.getUserValues()).build();
 	}
 
@@ -110,33 +109,32 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@Produces("application/json")
 	public Response getUserExample() {
 
-		if (securityContext!=null){
-			if (securityContext.getUserPrincipal()!=null)
-			logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().toString()+"<");
-		
-		}
+		if (securityContext != null) {
+			if (securityContext.getUserPrincipal() != null)
+				logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().toString() + "<");
 
+		}
 
 		Subject currentUser = SecurityUtils.getSubject();
-		if (currentUser !=null){
-			logger.info(" currentUser = " + currentUser.toString() );
-			logger.info( "User [" + currentUser.getPrincipal() + "] logged in successfully." );
-			logger.info(" currentUser  employee  = " + currentUser.hasRole("employee")  );
-			logger.info(" currentUser  boss  = " + currentUser.hasRole("boss")  );
+		if (currentUser != null) {
+			logger.info(" currentUser = " + currentUser.toString());
+			logger.info("User [" + currentUser.getPrincipal() + "] logged in successfully.");
+			logger.info(" currentUser  employee  = " + currentUser.hasRole("employee"));
+			logger.info(" currentUser  boss  = " + currentUser.hasRole("boss"));
 		}
 
-		if (ws!=null){
-			logger.info("ws = "+ws.toString() );
-			if (ws.getHttpServletRequest()!=null){
-				//sessionid
-				logger.info("ws.getHttpServletRequest() = "+ws.getHttpServletRequest().getSession().getId()  );
-				
-				if (ws.getHttpServletRequest().getUserPrincipal()!=null)	
+		if (ws != null) {
+			logger.info("ws = " + ws.toString());
+			if (ws.getHttpServletRequest() != null) {
+				// sessionid
+				logger.info("ws.getHttpServletRequest() = " + ws.getHttpServletRequest().getSession().getId());
+
+				if (ws.getHttpServletRequest().getUserPrincipal() != null)
 					logger.info(" ws.getUserPrincipal().toString(): " + ws.getHttpServletRequest().getUserPrincipal().toString());
-		
+
 			}
 		}
-		
+
 		BakerUser b = new BakerUser();
 		b.setName("Christos");
 		b.setUsername("ctran");
@@ -168,6 +166,78 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	}
 
 	@POST
+	@Path("/sessions/")
+	@Produces("application/json")
+	@Consumes("application/json")
+	public Response addUserSession(UserSession userSession) {
+
+		logger.info("Received POST addUserSession usergetUsername: " + userSession.getUsername());
+		logger.info("Received POST addUserSession password: " + userSession.getPassword());
+		
+		if (securityContext!=null){
+			if (securityContext.getUserPrincipal()!=null)
+				logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().toString()+"<");
+		
+		}
+
+
+		Subject currentUser = SecurityUtils.getSubject();
+		if (currentUser !=null){
+			AuthenticationToken token =	new UsernamePasswordToken(  userSession.getUsername(), userSession.getPassword());
+			try {
+				currentUser.login(token);
+
+				logger.info(" currentUser = " + currentUser.toString() );
+				logger.info( "User [" + currentUser.getPrincipal() + "] logged in successfully." );
+				logger.info(" currentUser  employee  = " + currentUser.hasRole("employee")  );
+				logger.info(" currentUser  boss  = " + currentUser.hasRole("boss")  );
+				
+				return Response.ok().entity(userSession).build();
+				}
+				catch (AuthenticationException ae) {
+					
+					return Response.status(Status.UNAUTHORIZED).build();
+				} 			
+		}
+		
+		
+		return Response.status(Status.UNAUTHORIZED).build();
+	}
+
+	@GET
+	@Path("/sessions/")
+	@Produces("application/json")
+	public Response getUserSessionExample() {
+
+		logger.info("Received GET addUserSession usergetUsername: " );
+		logger.info("Received GET addUserSession password: " );
+		
+		if (securityContext!=null){
+			if (securityContext.getUserPrincipal()!=null)
+				logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().toString()+"<");
+		
+		}
+
+
+		Subject currentUser = SecurityUtils.getSubject();
+		if ((currentUser !=null) && (currentUser.getPrincipal() !=null)){
+
+//				logger.info(" currentUser = " + currentUser.toString() );
+//				logger.info( "User [" + currentUser.getPrincipal() + "] logged in successfully." );
+//				logger.info(" currentUser  employee  = " + currentUser.hasRole("employee")  );
+//				logger.info(" currentUser  boss  = " + currentUser.hasRole("boss")  );
+				
+				return Response.ok().build();
+		}
+		
+		
+		return Response.status(Status.UNAUTHORIZED).build();
+	}
+	
+	
+	
+
+	@POST
 	@Path("/users/")
 	@Produces("application/json")
 	@Consumes("application/json")
@@ -175,8 +245,8 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 		logger.info("Received POST for usergetName: " + user.getName());
 		logger.info("Received POST for usergetUsername: " + user.getUsername());
-//		logger.info("Received POST for usergetPassword: " + user.getPassword());
-//		logger.info("Received POST for usergetOrganization: " + user.getOrganization());
+		// logger.info("Received POST for usergetPassword: " + user.getPassword());
+		// logger.info("Received POST for usergetOrganization: " + user.getOrganization());
 
 		BakerUser u = bakerRepositoryRef.addBakerUserToUsers(user);
 
@@ -197,13 +267,13 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		logger.info("Received PUT for user: " + user.getUsername());
 
 		BakerUser previousUser = bakerRepositoryRef.getUserByID(userid);
-		
+
 		List<BunMetadata> previousBuns = previousUser.getBuns();
-		
-		if (user.getBuns().size() == 0 ){
+
+		if (user.getBuns().size() == 0) {
 			user.getBuns().addAll(previousBuns);
 		}
-		
+
 		BakerUser u = bakerRepositoryRef.updateUserInfo(userid, user);
 
 		if (u != null) {
@@ -243,12 +313,12 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			throw new WebApplicationException(builder.build());
 		}
 	}
-	
+
 	@GET
 	@Path("/users/{userid}/buns/{bunid}")
 	@Produces("application/json")
 	public Response getBunofUser(@PathParam("userid") int userid, @PathParam("bunid") int bunid) {
-		logger.info("getBunofUser for userid: " + userid + ", bunid="+bunid);
+		logger.info("getBunofUser for userid: " + userid + ", bunid=" + bunid);
 		BakerUser u = bakerRepositoryRef.getUserByID(userid);
 
 		if (u != null) {
@@ -261,8 +331,6 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			throw new WebApplicationException(builder.build());
 		}
 	}
-	
-	
 
 	@POST
 	@Path("/users/{userid}/buns/")
@@ -290,29 +358,27 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 		URI endpointUrl = uri.getBaseUri();
 
-		String tempDir = BUNSDATADIR+uuid+ File.separator;
+		String tempDir = BUNSDATADIR + uuid + File.separator;
 		try {
-			Files.createDirectories( Paths.get( tempDir ) );
-			
+			Files.createDirectories(Paths.get(tempDir));
+
 			if (!imageFileNamePosted.equals("")) {
-				String imgfile = saveFile(image, tempDir+imageFileNamePosted);
+				String imgfile = saveFile(image, tempDir + imageFileNamePosted);
 				logger.info("imgfile saved to = " + imgfile);
-				sm.setIconsrc( endpointUrl+"repo/images/" + uuid+ File.separator + imageFileNamePosted);
+				sm.setIconsrc(endpointUrl + "repo/images/" + uuid + File.separator + imageFileNamePosted);
 			}
 
 			if (!bunFileNamePosted.equals("")) {
-				String bunfilepath = saveFile(bunFile, tempDir+bunFileNamePosted);
+				String bunfilepath = saveFile(bunFile, tempDir + bunFileNamePosted);
 				logger.info("bunfilepath saved to = " + bunfilepath);
-				sm.setPackageLocation( endpointUrl+"repo/packages/" + uuid + File.separator + bunFileNamePosted);
+				sm.setPackageLocation(endpointUrl + "repo/packages/" + uuid + File.separator + bunFileNamePosted);
 			}
-			
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		
+
 		// Save now bun for User
 		BakerUser bunOwner = bakerRepositoryRef.getUserByID(userid);
 		sm.setOwner(bunOwner);
@@ -320,31 +386,24 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		bakerRepositoryRef.updateUserInfo(userid, bunOwner);
 
 	}
-	
-	
 
-	
-	
 	@PUT
 	@Path("/buns/{bid}")
 	@Consumes("multipart/form-data")
-	public void updateBunMetadata( @PathParam("bid") int bid, 
-			@Multipart(value = "userid", type = "text/plain") int userid,
-			@Multipart(value = "bunname", type = "text/plain") String bunname,
-			@Multipart(value = "bunid", type = "text/plain") int bunid,
+	public void updateBunMetadata(@PathParam("bid") int bid, @Multipart(value = "userid", type = "text/plain") int userid,
+			@Multipart(value = "bunname", type = "text/plain") String bunname, @Multipart(value = "bunid", type = "text/plain") int bunid,
 			@Multipart(value = "bunuuid", type = "text/plain") String uuid,
 			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription,
 			@Multipart(value = "longDescription", type = "text/plain") String longDescription,
 			@Multipart(value = "version", type = "text/plain") String version, @Multipart(value = "uploadedBunIcon") Attachment image,
 			@Multipart(value = "uploadedBunFile") Attachment bunFile) {
-		
-	
-		
+
 		String imageFileNamePosted = getFileName(image.getHeaders());
 		String bunFileNamePosted = getFileName(bunFile.getHeaders());
 		logger.info("userid = " + userid);
 		logger.info("bunname = " + bunname);
-		logger.info("bunid = " + bunid);;
+		logger.info("bunid = " + bunid);
+		;
 		logger.info("bunuuid = " + uuid);
 		logger.info("version = " + version);
 		logger.info("shortDescription = " + shortDescription);
@@ -352,76 +411,72 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		logger.info("image = " + imageFileNamePosted);
 		logger.info("bunFile = " + bunFileNamePosted);
 
-
 		// Save now bun for User
 		BakerUser bunOwner = bakerRepositoryRef.getUserByID(userid);
-		
-		BunMetadata sm =bakerRepositoryRef.getBunByID(bunid);
+
+		BunMetadata sm = bakerRepositoryRef.getBunByID(bunid);
 		sm.setShortDescription(shortDescription);
 		sm.setLongDescription(longDescription);
 		sm.setVersion(version);
 		sm.setName(bunname);
 		sm.setOwner(bunOwner);
-		
 
 		URI endpointUrl = uri.getBaseUri();
 
-		String tempDir = BUNSDATADIR+uuid+ File.separator;
+		String tempDir = BUNSDATADIR + uuid + File.separator;
 		try {
-			Files.createDirectories( Paths.get( tempDir ) );
-			
+			Files.createDirectories(Paths.get(tempDir));
+
 			if (!imageFileNamePosted.equals("")) {
-				String imgfile = saveFile(image, tempDir+imageFileNamePosted);
+				String imgfile = saveFile(image, tempDir + imageFileNamePosted);
 				logger.info("imgfile saved to = " + imgfile);
-				sm.setIconsrc( endpointUrl+"repo/images/" + uuid+ File.separator + imageFileNamePosted);
+				sm.setIconsrc(endpointUrl + "repo/images/" + uuid + File.separator + imageFileNamePosted);
 			}
 
 			if (!bunFileNamePosted.equals("")) {
-				String bunfilepath = saveFile(bunFile, tempDir+bunFileNamePosted);
+				String bunfilepath = saveFile(bunFile, tempDir + bunFileNamePosted);
 				logger.info("bunfilepath saved to = " + bunfilepath);
-				sm.setPackageLocation( endpointUrl+"repo/packages/" + uuid + File.separator + bunFileNamePosted);
+				sm.setPackageLocation(endpointUrl + "repo/packages/" + uuid + File.separator + bunFileNamePosted);
 			}
-			
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		bakerRepositoryRef.updateBunInfo(bunid, sm); 
-		
-		if (bunOwner.getBunById(bunid)==null)
+		bakerRepositoryRef.updateBunInfo(bunid, sm);
+
+		if (bunOwner.getBunById(bunid) == null)
 			bunOwner.addBun(sm);
 		bakerRepositoryRef.updateUserInfo(userid, bunOwner);
 
 	}
 
 	// Buns related API
-	
+
 	@GET
 	@Path("/buns")
 	@Produces("application/json")
 	public Response getBuns() {
 		logger.info("getBuns ");
-		
+
 		List<BunMetadata> buns = bakerRepositoryRef.getBuns();
 		return Response.ok().entity(buns).build();
-		
-	}
-	
 
-	
+	}
+
 	@GET
 	@Path("/images/{uuid}/{imgfile}")
-    @Produces("image/*")
-	public Response getBunImage(@PathParam("uuid") String uuid, @PathParam("imgfile") String imgfile) { 
+	@Produces("image/*")
+	public Response getBunImage(@PathParam("uuid") String uuid, @PathParam("imgfile") String imgfile) {
 		logger.info("getBunImage of uuid: " + uuid);
-		String imgAbsfile = BUNSDATADIR+uuid+ File.separator+imgfile;
+		String imgAbsfile = BUNSDATADIR + uuid + File.separator + imgfile;
 		logger.info("Image RESOURCE FILE: " + imgAbsfile);
 		File file = new File(imgAbsfile);
 		ResponseBuilder response = Response.ok((Object) file);
 		response.header("Content-Disposition", "attachment; filename=" + file.getName());
 		return response.build();
-		
+
 	}
 
 	@GET
@@ -432,37 +487,33 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		logger.info("bunfile: " + bunfile);
 		logger.info("uuid: " + uuid);
 
-		String bunAbsfile = BUNSDATADIR+uuid+ File.separator+bunfile;
+		String bunAbsfile = BUNSDATADIR + uuid + File.separator + bunfile;
 		logger.info("Bun RESOURCE FILE: " + bunAbsfile);
 		File file = new File(bunAbsfile);
-		
-		if ( (uuid.equals("77777777-668b-4c75-99a9-39b24ed3d8be")) || (uuid.equals("22cab8b8-668b-4c75-99a9-39b24ed3d8be")) ){
-			URL res = getClass().getResource("/files/"+bunfile);
+
+		if ((uuid.equals("77777777-668b-4c75-99a9-39b24ed3d8be")) || (uuid.equals("22cab8b8-668b-4c75-99a9-39b24ed3d8be"))) {
+			URL res = getClass().getResource("/files/" + bunfile);
 			logger.info("TEST LOCAL RESOURCE FILE: " + res);
 			file = new File(res.getFile());
 		}
-		
+
 		ResponseBuilder response = Response.ok((Object) file);
 		response.header("Content-Disposition", "attachment; filename=" + file.getName());
 		return response.build();
 	}
-	
-	
 
-	
 	@DELETE
 	@Path("/buns/{bunid}")
 	public void deleteBun(@PathParam("bunid") int bunid) {
 		bakerRepositoryRef.deleteBun(bunid);
-		
+
 	}
-	
-	
+
 	@GET
 	@Path("/buns/{bunid}")
 	@Produces("application/json")
-	public Response getBunMetadataByID( @PathParam("bunid") int bunid) {
-		logger.info("getBunMetadataByID  bunid="+bunid);
+	public Response getBunMetadataByID(@PathParam("bunid") int bunid) {
+		logger.info("getBunMetadataByID  bunid=" + bunid);
 		BunMetadata bun = bakerRepositoryRef.getBunByID(bunid);
 
 		if (bun != null) {
@@ -482,7 +533,6 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		logger.info("Received GET for bun uuid: " + uuid);
 		BunMetadata bun = null;
 
-
 		URI endpointUrl = uri.getBaseUri();
 		if (uuid.equals("77777777-668b-4c75-99a9-39b24ed3d8be")) {
 			bun = new BunMetadata(uuid, "IntegrTestLocal example service");
@@ -491,27 +541,27 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			bun.setIconsrc("");
 			bun.setLongDescription("");
 
-			bun.setPackageLocation( endpointUrl +"repo/packages/77777777-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
-//		}else if (uuid.equals("12cab8b8-668b-4c75-99a9-39b24ed3d8be")) {
-//			bun = new BunMetadata(uuid, "AN example service");
-//			bun.setShortDescription("An example local service");
-//			bun.setVersion("1.0.0rc1");
-//			bun.setIconsrc("");
-//			bun.setLongDescription("");
-//			//URI endpointUrl = uri.getBaseUri();
-//
-//			bun.setPackageLocation( endpointUrl +"repo/packages/12cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
+			bun.setPackageLocation(endpointUrl + "repo/packages/77777777-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
+			// }else if (uuid.equals("12cab8b8-668b-4c75-99a9-39b24ed3d8be")) {
+			// bun = new BunMetadata(uuid, "AN example service");
+			// bun.setShortDescription("An example local service");
+			// bun.setVersion("1.0.0rc1");
+			// bun.setIconsrc("");
+			// bun.setLongDescription("");
+			// //URI endpointUrl = uri.getBaseUri();
+			//
+			// bun.setPackageLocation( endpointUrl +"repo/packages/12cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
 		} else if (uuid.equals("22cab8b8-668b-4c75-99a9-39b24ed3d8be")) {
 			bun = new BunMetadata(uuid, "IntegrTestLocal example ErrInstall service");
 			bun.setShortDescription("An example ErrInstall local service");
 			bun.setVersion("1.0.0");
 			bun.setIconsrc("");
 			bun.setLongDescription("");
-			//URI endpointUrl = uri.getBaseUri();
+			// URI endpointUrl = uri.getBaseUri();
 
-			bun.setPackageLocation( endpointUrl +"repo/packages/22cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebunErrInstall.tar.gz");
-		}else{
-			bun = bakerRepositoryRef.getBunByUUID(uuid); 
+			bun.setPackageLocation(endpointUrl + "repo/packages/22cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebunErrInstall.tar.gz");
+		} else {
+			bun = bakerRepositoryRef.getBunByUUID(uuid);
 		}
 
 		if (bun != null) {
@@ -524,15 +574,12 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 	}
 
-
-
-
 	private String saveFile(Attachment att, String filePath) {
 		DataHandler handler = att.getDataHandler();
 		try {
 			InputStream stream = handler.getInputStream();
 			MultivaluedMap map = att.getHeaders();
-			File f = new File( filePath );
+			File f = new File(filePath);
 			OutputStream out = new FileOutputStream(f);
 
 			int read = 0;
@@ -570,7 +617,5 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	public void setBakerRepositoryRef(BakerRepository bakerRepositoryRef) {
 		this.bakerRepositoryRef = bakerRepositoryRef;
 	}
-
-
 
 }

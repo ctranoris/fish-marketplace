@@ -15,14 +15,15 @@
 				<h1>Sign In</h1>
 				<p >Use the following fields to sign in FISH
 					Marketplace</p>
-				<form action="" method="post">
-					<div class="form-group">
-						<input class="form-control" type="text" value="" placeholder="username"
-							name="username" />
+				<div class="alert alert-danger" ng-show="loginError">Username and/or Password Incorrect</div>
+  
+				<form ng-submit="login()">
+					<div  class="form-group">
+						<input class="form-control" type="text" ng-model='user.username' placeholder="username" />
 					</div>
 					<div class="form-group">
-						<input type="password" class="form-control" value=""
-							placeholder="Your FI-STAR Marketplace password" name="password" />
+						<input type="password" class="form-control"  name="password"  ng-model='user.password'
+									placeholder="Your FI-STAR Marketplace password"/>
 					</div>
 					 <button type="submit" class="btn btn-default">Sign In</button> or <a style="color: white;" href="#/signup" ><b>Sign up</b> for FI-STAR Marketplace!</a>
 					
@@ -40,11 +41,9 @@
 			<div class="row">
 				<!--  ------------------------  START CONTENT      ------------------------      -->
 				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-					<h1>Learn by experimenting on real hardware!</h1>
-					<p>Interactive Courses with Real Infrastructures! Access, create
-						and share interactive courses with widgets accessing real
-						infrastructures and resources available from FIRE testbeds across
-						Europe!</p>
+					<h1>Deploy FI-STAR apps the easy way!</h1>
+					<p>Access, create
+						and share apps over FI-WARE infrastructure!</p>
 					<h1>&nbsp;</h1>
 				</div>
 				

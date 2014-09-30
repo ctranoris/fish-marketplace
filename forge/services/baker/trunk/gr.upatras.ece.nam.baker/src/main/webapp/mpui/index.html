@@ -14,18 +14,20 @@
 	src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
 <script
-	src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.21/angular.min.js"></script>
+	src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.24/angular.min.js"></script>
 <script
-	src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.21/angular-resource.min.js"></script>
+	src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.24/angular-resource.min.js"></script>
 <script
-	src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.21/angular-route.min.js"></script>
+	src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.24/angular-route.min.js"></script>
+<script
+	src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.24/angular-cookies.min.js"></script>
 
 <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 	
 <link rel="stylesheet" href="css/style.css">
 <script src="js/bakerapp.js"></script>
 </head>
-<body  ng-app='bakerapp' ng-init="username='{{username}}'">
+<body  ng-app='bakerapp'>
 
 	
 	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" ng-controller="NavCtrl">
@@ -43,34 +45,44 @@
 			<!-- Collect the nav links, forms, and other content for toggling -->
 			<div class="collapse navbar-collapse"id="bs-example-navbar-collapse-1">
 				<ul class="nav navbar-nav" >
-						<li ng-class="navClass('marketplace')" ><a href="#/marketplace">Marketplace</a></li>
-						<li ng-class="navClass('installedbuns')"><a href="#/installedbuns">Installed Buns</a></li>
-
-						<li class="dropdown"><a href="#" class="dropdown-toggle"
-							data-toggle="dropdown">Dropdown <span class="caret"></span></a>
+						<li ng-class="navClass('marketplace')" ><a href="#/marketplace">Applications</a></li>
+						
+						
+						<li ng-show="loggedIn" class="dropdown"><a class="dropdown-toggle"
+							data-toggle="dropdown">Deployments <span class="caret"></span></a>
 							<ul class="dropdown-menu" role="menu">
-								<li><a href="#">Action</a></li>
-								<li><a href="#">Another action</a></li>
-								<li><a href="#">Something else here</a></li>
+							<li ng-class="navClass('my_deployments')" ><a href="#/deployments">My Deployments</a></li>
 								<li class="divider"></li>
-								<li><a href="#">Separated link</a></li>
+								<li ng-class="navClass('pending_deployments')" ><a href="#/deployments">Pending requests</a></li>
+								<li ng-class="navClass('all_deployments')" ><a href="#/deployments">All deployments</a></li>
+							</ul>
+						</li>
+							
+						<li ng-show="loggedIn" class="dropdown"><a class="dropdown-toggle"
+							data-toggle="dropdown">Admin <span class="caret"></span></a>
+							<ul class="dropdown-menu" role="menu">
+								<li><a href="#/users">Users</a></li>
+								<li><a href="#">Applications</a></li>
+								<li ><a href="#/installedbuns">Installed Buns</a></li>
 								<li class="divider"></li>
-								<li><a href="#">One more separated link</a></li>
+								<li><a href="#">Subscribed Machines</a></li>
+								<li><a href="#">Machine groups</a></li>
+								<li class="divider"></li>
+								<li><a href="#">System info</a></li>
 							</ul></li>
 			
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
-					<li class="dropdown"><a href="#" class="dropdown-toggle"
-						data-toggle="dropdown">My Account <span class="caret"></span></a>
+					<li ng-show="loggedIn" class="dropdown"><a href="#" class="dropdown-toggle"
+						data-toggle="dropdown">My Account {{user.username}} <span class="caret"></span></a>
 						<ul class="dropdown-menu" role="menu">
-							<li><a href="#">Action</a></li>
-							<li><a href="#">Another action</a></li>
-							<li><a href="#">Something else here</a></li>
+							<li><a href="#">Details</a></li>
 							<li class="divider"></li>
-							<li><a href="#">Separated link</a></li>
+							<li><a href="#">Logout</a></li>
 						</ul>
 					</li>
 					<li ng-show="loggedIn"><a href="#/logout">Logout</a></li>		
+					<li ng-show="!loggedIn"><a href="#/">Login</a></li>		
 				</ul>
 			</div>
 
@@ -79,13 +91,10 @@
 
 
 
-<div  class="container">
 	<div class="content" ng-view >
 	</div>
 	
-</div>
 
-<div ng-show="!loggedIn"  class="slide-animate" ng-include="'SignInHomeSection.html'"></div>
 <div class="slide-animate" ng-include="'FeaturedAppsHome.html'"></div>
 <div class="slide-animate" ng-include="'Footer.html'"></div>
 

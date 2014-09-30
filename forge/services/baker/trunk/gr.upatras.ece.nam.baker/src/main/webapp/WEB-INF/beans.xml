@@ -72,7 +72,8 @@
 		<property name="validator" ref="utValidator" />
 	</bean>
 	 -->
-	
+	<bean class="gr.upatras.ece.nam.baker.util.AjaxUserFilter" id="ajaxUserFilter">
+	</bean>
 	
 	<bean id="securityManagerBean" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
 	    <!-- Single realm app.  If you have multiple realms, use the 'realms' property instead. -->
@@ -111,11 +112,11 @@
              defined will be automatically acquired and available via its beanName in chain
              definitions, but you can perform overrides or parent/child consolidated configuration
              here if you like: -->
-        <!-- <property name="filters">
-            <util:map>
-                <entry key="aName" value-ref="someFilterPojo"/>
-            </util:map>
-        </property> -->
+       <property name="filters">
+        <map>
+            <entry key="userfilter" value-ref="ajaxUserFilter" />
+        </map>
+    	</property>
         <property name="filterChainDefinitions">
             <value>
                 # everything else requires authentication:
@@ -128,7 +129,8 @@
                 /services/api/repo/buns/** = anon, rest
                 /services/api/repo/packages/** = anon, rest
                 /services/api/repo/images/** = anon, rest
-                /services/api/** = authcBasic, rest
+                /services/api/repo/sessions/** = anon, rest
+                /services/api/** = userfilter, rest
                 /admin/logout = logout
                 /admin/viewUsers.html = authc, roles[ROLE_BOSS]         
                 /admin/** = authc
