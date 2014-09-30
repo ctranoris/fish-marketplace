@@ -40,7 +40,7 @@
 						class="icon-bar"></span> <span class="icon-bar"></span> <span
 						class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="#/">FI-STAR Marketplace</a>
+				<a class="navbar-brand" href="#/index">FI-STAR Marketplace</a>
 			</div>
 			<!-- Collect the nav links, forms, and other content for toggling -->
 			<div class="collapse navbar-collapse"id="bs-example-navbar-collapse-1">
@@ -78,7 +78,7 @@
 						<ul class="dropdown-menu" role="menu">
 							<li><a href="#">Details</a></li>
 							<li class="divider"></li>
-							<li><a href="#">Logout</a></li>
+							<li><a href="#/logout">Logout</a></li>
 						</ul>
 					</li>
 					<li ng-show="loggedIn"><a href="#/logout">Logout</a></li>		
@@ -95,6 +95,7 @@
 	</div>
 	
 
+<div class="slide-animate" ng-include="'SignInHomeSection.html'"></div>
 <div class="slide-animate" ng-include="'FeaturedAppsHome.html'"></div>
 <div class="slide-animate" ng-include="'Footer.html'"></div>
 
