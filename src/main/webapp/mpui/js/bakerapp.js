@@ -1,6 +1,10 @@
-var app = angular.module('bakerapp', [   'ngCookies', 'ngResource', 'ngRoute' ]);
+var app = angular.module('bakerapp', [   'ngCookies', 'ngResource', 'ngRoute', 
+                                         'trNgGrid', 'bakerapp.controllers', 'bakerapp.services' ]);
 
-app.config(function($routeProvider, $locationProvider) {
+app.config(function($routeProvider, $locationProvider, $anchorScrollProvider) {
+	
+    $anchorScrollProvider.disableAutoScrolling();
+    
 	$routeProvider.when('/marketplace', {
 		templateUrl : 'viewBunMarketplaceJS.html',
 		controller : 'bunsCtrl'
@@ -17,14 +21,26 @@ app.config(function($routeProvider, $locationProvider) {
 		controller : 'SignupCtrl'
 	}).when('/users', {
 		templateUrl : 'Users.html',
-		controller : 'UserCtrl'
+		controller : 'UserListController'
+	}).when('/view_user/:id', {
+		templateUrl : 'UserView.html',
+		controller : 'UserViewController'
+	}).when('/users_add', {
+		templateUrl : 'UserAdd.html',
+		controller : 'UserAddController'
+	}).when('/edit_user/:id', {
+		templateUrl : 'UserEdit.html',
+		controller : 'UserEditController'
 	}).otherwise({
 		redirectTo : '/'
 	});
 	
 });
 
-app.run(function (api) {
+
+//app.value('$anchorScroll', angular.noop);
+
+app.run(function ( api) {
 	  api.init();
 });
 
@@ -62,7 +78,7 @@ app.controller('LogoutCtrl', [ '$scope', '$location', 'authenticationSvc', '$log
 
 app.controller('bakerCtrl', function($scope, BakerUser) {
 	console.log('inside bakerCtrl controller');
-	$scope.bakerusers = BakerUser.query();
+	//$scope.bakerusers = BakerUser.query();
 });
 
 app.controller('bunsCtrl', function($scope, Buns, $log) {
@@ -75,28 +91,9 @@ app.controller('SignupCtrl', function($scope) {
 
 });
 
-app.controller('UserCtrl', function($scope) {
 
-});
 
-// BakerUser Resource
-app.factory('BakerUser', function($resource) {
-	return $resource("/baker/services/api/repo/users/:Id", {
-		Id : "@Id"
-	}, {
-		"update" : {
-			method : "PUT"
-		},
-		"reviews" : {
-			'method' : 'GET',
-			'params' : {
-				'reviews_only' : "true"
-			},
-			isArray : true
-		}
 
-	});
-});
 
 // BakerUser Resource
 app.factory('Buns', function($resource) {
@@ -162,7 +159,7 @@ app.config(function($httpProvider) {
 		            userInfo = JSON.parse($window.sessionStorage["userInfo"]);
 		            if (userInfo){
 		            	$rootScope.loggedIn = true;
-		            	$log.debug('========== > $rootScope.loggedIn set to TRUE because userInf o= '+userInfo);
+		            	$log.debug('========== > $rootScope.loggedIn set to TRUE because userInfooo = '+userInfo);
 		            }
 		        }
 				
@@ -177,6 +174,7 @@ app.config(function($httpProvider) {
 				// redirect to login page
 				if (rejection.status === 401 && $location.path() != '/login') {
 					$rootScope.loggedIn = false;
+		            $window.sessionStorage["userInfo"] = null;
 					$location.path('/login');
 				}
 				return $q.reject(rejection);
