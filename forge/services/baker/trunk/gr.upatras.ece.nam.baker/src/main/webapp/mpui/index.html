@@ -2,34 +2,31 @@
 <html>
 <head>
 <title>FI-STAR Application Marketplace</title>
-<script
-	src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-<link rel="stylesheet"
-	href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css" />
-<script
-	src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/jquery-ui.min.js"></script>
-<link rel="stylesheet"
-	href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-<script
-	src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
-<script
-	src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.24/angular.min.js"></script>
-<script
-	src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.24/angular-resource.min.js"></script>
-<script
-	src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.24/angular-route.min.js"></script>
-<script
-	src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.24/angular-cookies.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css" />
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/jquery-ui.min.js"></script>
+
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.24/angular.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.24/angular-resource.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.24/angular-route.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.24/angular-cookies.min.js"></script>
 
 <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
-	
+
+<link rel="css/stylesheet" href="trNgGrid.min.css" />
+<script src="js/trNgGrid.min.js"></script>
+
 <link rel="stylesheet" href="css/style.css">
+<script src="js/controllers.js"></script>
+<script src="js/services.js"></script>
 <script src="js/bakerapp.js"></script>
 </head>
 <body  ng-app='bakerapp'>
 
-	
 	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" ng-controller="NavCtrl">
 		<div class="container-fluid">
 			<!-- Brand and toggle get grouped for better mobile display -->
@@ -49,7 +46,7 @@
 						
 						
 						<li ng-show="loggedIn" class="dropdown"><a class="dropdown-toggle"
-							data-toggle="dropdown">Deployments <span class="caret"></span></a>
+							href="" data-toggle="dropdown">Deployments <span class="caret"></span></a>
 							<ul class="dropdown-menu" role="menu">
 							<li ng-class="navClass('my_deployments')" ><a href="#/deployments">My Deployments</a></li>
 								<li class="divider"></li>
@@ -59,7 +56,7 @@
 						</li>
 							
 						<li ng-show="loggedIn" class="dropdown"><a class="dropdown-toggle"
-							data-toggle="dropdown">Admin <span class="caret"></span></a>
+							href="" data-toggle="dropdown">Admin <span class="caret"></span></a>
 							<ul class="dropdown-menu" role="menu">
 								<li><a href="#/users">Users</a></li>
 								<li><a href="#">Applications</a></li>
@@ -73,7 +70,7 @@
 			
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
-					<li ng-show="loggedIn" class="dropdown"><a href="#" class="dropdown-toggle"
+					<li ng-show="loggedIn" class="dropdown"><a href="" class="dropdown-toggle"
 						data-toggle="dropdown">My Account {{user.username}} <span class="caret"></span></a>
 						<ul class="dropdown-menu" role="menu">
 							<li><a href="#">Details</a></li>
@@ -91,7 +88,7 @@
 
 
 
-	<div class="content" ng-view >
+	<div id="main-content" class="content" ng-view >
 	</div>
 	
 
