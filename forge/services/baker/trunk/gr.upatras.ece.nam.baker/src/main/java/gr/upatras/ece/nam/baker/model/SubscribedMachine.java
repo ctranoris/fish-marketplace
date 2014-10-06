@@ -15,27 +15,38 @@
 
 package gr.upatras.ece.nam.baker.model;
 
-public class UserSession {
+import javax.persistence.Basic;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 
-	private String username = null;
-	private String password = null;
+@Entity(name = "SubscribedMachine")
+public class SubscribedMachine {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id = 0;
+
+	@Basic
+	private String URL = null;
+
 	
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int newId) {
+		id = newId;
+	}
+
 	
-	
-	public UserSession() {
-		super();
+	public String getURL() {
+		return URL;
 	}
-	public String getUsername() {
-		return username;
-	}
-	public void setUsername(String username) {
-		this.username = username;
-	}
-	public String getPassword() {
-		return password;
-	}
-	public void setPassword(String password) {
-		this.password = password;
+
+	public void setURL(String uRL) {
+		URL = uRL;
 	}
 }

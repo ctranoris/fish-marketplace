@@ -18,6 +18,7 @@ package gr.upatras.ece.nam.baker.repo;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.IBakerRepositoryAPI;
+import gr.upatras.ece.nam.baker.model.SubscribedMachine;
 import gr.upatras.ece.nam.baker.model.UserSession;
 
 import java.io.File;
@@ -165,74 +166,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		}
 	}
 
-	@POST
-	@Path("/sessions/")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response addUserSession(UserSession userSession) {
-
-		logger.info("Received POST addUserSession usergetUsername: " + userSession.getUsername());
-		logger.info("Received POST addUserSession password: " + userSession.getPassword());
-		
-		if (securityContext!=null){
-			if (securityContext.getUserPrincipal()!=null)
-				logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().toString()+"<");
-		
-		}
-
-
-		Subject currentUser = SecurityUtils.getSubject();
-		if (currentUser !=null){
-			AuthenticationToken token =	new UsernamePasswordToken(  userSession.getUsername(), userSession.getPassword());
-			try {
-				currentUser.login(token);
-
-				logger.info(" currentUser = " + currentUser.toString() );
-				logger.info( "User [" + currentUser.getPrincipal() + "] logged in successfully." );
-				logger.info(" currentUser  employee  = " + currentUser.hasRole("employee")  );
-				logger.info(" currentUser  boss  = " + currentUser.hasRole("boss")  );
-				
-				return Response.ok().entity(userSession).build();
-				}
-				catch (AuthenticationException ae) {
-					
-					return Response.status(Status.UNAUTHORIZED).build();
-				} 			
-		}
-		
-		
-		return Response.status(Status.UNAUTHORIZED).build();
-	}
-
-	@GET
-	@Path("/sessions/")
-	@Produces("application/json")
-	public Response getUserSessionExample() {
-
-		logger.info("Received GET addUserSession usergetUsername: " );
-		logger.info("Received GET addUserSession password: " );
-		
-		if (securityContext!=null){
-			if (securityContext.getUserPrincipal()!=null)
-				logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().toString()+"<");
-		
-		}
-
-
-		Subject currentUser = SecurityUtils.getSubject();
-		if ((currentUser !=null) && (currentUser.getPrincipal() !=null)){
-
-//				logger.info(" currentUser = " + currentUser.toString() );
-//				logger.info( "User [" + currentUser.getPrincipal() + "] logged in successfully." );
-//				logger.info(" currentUser  employee  = " + currentUser.hasRole("employee")  );
-//				logger.info(" currentUser  boss  = " + currentUser.hasRole("boss")  );
-				
-				return Response.ok().build();
-		}
-		
-		
-		return Response.status(Status.UNAUTHORIZED).build();
-	}
+	
 	
 	
 	
@@ -375,7 +309,6 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			}
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -387,6 +320,77 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 	}
 
+	
+	@POST
+	@Path("/sessions/")
+	@Produces("application/json")
+	@Consumes("application/json")
+	public Response addUserSession(UserSession userSession) {
+
+		logger.info("Received POST addUserSession usergetUsername: " + userSession.getUsername());
+		logger.info("DANGER, REMOVE Received POST addUserSession password: " + userSession.getPassword());
+		
+		if (securityContext!=null){
+			if (securityContext.getUserPrincipal()!=null)
+				logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().toString()+"<");
+		
+		}
+
+
+		Subject currentUser = SecurityUtils.getSubject();
+		if (currentUser !=null){
+			AuthenticationToken token =	new UsernamePasswordToken(  userSession.getUsername(), userSession.getPassword());
+			try {
+				currentUser.login(token);
+
+				logger.info(" currentUser = " + currentUser.toString() );
+				logger.info( "User [" + currentUser.getPrincipal() + "] logged in successfully." );
+				logger.info(" currentUser  employee  = " + currentUser.hasRole("employee")  );
+				logger.info(" currentUser  boss  = " + currentUser.hasRole("boss")  );
+				
+				return Response.ok().entity(userSession).build();
+				}
+				catch (AuthenticationException ae) {
+					
+					return Response.status(Status.UNAUTHORIZED).build();
+				} 			
+		}
+		
+		
+		return Response.status(Status.UNAUTHORIZED).build();
+	}
+
+	@GET
+	@Path("/sessions/")
+	@Produces("application/json")
+	public Response getUserSessions() {
+
+		logger.info("Received GET addUserSession usergetUsername: " );
+		logger.info("Received GET addUserSession password: " );
+		
+		if (securityContext!=null){
+			if (securityContext.getUserPrincipal()!=null)
+				logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().toString()+"<");
+		
+		}
+
+
+		Subject currentUser = SecurityUtils.getSubject();
+		if ((currentUser !=null) && (currentUser.getPrincipal() !=null)){
+
+//				logger.info(" currentUser = " + currentUser.toString() );
+//				logger.info( "User [" + currentUser.getPrincipal() + "] logged in successfully." );
+//				logger.info(" currentUser  employee  = " + currentUser.hasRole("employee")  );
+//				logger.info(" currentUser  boss  = " + currentUser.hasRole("boss")  );
+				
+				return Response.ok().build();
+		}
+		
+		
+		return Response.status(Status.UNAUTHORIZED).build();
+	}
+	
+	
 	@PUT
 	@Path("/buns/{bid}")
 	@Consumes("multipart/form-data")
@@ -440,7 +444,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			}
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 
@@ -616,6 +620,83 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 	public void setBakerRepositoryRef(BakerRepository bakerRepositoryRef) {
 		this.bakerRepositoryRef = bakerRepositoryRef;
+	}
+
+	
+	
+	
+	
+	@GET
+	@Path("/subscribedmachines/")
+	@Produces("application/json")
+	public Response getSubscribedMachines() {
+		return Response.ok().entity(bakerRepositoryRef.getSubscribedMachinesAsCollection()).build();
+	}
+
+	@GET
+	@Path("/subscribedmachines/{smId}")
+	public Response getSubscribedMachineById(@PathParam("smId") int smId) {
+		SubscribedMachine sm = bakerRepositoryRef.getSubscribedMachineByID(smId);
+
+		if (sm != null) {
+			return Response.ok().entity(sm).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("SubscribedMachine" + smId + " not found in baker registry");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+
+	
+	
+	@POST
+	@Path("/subscribedmachines/")
+	@Produces("application/json")
+	@Consumes("application/json")
+	public Response addSubscribedMachine(SubscribedMachine sm) {
+		
+		SubscribedMachine u = bakerRepositoryRef.addSubscribedMachine(sm);
+
+		if (u != null) {
+			return Response.ok().entity(u).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.INTERNAL_SERVER_ERROR);
+			builder.entity("Requested SubscribedMachine with rls=" + sm.getURL() + " cannot be saved");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+
+	@PUT
+	@Path("/subscribedmachines/{smId}")
+	@Produces("application/json")
+	@Consumes("application/json")
+	public Response updateSubscribedMachine(@PathParam("smId")int smId, SubscribedMachine sm) {
+		logger.info("Received SubscribedMachine for user: " + sm.getURL());
+
+		SubscribedMachine previouSM = bakerRepositoryRef.getSubscribedMachineByID(smId);
+
+		
+
+		SubscribedMachine u = bakerRepositoryRef.updateSubscribedMachineInfo(smId, sm);
+
+		if (u != null) {
+			return Response.ok().entity(u).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.INTERNAL_SERVER_ERROR);
+			builder.entity("Requested SubscribedMachine with url=" + sm.getURL()+" cannot be updated");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+
+	@DELETE
+	@Path("/subscribedmachines/{smId}")
+	@Produces("application/json")
+	public Response deleteSubscribedMachine(@PathParam("smId")int smId) {
+		logger.info("Received SubscribedMachine for userid: " + smId);
+
+		bakerRepositoryRef.deleteSubscribedMachine(smId);
+
+		return Response.ok().build();
 	}
 
 }

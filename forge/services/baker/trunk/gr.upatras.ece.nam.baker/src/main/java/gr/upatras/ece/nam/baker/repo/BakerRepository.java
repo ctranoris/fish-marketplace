@@ -19,6 +19,7 @@ import gr.upatras.ece.nam.baker.impl.BakerJpaController;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
+import gr.upatras.ece.nam.baker.model.SubscribedMachine;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -125,7 +126,35 @@ public class BakerRepository {
 		this.bakerJpaController.initData();
 	}
 
+	public Collection<SubscribedMachine> getSubscribedMachinesAsCollection() {
 
+		List<SubscribedMachine> ls = bakerJpaController.readSubscribedMachines(0, 100000);
+		
+		return ls;
+	}
+
+
+	public SubscribedMachine getSubscribedMachineByID(int smId) {
+		return bakerJpaController.readSubscribedMachineById(smId);
+	}
+
+
+	public SubscribedMachine addSubscribedMachine(SubscribedMachine sm) {
+		bakerJpaController.saveSubscribedMachine(sm);
+		return sm;
+	}
+
+
+	public SubscribedMachine updateSubscribedMachineInfo(int smId, SubscribedMachine sm) {
+		SubscribedMachine bm = bakerJpaController.updateSubscribedMachine(sm);
+		return bm;
+	}
+
+
+	public void deleteSubscribedMachine(int smId) {
+		bakerJpaController.deleteSubscribedMachine(smId);
+		
+	}
 	
 	
 	
