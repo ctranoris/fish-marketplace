@@ -18,6 +18,7 @@ package gr.upatras.ece.nam.baker.impl;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
+import gr.upatras.ece.nam.baker.model.SubscribedMachine;
 
 import java.util.Iterator;
 import java.util.List;
@@ -222,6 +223,9 @@ public class BakerJpaController {
 
 	}
 	
+	
+	
+	
 	public BakerUser updateBakerUser(BakerUser bu) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
@@ -260,7 +264,7 @@ public class BakerJpaController {
 		List<BakerUser> lb = entityManager.createQuery("select p from BakerUser p").getResultList();
 		for (Iterator iterator = lb.iterator(); iterator.hasNext();) {
 			BakerUser bu = (BakerUser) iterator.next();
-			logger.info("	======> BakerUser found: " + bu.getName() + ", Id: " + bu.getId() + ", Id: " + bu.getOrganization() + ", Id: " + bu.getUsername());
+			logger.info("	======> BakerUser found: " + bu.getName() + ", Id: " + bu.getId() + ", Id: " + bu.getOrganization() + ", username: " + bu.getUsername());
 
 			List<BunMetadata> buns = bu.getBuns();
 			for (BunMetadata bunMetadata : buns) {
@@ -389,7 +393,96 @@ public class BakerJpaController {
 		entityTransaction.commit();
 	}
 
+	
+	public void saveSubscribedMachine(SubscribedMachine sm) {
+		logger.info("Will save SubscribedMachine = " + sm.getURL());
+
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		EntityTransaction entityTransaction = entityManager.getTransaction();
+
+		entityTransaction.begin();
+
+		entityManager.persist(sm);
+		entityManager.flush();
+		entityTransaction.commit();
+
+	}
+	
+	public SubscribedMachine updateSubscribedMachine(SubscribedMachine sm) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		EntityTransaction entityTransaction = entityManager.getTransaction();
+
+		entityTransaction.begin();
+		SubscribedMachine resis = entityManager.merge(sm);
+		entityTransaction.commit();
+
+		return resis;
+	}
+
+	public SubscribedMachine readSubscribedMachineById(int userid) {
+		
+		
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		return entityManager.find(SubscribedMachine.class, userid);
+		
+	}
+	
+	public void deleteSubscribedMachine(int smId) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		SubscribedMachine sm = entityManager.find(SubscribedMachine.class, smId);	
+
+		EntityTransaction entityTransaction = entityManager.getTransaction();
+		entityTransaction.begin();
+		entityManager.remove(sm);
+		entityTransaction.commit();
+	}
+	
+	public long countSubscribedMachines() {
+
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		Query q = entityManager.createQuery("SELECT COUNT(s) FROM SubscribedMachine s");
+		return (Long) q.getSingleResult();
+	}
 
 	
+	public void getAllSubscribedMachinesPrinted() {
+		logger.info("================= getSubscribedMachine() ==================START");
+
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		List<SubscribedMachine> lb = entityManager.createQuery("select p from SubscribedMachine p").getResultList();
+		for (Iterator iterator = lb.iterator(); iterator.hasNext();) {
+			SubscribedMachine sm = (SubscribedMachine) iterator.next();
+			logger.info("	======> SubscribedMachine found: " + sm.getURL() + ", Id: " + sm.getId()  );			
+
+		}
+	}
+
+	public void deleteAllSubscribedMachines() {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		EntityTransaction entityTransaction = entityManager.getTransaction();
+
+		entityTransaction.begin();
+
+		Query q = entityManager.createQuery("DELETE FROM SubscribedMachine ");
+		q.executeUpdate();
+		entityManager.flush();
+
+		entityTransaction.commit();
+		
+	}
+
+	public List<SubscribedMachine> readSubscribedMachines(int firstResult, int maxResults) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		Query q = entityManager.createQuery("SELECT m FROM SubscribedMachine m");
+		q.setFirstResult(firstResult);
+		q.setMaxResults(maxResults);
+		return q.getResultList();
+	}
 
 }

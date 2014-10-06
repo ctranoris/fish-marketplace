@@ -73,3 +73,82 @@ appControllers.controller('UserEditController', ['$scope', '$route', '$routePara
 
     $scope.loadUser();
 }]);
+
+
+
+
+
+appControllers.controller('SubscribedMachineListController', ['$scope','$window','$log', 'SubscribedMachine', 'popupService',
+                                             	function($scope, $window, $log, SubscribedMachine, popupService) {
+                 	
+                 	
+
+                 	$scope.subscribedmachines = SubscribedMachine.query(function() {
+                 		    console.log($scope.subscribedmachines);
+                 		  }); //query() returns all the subscribedmachines
+                 		 
+                 	
+                 	
+                 	 $scope.deleteSubscribedMachine = function(gridItem, useridx, username, name){
+
+                 		 	console.log("Selected to DELETE SubscribedMachine with id = "+ useridx);
+                 		 	
+
+                 		 	var subscribedmachine=SubscribedMachine.get({id:useridx}, function() {
+                 			    $log.debug("WILL DELETE SubscribedMachine with ID "+ subscribedmachine.id);
+                 			    
+                 		        if(popupService.showPopup('Really delete SubscribedMachine '+subscribedmachine.id+'" ?')){
+                 				 	
+                 		        	subscribedmachine.$delete(function(){
+                 		    			$scope.subscribedmachines.splice($scope.subscribedmachines.indexOf(gridItem),1)
+                 		            });
+                 		        
+                 		        }
+                 		 	});
+                 	    }
+}]);
+
+appControllers.controller('SubscribedMachineViewController', ['$scope', '$route', '$routeParams', '$location', 'SubscribedMachine', '$anchorScroll',
+                                                 function( $scope, $route, $routeParams, $location, SubscribedMachine, $anchorScroll){
+    $scope.subscribedmachine=SubscribedMachine.get({id:$routeParams.id});
+    var i =SubscribedMachine.get({id:$routeParams.id});
+    console.log("WILL GET SubscribedMachine with ID "+$routeParams.id);
+    console.log("WILL GET SubscribedMachine with i "+i.id);
+    
+	$scope.name = "SubscribedMachineViewController";
+	$scope.params = $routeParams;
+	
+	
+
+}]);
+
+appControllers.controller('SubscribedMachineAddController',function($scope, $location, SubscribedMachine){
+
+    $scope.subscribedmachine=new SubscribedMachine();
+
+    $scope.addSubscribedMachine=function(){
+        $scope.subscribedmachine.$save(function(){
+			$location.path("/subscribed_machines");
+        });
+    }
+
+});
+
+appControllers.controller('SubscribedMachineEditController', ['$scope', '$route', '$routeParams', '$location', 'SubscribedMachine', '$anchorScroll',
+        function( $scope, $route, $routeParams, $location, SubscribedMachine, $anchorScroll){
+
+
+    console.log("WILL EDIT SubscribedMachine with ID "+$routeParams.id);
+	
+    $scope.updateSubscribedMachine=function(){
+        $scope.subscribedmachine.$update(function(){
+			$location.path("/subscribed_machines");
+        });
+    };
+
+    $scope.loadSubscribedMachine=function(){
+        $scope.subscribedmachine=SubscribedMachine.get({id:$routeParams.id});
+    };
+
+    $scope.loadSubscribedMachine();
+}]);

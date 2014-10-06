@@ -23,34 +23,39 @@ import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 
 public interface IBakerRepositoryAPI {
 
-	Response getBuns();
 	
-	//@RolesAllowed("admin") 
-	Response getUsers();
-
-	//@RolesAllowed("admin") 
+	
+	//USER related methods 
+	Response getUsers(); 
 	Response getUserById(int userid);
-
 	Response addUser(BakerUser user);
-
 	Response updateUserInfo(int userid, BakerUser user);
-
 	Response deleteUser(int userid);
-
 	Response getAllBunsofUser(int userid);
 
-	Response getBunMetadataByUUID(String uuid);
+	//Sessions
+	public Response addUserSession(UserSession userSession);
+	public Response getUserSessions();
 	
+	
+	//BUNs related API methods
+	Response getBuns();
+	Response getBunMetadataByUUID(String uuid);		
 	Response getBunofUser( int userid, int bunid);
-
-	Response downloadBunPackage(String uuid, String bunfile);
-	
+	Response downloadBunPackage(String uuid, String bunfile);	
 	Response getBunImage(String uuid, String imgfile);
-
 	void updateBunMetadata(int bid, int userid, String bunname, int bunid, String uuid, String shortDescription, String longDescription, String version,
 			Attachment image, Attachment bunFile);
-
 	void addBunMetadata(int userid, String bunname, String shortDescription, String longDescription, String version, Attachment image, Attachment bunFile);
-
 	void deleteBun( int bunid);
+	
+	//Subscribed machines
+	Response getSubscribedMachines();
+	Response getSubscribedMachineById(int smId);
+	Response addSubscribedMachine(SubscribedMachine sm);
+	Response updateSubscribedMachine(int smId, SubscribedMachine sm);
+	Response deleteSubscribedMachine(int smId);
+	
+	
+	
 }
