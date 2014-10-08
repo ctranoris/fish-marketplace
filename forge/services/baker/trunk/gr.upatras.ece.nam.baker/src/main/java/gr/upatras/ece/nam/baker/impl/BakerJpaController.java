@@ -15,6 +15,7 @@
 
 package gr.upatras.ece.nam.baker.impl;
 
+import gr.upatras.ece.nam.baker.model.ApplicationMetadata;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
@@ -268,9 +269,14 @@ public class BakerJpaController {
 
 			List<BunMetadata> buns = bu.getBuns();
 			for (BunMetadata bunMetadata : buns) {
-
 				logger.info("	======> bunMetadata found: " + bunMetadata.getName() + ", Id: " + bunMetadata.getId() + ", getUuid: " + bunMetadata.getUuid()
 						+ ", getName: " + bunMetadata.getName());
+			}
+			List<ApplicationMetadata> apps = bu.getApps();
+			for (ApplicationMetadata appnMetadata : apps) {
+				logger.info("	======> appnMetadata found: " + appnMetadata.getName() + ", Id: " + appnMetadata.getId() 
+						+ ", getUuid: " + appnMetadata.getUuid()
+						+ ", getName: " + appnMetadata.getName());
 			}
 
 		}
@@ -483,6 +489,45 @@ public class BakerJpaController {
 		q.setFirstResult(firstResult);
 		q.setMaxResults(maxResults);
 		return q.getResultList();
+	}
+
+	public ApplicationMetadata updateApplicationMetadata(ApplicationMetadata appmeta) {
+		logger.info("================= updateApplicationMetadata ==================");
+		logger.info("appmetagetId="+appmeta.getId());
+		logger.info("appmeta getName= "+appmeta.getName());
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		EntityTransaction entityTransaction = entityManager.getTransaction();
+
+		entityTransaction.begin();
+		ApplicationMetadata resis = entityManager.merge(appmeta);
+		entityTransaction.commit();
+
+		return resis;
+		
+	}
+
+
+	public ApplicationMetadata readApplicationMetadataByUUID(String uuid) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		Query q = entityManager.createQuery("SELECT m FROM ApplicationMetadata m WHERE m.uuid='" + uuid + "'");
+		return (q.getResultList().size()==0)?null:(ApplicationMetadata) q.getSingleResult();
+	}
+
+	public List<ApplicationMetadata> readAppsMetadata(int firstResult, int maxResults) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		Query q = entityManager.createQuery("SELECT m FROM ApplicationMetadata m");
+		q.setFirstResult(firstResult);
+		q.setMaxResults(maxResults);
+		return q.getResultList();
+	}
+
+	public ApplicationMetadata readApplicationMetadataByID(int appid) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		ApplicationMetadata u = entityManager.find(ApplicationMetadata.class, appid);
+		return u;
 	}
 
 }

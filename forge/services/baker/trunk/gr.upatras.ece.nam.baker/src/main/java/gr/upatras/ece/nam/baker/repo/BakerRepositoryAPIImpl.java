@@ -15,6 +15,7 @@
 
 package gr.upatras.ece.nam.baker.repo;
 
+import gr.upatras.ece.nam.baker.model.ApplicationMetadata;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.IBakerRepositoryAPI;
@@ -80,7 +81,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 	private static final transient Log logger = LogFactory.getLog(BakerRepositoryAPIImpl.class.getName());
 
-	private static final String BUNSDATADIR = System.getProperty("user.home") + File.separator + ".baker/bunsdata/";
+	private static final String METADATADIR = System.getProperty("user.home") + File.separator + ".baker/metadata/";
 
 	private BakerRepository bakerRepositoryRef;
 
@@ -247,6 +248,26 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			throw new WebApplicationException(builder.build());
 		}
 	}
+	
+	
+	@GET
+	@Path("/users/{userid}/apps")
+	@Produces("application/json")
+	public Response getAllAppsofUser(@PathParam("userid") int userid) {
+		logger.info("getAllAppsofUser for userid: " + userid);
+		BakerUser u = bakerRepositoryRef.getUserByID(userid);
+
+		if (u != null) {
+			List<ApplicationMetadata> apps = u.getApps();
+			// Collection<BunMetadata> b = buns;
+			return Response.ok().entity(apps).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("User with id=" + userid + " not found in baker registry");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+
 
 	@GET
 	@Path("/users/{userid}/buns/{bunid}")
@@ -257,7 +278,6 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 		if (u != null) {
 			BunMetadata bun = u.getBunById(bunid);
-			// Collection<BunMetadata> b = buns;
 			return Response.ok().entity(bun).build();
 		} else {
 			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
@@ -265,14 +285,35 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			throw new WebApplicationException(builder.build());
 		}
 	}
+	
+	
+	@GET
+	@Path("/users/{userid}/apps/{appid}")
+	@Produces("application/json")
+	public Response getAppofUser(@PathParam("userid")int userid, @PathParam("appid")int appid) {
+		logger.info("getAppofUser for userid: " + userid + ", appid=" + appid);
+		BakerUser u = bakerRepositoryRef.getUserByID(userid);
+
+		if (u != null) {
+			ApplicationMetadata appmeta = u.getAppById(appid);
+			return Response.ok().entity(appmeta).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("User with id=" + userid + " not found in baker registry");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+	
 
 	@POST
 	@Path("/users/{userid}/buns/")
 	@Consumes("multipart/form-data")
-	public void addBunMetadata(@PathParam("userid") int userid, @Multipart(value = "bunname", type = "text/plain") String bunname,
+	public void addBunMetadata(@PathParam("userid") int userid,
+			@Multipart(value = "bunname", type = "text/plain") String bunname,
 			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription,
 			@Multipart(value = "longDescription", type = "text/plain") String longDescription,
-			@Multipart(value = "version", type = "text/plain") String version, @Multipart(value = "uploadedBunIcon") Attachment image,
+			@Multipart(value = "version", type = "text/plain") String version, 
+			@Multipart(value = "uploadedBunIcon") Attachment image,
 			@Multipart(value = "uploadedBunFile") Attachment bunFile) {
 
 		String imageFileNamePosted = getFileName(image.getHeaders());
@@ -292,7 +333,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 		URI endpointUrl = uri.getBaseUri();
 
-		String tempDir = BUNSDATADIR + uuid + File.separator;
+		String tempDir = METADATADIR + uuid + File.separator;
 		try {
 			Files.createDirectories(Paths.get(tempDir));
 
@@ -321,85 +362,18 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	}
 
 	
-	@POST
-	@Path("/sessions/")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public Response addUserSession(UserSession userSession) {
-
-		logger.info("Received POST addUserSession usergetUsername: " + userSession.getUsername());
-		logger.info("DANGER, REMOVE Received POST addUserSession password: " + userSession.getPassword());
-		
-		if (securityContext!=null){
-			if (securityContext.getUserPrincipal()!=null)
-				logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().toString()+"<");
-		
-		}
-
-
-		Subject currentUser = SecurityUtils.getSubject();
-		if (currentUser !=null){
-			AuthenticationToken token =	new UsernamePasswordToken(  userSession.getUsername(), userSession.getPassword());
-			try {
-				currentUser.login(token);
-
-				logger.info(" currentUser = " + currentUser.toString() );
-				logger.info( "User [" + currentUser.getPrincipal() + "] logged in successfully." );
-				logger.info(" currentUser  employee  = " + currentUser.hasRole("employee")  );
-				logger.info(" currentUser  boss  = " + currentUser.hasRole("boss")  );
-				
-				return Response.ok().entity(userSession).build();
-				}
-				catch (AuthenticationException ae) {
-					
-					return Response.status(Status.UNAUTHORIZED).build();
-				} 			
-		}
-		
-		
-		return Response.status(Status.UNAUTHORIZED).build();
-	}
-
-	@GET
-	@Path("/sessions/")
-	@Produces("application/json")
-	public Response getUserSessions() {
-
-		logger.info("Received GET addUserSession usergetUsername: " );
-		logger.info("Received GET addUserSession password: " );
-		
-		if (securityContext!=null){
-			if (securityContext.getUserPrincipal()!=null)
-				logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().toString()+"<");
-		
-		}
-
-
-		Subject currentUser = SecurityUtils.getSubject();
-		if ((currentUser !=null) && (currentUser.getPrincipal() !=null)){
-
-//				logger.info(" currentUser = " + currentUser.toString() );
-//				logger.info( "User [" + currentUser.getPrincipal() + "] logged in successfully." );
-//				logger.info(" currentUser  employee  = " + currentUser.hasRole("employee")  );
-//				logger.info(" currentUser  boss  = " + currentUser.hasRole("boss")  );
-				
-				return Response.ok().build();
-		}
-		
-		
-		return Response.status(Status.UNAUTHORIZED).build();
-	}
-	
-	
 	@PUT
 	@Path("/buns/{bid}")
 	@Consumes("multipart/form-data")
-	public void updateBunMetadata(@PathParam("bid") int bid, @Multipart(value = "userid", type = "text/plain") int userid,
-			@Multipart(value = "bunname", type = "text/plain") String bunname, @Multipart(value = "bunid", type = "text/plain") int bunid,
+	public void updateBunMetadata(@PathParam("bid") int bid, 
+			@Multipart(value = "userid", type = "text/plain") int userid,
+			@Multipart(value = "bunname", type = "text/plain") String bunname, 
+			@Multipart(value = "bunid", type = "text/plain") int bunid,
 			@Multipart(value = "bunuuid", type = "text/plain") String uuid,
 			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription,
 			@Multipart(value = "longDescription", type = "text/plain") String longDescription,
-			@Multipart(value = "version", type = "text/plain") String version, @Multipart(value = "uploadedBunIcon") Attachment image,
+			@Multipart(value = "version", type = "text/plain") String version, 
+			@Multipart(value = "uploadedBunIcon") Attachment image,
 			@Multipart(value = "uploadedBunFile") Attachment bunFile) {
 
 		String imageFileNamePosted = getFileName(image.getHeaders());
@@ -427,7 +401,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 		URI endpointUrl = uri.getBaseUri();
 
-		String tempDir = BUNSDATADIR + uuid + File.separator;
+		String tempDir = METADATADIR + uuid + File.separator;
 		try {
 			Files.createDirectories(Paths.get(tempDir));
 
@@ -472,9 +446,9 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@GET
 	@Path("/images/{uuid}/{imgfile}")
 	@Produces("image/*")
-	public Response getBunImage(@PathParam("uuid") String uuid, @PathParam("imgfile") String imgfile) {
-		logger.info("getBunImage of uuid: " + uuid);
-		String imgAbsfile = BUNSDATADIR + uuid + File.separator + imgfile;
+	public Response getEntityImage(@PathParam("uuid") String uuid, @PathParam("imgfile") String imgfile) {
+		logger.info("getEntityImage of uuid: " + uuid);
+		String imgAbsfile = METADATADIR + uuid + File.separator + imgfile;
 		logger.info("Image RESOURCE FILE: " + imgAbsfile);
 		File file = new File(imgAbsfile);
 		ResponseBuilder response = Response.ok((Object) file);
@@ -491,7 +465,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		logger.info("bunfile: " + bunfile);
 		logger.info("uuid: " + uuid);
 
-		String bunAbsfile = BUNSDATADIR + uuid + File.separator + bunfile;
+		String bunAbsfile = METADATADIR + uuid + File.separator + bunfile;
 		logger.info("Bun RESOURCE FILE: " + bunAbsfile);
 		File file = new File(bunAbsfile);
 
@@ -622,7 +596,82 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		this.bakerRepositoryRef = bakerRepositoryRef;
 	}
 
+	//Sessions related API
 	
+	
+
+	
+	@POST
+	@Path("/sessions/")
+	@Produces("application/json")
+	@Consumes("application/json")
+	public Response addUserSession(UserSession userSession) {
+
+		logger.info("Received POST addUserSession usergetUsername: " + userSession.getUsername());
+		logger.info("DANGER, REMOVE Received POST addUserSession password: " + userSession.getPassword());
+		
+		if (securityContext!=null){
+			if (securityContext.getUserPrincipal()!=null)
+				logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().toString()+"<");
+		
+		}
+
+
+		Subject currentUser = SecurityUtils.getSubject();
+		if (currentUser !=null){
+			AuthenticationToken token =	new UsernamePasswordToken(  userSession.getUsername(), userSession.getPassword());
+			try {
+				currentUser.login(token);
+
+				logger.info(" currentUser = " + currentUser.toString() );
+				logger.info( "User [" + currentUser.getPrincipal() + "] logged in successfully." );
+				logger.info(" currentUser  employee  = " + currentUser.hasRole("employee")  );
+				logger.info(" currentUser  boss  = " + currentUser.hasRole("boss")  );
+				
+				return Response.ok().entity(userSession).build();
+				}
+				catch (AuthenticationException ae) {
+					
+					return Response.status(Status.UNAUTHORIZED).build();
+				} 			
+		}
+		
+		
+		return Response.status(Status.UNAUTHORIZED).build();
+	}
+
+	@GET
+	@Path("/sessions/")
+	@Produces("application/json")
+	public Response getUserSessions() {
+
+		logger.info("Received GET addUserSession usergetUsername: " );
+		logger.info("Received GET addUserSession password: " );
+		
+		if (securityContext!=null){
+			if (securityContext.getUserPrincipal()!=null)
+				logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().toString()+"<");
+		
+		}
+
+
+		Subject currentUser = SecurityUtils.getSubject();
+		if ((currentUser !=null) && (currentUser.getPrincipal() !=null)){
+
+//				logger.info(" currentUser = " + currentUser.toString() );
+//				logger.info( "User [" + currentUser.getPrincipal() + "] logged in successfully." );
+//				logger.info(" currentUser  employee  = " + currentUser.hasRole("employee")  );
+//				logger.info(" currentUser  boss  = " + currentUser.hasRole("boss")  );
+				
+				return Response.ok().build();
+		}
+		
+		
+		return Response.status(Status.UNAUTHORIZED).build();
+	}
+	
+	
+	//Subscribed MAchines related API
 	
 	
 	
@@ -698,5 +747,169 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 		return Response.ok().build();
 	}
+	
+	
+	//Applications related API
+
+	@GET
+	@Path("/apps")
+	@Produces("application/json")
+	public Response getApps() {
+		logger.info("getApps ");
+		List<ApplicationMetadata> buns = bakerRepositoryRef.getApps();
+		return Response.ok().entity(buns).build();
+	}
+
+
+	@GET
+	@Path("/apps/{appid}")
+	@Produces("application/json")
+	public Response getAppMetadataByID(@PathParam("appid") int appid) {
+		logger.info("getAppMetadataByID  appid=" + appid);
+		ApplicationMetadata app = bakerRepositoryRef.getApplicationMetadataByID(appid);
+
+		if (app != null) {
+			return Response.ok().entity(app).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("App with id=" + appid + " not found in baker registry");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+	
+
+	@GET
+	@Path("/apps/uuid/{uuid}")
+	@Produces("application/json")
+	public Response getAppMetadataByUUID(@PathParam("uuid") String uuid) {
+		logger.info("Received GET for bun uuid: " + uuid);
+		ApplicationMetadata app = null;
+
+		URI endpointUrl = uri.getBaseUri();
+		app = bakerRepositoryRef.getApplicationMetadataByUUID(uuid);
+
+		if (app != null) {
+			return Response.ok().entity(app).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("Installed app with uuid=" + uuid + " not found in local registry");
+			throw new WebApplicationException(builder.build());
+		}
+
+	}
+	
+
+	@POST
+	@Path("/users/{userid}/apps/")
+	@Consumes("multipart/form-data")
+	public void addAppMetadata(@PathParam("userid") int userid, 
+			@Multipart(value = "appname", type = "text/plain") String appname, 
+			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription, 
+			@Multipart(value = "longDescription", type = "text/plain") String longDescription, 
+			@Multipart(value = "version", type = "text/plain") String version, 
+			@Multipart(value = "uploadedAppIcon") Attachment image) {
+		
+		String imageFileNamePosted = getFileName(image.getHeaders());
+		logger.info("appname = " + appname);
+		logger.info("version = " + version);
+		logger.info("shortDescription = " + shortDescription);
+		logger.info("longDescription = " + longDescription);
+		logger.info("image = " + imageFileNamePosted);
+
+		String uuid = UUID.randomUUID().toString();
+		ApplicationMetadata sm = new ApplicationMetadata(uuid, appname);
+		sm.setShortDescription(shortDescription);
+		sm.setLongDescription(longDescription);
+		sm.setVersion(version);
+
+		URI endpointUrl = uri.getBaseUri();
+
+		String tempDir = METADATADIR + uuid + File.separator;
+		try {
+			Files.createDirectories(Paths.get(tempDir));
+
+			if (!imageFileNamePosted.equals("")) {
+				String imgfile = saveFile(image, tempDir + imageFileNamePosted);
+				logger.info("imgfile saved to = " + imgfile);
+				sm.setIconsrc(endpointUrl + "repo/images/" + uuid + File.separator + imageFileNamePosted);
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		// Save now bun for User
+		BakerUser bunOwner = bakerRepositoryRef.getUserByID(userid);
+		bunOwner.addApplication(sm);
+		bakerRepositoryRef.updateUserInfo(userid, bunOwner);
+	}
+	
+	@PUT
+	@Path("/apps/{aid}")
+	@Consumes("multipart/form-data")
+	public void updateAppMetadata(@PathParam("aid") int aid, 
+			@Multipart(value = "userid", type = "text/plain")int userid, 
+			@Multipart(value = "appname", type = "text/plain")String appname, 
+			@Multipart(value = "appid", type = "text/plain") int appid, 
+			@Multipart(value = "appuuid", type = "text/plain") String uuid, 
+			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription, 
+			@Multipart(value = "longDescription", type = "text/plain") String longDescription, 
+			@Multipart(value = "version", type = "text/plain") String version,
+			@Multipart(value = "uploadedAppIcon") Attachment image){
+		
+		String imageFileNamePosted = getFileName(image.getHeaders());
+		logger.info("userid = " + userid);
+		logger.info("appname = " + appname);
+		logger.info("appid = " + appid);
+		;
+		logger.info("appuuid = " + uuid);
+		logger.info("version = " + version);
+		logger.info("shortDescription = " + shortDescription);
+		logger.info("longDescription = " + longDescription);
+		logger.info("image = " + imageFileNamePosted);
+
+		// Save now bun for User
+		BakerUser appOwner = bakerRepositoryRef.getUserByID(userid);
+
+		ApplicationMetadata appmeta = bakerRepositoryRef.getApplicationMetadataByID(appid);
+		appmeta.setShortDescription(shortDescription);
+		appmeta.setLongDescription(longDescription);
+		appmeta.setVersion(version);
+		appmeta.setName(appname);
+		appmeta.setOwner(appOwner);
+
+		URI endpointUrl = uri.getBaseUri();
+
+		String tempDir = METADATADIR + uuid + File.separator;
+		try {
+			Files.createDirectories(Paths.get(tempDir));
+
+			if (!imageFileNamePosted.equals("")) {
+				String imgfile = saveFile(image, tempDir + imageFileNamePosted);
+				logger.info("imgfile saved to = " + imgfile);
+				appmeta.setIconsrc(endpointUrl + "repo/images/" + uuid + File.separator + imageFileNamePosted);
+			}
+
+
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}
+
+		bakerRepositoryRef.updateApplicationInfo(appid, appmeta);
+
+		if (appOwner.getAppById(appid) == null)
+			appOwner.addApplication(appmeta);
+		bakerRepositoryRef.updateUserInfo(userid, appOwner);
+	}
+
+
+	@Override
+	public void deleteApp(int appid) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
 
 }

@@ -16,6 +16,7 @@
 package gr.upatras.ece.nam.baker.repo;
 
 import gr.upatras.ece.nam.baker.impl.BakerJpaController;
+import gr.upatras.ece.nam.baker.model.ApplicationMetadata;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
@@ -29,6 +30,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * @author ctranoris
+ *
+ */
 public class BakerRepository {
 
 	private static final transient Log logger = LogFactory.getLog(BakerRepository.class.getName());
@@ -155,6 +160,35 @@ public class BakerRepository {
 		bakerJpaController.deleteSubscribedMachine(smId);
 		
 	}
+
+
+	/**
+	 * returns first 100000 apps only :-)
+	 * @return list of apps
+	 */
+	public List<ApplicationMetadata> getApps() {
+		List<ApplicationMetadata> ls = bakerJpaController.readAppsMetadata(0, 100000);		
+		return ls;
+	}
+
+
+	public ApplicationMetadata getApplicationMetadataByID(int appid) {
+		return bakerJpaController.readApplicationMetadataByID(appid);
+	}
+
+
+	public ApplicationMetadata getApplicationMetadataByUUID(String uuid) {
+		return bakerJpaController.readApplicationMetadataByUUID(uuid);
+	}
+
+
+	public ApplicationMetadata updateApplicationInfo(int appid, ApplicationMetadata sm) {
+		ApplicationMetadata bmr = bakerJpaController.updateApplicationMetadata(sm);
+		return bmr;
+		
+	}
+
+
 	
 	
 	

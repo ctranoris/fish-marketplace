@@ -5,7 +5,7 @@ app.config(function($routeProvider, $locationProvider, $anchorScrollProvider) {
 	
     $anchorScrollProvider.disableAutoScrolling();
     
-	$routeProvider.when('/marketplace', {
+	$routeProvider.when('/bun_marketplace', {
 		templateUrl : 'viewBunMarketplaceJS.html',
 		controller : 'bunsCtrl'
 	}).when('/installedbuns', {
