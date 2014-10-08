@@ -30,16 +30,13 @@ import javax.persistence.ManyToOne;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 
-@Entity(name = "BunMetadata")
-public class BunMetadata {
+@Entity(name = "ApplicationMetadata")
+public class ApplicationMetadata {
 
 
 	@Id
 	@GeneratedValue( strategy = GenerationType.IDENTITY  )
 	private long id = 0;
-
-
-	
 
 	@ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }, fetch = FetchType.LAZY)
 	@JoinColumns({ @JoinColumn() })
@@ -59,14 +56,12 @@ public class BunMetadata {
 	private String longDescription = null;
 	@Basic()
 	private String version = null;
-	@Basic()
-	private String packageLocation = null;
 
 
-	public BunMetadata() {
+	public ApplicationMetadata() {
 	}
 	
-	public BunMetadata(String uuid, String name) {
+	public ApplicationMetadata(String uuid, String name) {
 		super();
 		this.name = name;
 		this.uuid = uuid;
@@ -112,12 +107,7 @@ public class BunMetadata {
 	public void setVersion(String version) {
 		this.version = version;
 	}
-	public String getPackageLocation() {
-		return packageLocation;
-	}
-	public void setPackageLocation(String packageLocation) {
-		this.packageLocation = packageLocation;
-	}
+
 	public String getUuid() {
 		return uuid;
 	}

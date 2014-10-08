@@ -20,6 +20,7 @@ import static org.junit.Assert.*;
 import java.util.UUID;
 
 import gr.upatras.ece.nam.baker.impl.BakerJpaController;
+import gr.upatras.ece.nam.baker.model.ApplicationMetadata;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.SubscribedMachine;
@@ -74,7 +75,6 @@ public class BakerRepoTest {
 		bmeta.setLongDescription("longDescription");
 		bmeta.setShortDescription("shortDescription");
 		bmeta.setPackageLocation("packageLocation");
-		bmeta.setOwner(bu);
 		bu.addBun(bmeta);
 
 		bakerJpaControllerTest.saveUser(bu);
@@ -89,7 +89,6 @@ public class BakerRepoTest {
 		bmeta.setLongDescription("longDescription2");
 		bmeta.setShortDescription("shortDescription2");
 		bmeta.setPackageLocation("packageLocation2");
-		bmeta.setOwner(bu);
 		bu.addBun(bmeta);
 
 		bakerJpaControllerTest.updateBakerUser(bu);
@@ -144,6 +143,48 @@ public class BakerRepoTest {
 		assertEquals(2, bakerJpaControllerTest.countSubscribedMachines());
 
 		bakerJpaControllerTest.deleteSubscribedMachine(sm.getId());
+
+	}
+	
+	@Test
+	public void testWriteReadApplications() {
+
+		BakerUser bu = new BakerUser();
+		bu.setUsername("ausername");
+
+		ApplicationMetadata appmeta = new ApplicationMetadata();
+		appmeta.setName("app");
+		String uuid = UUID.randomUUID().toString();
+		appmeta.setUuid(uuid);
+		appmeta.setLongDescription("longDescription");
+		appmeta.setShortDescription("shortDescription");
+		bu.addApplication(appmeta);
+
+		bakerJpaControllerTest.saveUser(bu);
+
+		// change name and reSave
+		appmeta.setName("NewAppName");
+		bakerJpaControllerTest.updateApplicationMetadata(appmeta);
+
+		appmeta = new ApplicationMetadata();
+		appmeta.setName("app2");
+		appmeta.setLongDescription("longDescription2");
+		appmeta.setShortDescription("shortDescription2");
+		appmeta.setOwner(bu);
+		bu.addApplication(appmeta);
+
+		bakerJpaControllerTest.updateBakerUser(bu);
+		bakerJpaControllerTest.getAllUsersPrinted();
+
+		BakerUser testbu = bakerJpaControllerTest.readBakerUserByUsername("ausername");
+		assertEquals(2, testbu.getApps().size());
+
+		ApplicationMetadata testApp = bakerJpaControllerTest.readApplicationMetadataByUUID(uuid);
+		assertEquals("NewAppName", testApp.getName());
+		assertEquals(uuid, testApp.getUuid());
+		assertNotNull(testApp.getOwner());
+		assertEquals("ausername", testApp.getOwner().getUsername());
+
 
 	}
 

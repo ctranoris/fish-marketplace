@@ -20,6 +20,7 @@
 		<class>gr.upatras.ece.nam.baker.model.BunMetadata</class>
 		<class>gr.upatras.ece.nam.baker.model.BakerUser</class>
 		<class>gr.upatras.ece.nam.baker.model.SubscribedMachine</class>
+		<class>gr.upatras.ece.nam.baker.model.ApplicationMetadata</class>
 
 
 		<properties>
@@ -44,6 +45,7 @@
 		<class>gr.upatras.ece.nam.baker.model.BunMetadata</class>
 		<class>gr.upatras.ece.nam.baker.model.BakerUser</class>
 		<class>gr.upatras.ece.nam.baker.model.SubscribedMachine</class>
+		<class>gr.upatras.ece.nam.baker.model.ApplicationMetadata</class>
 
 
 

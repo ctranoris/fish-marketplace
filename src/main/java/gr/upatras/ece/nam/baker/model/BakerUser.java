@@ -67,6 +67,11 @@ public class BakerUser {
 	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
 	@JoinTable()
 	private List<BunMetadata> buns = new ArrayList<BunMetadata>();
+	
+
+	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
+	@JoinTable()
+	private List<ApplicationMetadata> apps = new ArrayList<ApplicationMetadata>();
 
 	public String getOrganization() {
 		return organization;
@@ -83,6 +88,7 @@ public class BakerUser {
 	public void addBun(BunMetadata bunsValue) {
 		if (!buns.contains(bunsValue)) {
 			buns.add(bunsValue);
+			bunsValue.setOwner(this);
 		}
 	}
 
@@ -173,5 +179,30 @@ public class BakerUser {
 
 	public void setRole(String role) {
 		this.role = role;
+	}
+	
+	public void addApplication(ApplicationMetadata app) {
+		if (!apps.contains(app)) {
+			apps.add(app);
+			app.setOwner(this);
+		}
+	}
+
+	public List<ApplicationMetadata> getApps() {
+		return apps;
+	}
+
+	public void setApps(List<ApplicationMetadata> apps) {
+		this.apps = apps;
+	}
+
+	public ApplicationMetadata getAppById(int appid) {
+
+		for (Iterator iterator = apps.iterator(); iterator.hasNext();) {
+			ApplicationMetadata appMetadata = (ApplicationMetadata) iterator.next();
+			if (appMetadata.getId() == appid)
+				return appMetadata;
+		}
+		return null;
 	}
 }

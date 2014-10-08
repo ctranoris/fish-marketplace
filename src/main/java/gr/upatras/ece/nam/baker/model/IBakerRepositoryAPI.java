@@ -16,6 +16,7 @@
 package gr.upatras.ece.nam.baker.model;
 
 import javax.annotation.security.RolesAllowed;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
@@ -23,7 +24,9 @@ import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 
 public interface IBakerRepositoryAPI {
 
-	
+	//utility
+
+	Response getEntityImage(String uuid, String imgfile);
 	
 	//USER related methods 
 	Response getUsers(); 
@@ -32,6 +35,7 @@ public interface IBakerRepositoryAPI {
 	Response updateUserInfo(int userid, BakerUser user);
 	Response deleteUser(int userid);
 	Response getAllBunsofUser(int userid);
+	Response getAllAppsofUser(int userid);
 
 	//Sessions
 	public Response addUserSession(UserSession userSession);
@@ -40,10 +44,10 @@ public interface IBakerRepositoryAPI {
 	
 	//BUNs related API methods
 	Response getBuns();
+	Response getBunMetadataByID(int bunid);
 	Response getBunMetadataByUUID(String uuid);		
 	Response getBunofUser( int userid, int bunid);
 	Response downloadBunPackage(String uuid, String bunfile);	
-	Response getBunImage(String uuid, String imgfile);
 	void updateBunMetadata(int bid, int userid, String bunname, int bunid, String uuid, String shortDescription, String longDescription, String version,
 			Attachment image, Attachment bunFile);
 	void addBunMetadata(int userid, String bunname, String shortDescription, String longDescription, String version, Attachment image, Attachment bunFile);
@@ -56,6 +60,14 @@ public interface IBakerRepositoryAPI {
 	Response updateSubscribedMachine(int smId, SubscribedMachine sm);
 	Response deleteSubscribedMachine(int smId);
 	
-	
+	//Apps Related API methods
+	Response getApps();
+	Response getAppMetadataByID(int appid);
+	Response getAppMetadataByUUID(String uuid);		
+	Response getAppofUser( int userid, int bunid);
+	void updateAppMetadata(int aid, int userid, String appname, int appid, String uuid, String shortDescription, String longDescription, String version,
+			Attachment image);
+	void addAppMetadata(int userid, String appname, String shortDescription, String longDescription, String version, Attachment image);
+	void deleteApp(int appid);
 	
 }
