@@ -30,3 +30,15 @@ appServices.factory('SubscribedMachine', function($resource) {
 	      }
 	});
 });
+
+
+//Apps Resource
+appServices.factory('ApplicationMetadata', function($resource) {
+	return $resource("/baker/services/api/repo/apps/:id", 
+			{ id: '@id' }, {
+	    update: {
+	        method: 'PUT' // this method issues a PUT request
+      	
+	      }
+	});
+});

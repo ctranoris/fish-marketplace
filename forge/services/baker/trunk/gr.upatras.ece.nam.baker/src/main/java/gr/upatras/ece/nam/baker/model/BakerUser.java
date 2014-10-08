@@ -143,15 +143,13 @@ public class BakerUser {
 
 	public void setPassword(String password) {
 
-		
-		this.password = EncryptionUtil.hash(password);
+		if ( (password!=null) && (!password.equals("")))//else will not change it
+			this.password = EncryptionUtil.hash(password);
 		
 		//this.password = password;
 	}
 	
 	public void setPasswordUnencrypted(String password) {
-
-		
 		this.password = password;
 	}
 

@@ -189,6 +189,12 @@ public class BakerRepository {
 	}
 
 
+	public void deleteApp(int appid) {
+		bakerJpaController.deleteApp(appid);
+		
+	}
+
+
 	
 	
 	
