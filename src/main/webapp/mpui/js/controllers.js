@@ -75,6 +75,16 @@ appControllers.controller('UserEditController', ['$scope', '$route', '$routePara
     console.log("WILL EDIT User with ID "+$routeParams.id);
 	
     $scope.updateUser=function(){
+
+        console.log("$scope.password = "+$scope.password);
+        console.log("$scope.retypepassword = "+$scope.retypepassword);
+    	if ( ($scope.password) && ($scope.password === $scope.retypepassword))
+    		$scope.bakeruser.password= $scope.password;
+    	else {
+            console.log("Will send to server empty password to keep old one ");
+    		$scope.bakeruser.password= ''; //send empty to server, so not to change!
+    	}
+    	
         $scope.bakeruser.$update(function(){
 			$location.path("/users");
         });
@@ -87,6 +97,39 @@ appControllers.controller('UserEditController', ['$scope', '$route', '$routePara
     $scope.loadUser();
 }]);
 
+appControllers.directive('equals', function() {
+	  return {
+	    restrict: 'A', // only activate on element attribute
+	    require: 'ngModel', // get a hold of NgModelController
+	    link: function(scope, elem, attrs, ngModel) {
+	        console.log("IN LINK! ");
+	      if(!ngModel) return; // do nothing if no ng-model
+
+	        console.log("PASS IN LINK! ");
+	      // watch own value and re-validate on change
+	        
+	      scope.$watch(attrs.ngModel, function() {
+	        validate();
+	      });
+
+	      // observe the other value and re-validate on change
+	      attrs.$observe('equals', function (val) {
+	        validate();
+	      });
+
+	      var validate = function() {
+	        // values
+	        var val1 = ngModel.$viewValue;
+	        var val2 = attrs.equals;
+
+	        console.log("val1= "+val1);
+	        console.log("val2= "+val2);
+	        // set validity
+	        ngModel.$setValidity('passwordVerify', ! val1 || ! val2 || val1 === val2);
+	      };
+	    }
+	  }
+	});
 
 
 

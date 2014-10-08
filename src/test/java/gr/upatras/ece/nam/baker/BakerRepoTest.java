@@ -55,6 +55,7 @@ public class BakerRepoTest {
 		bakerJpaControllerTest.deleteAllBunMetadata();
 		bakerJpaControllerTest.deleteAllUsers();
 		bakerJpaControllerTest.deleteAllSubscribedMachines();
+		bakerJpaControllerTest.deleteAllAppMetadata();
 
 	}
 

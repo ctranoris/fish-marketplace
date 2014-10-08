@@ -202,6 +202,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		logger.info("Received PUT for user: " + user.getUsername());
 
 		BakerUser previousUser = bakerRepositoryRef.getUserByID(userid);
+		
 
 		List<BunMetadata> previousBuns = previousUser.getBuns();
 
@@ -668,12 +669,9 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		
 		
 		return Response.status(Status.UNAUTHORIZED).build();
-	}
-	
+	}	
 	
 	//Subscribed MAchines related API
-	
-	
 	
 	@GET
 	@Path("/subscribedmachines/")
@@ -684,6 +682,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 	@GET
 	@Path("/subscribedmachines/{smId}")
+	@Produces("application/json")
 	public Response getSubscribedMachineById(@PathParam("smId") int smId) {
 		SubscribedMachine sm = bakerRepositoryRef.getSubscribedMachineByID(smId);
 
@@ -904,9 +903,10 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	}
 
 
-	@Override
-	public void deleteApp(int appid) {
-		// TODO Auto-generated method stub
+	@DELETE
+	@Path("/apps/{appid}")
+	public void deleteApp(@PathParam("appid") int appid) {
+		bakerRepositoryRef.deleteApp(appid);
 		
 	}
 

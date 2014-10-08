@@ -193,6 +193,21 @@ public class BakerJpaController {
 		entityTransaction.commit();
 
 	}
+	
+	public void deleteAllAppMetadata() {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		EntityTransaction entityTransaction = entityManager.getTransaction();
+
+		entityTransaction.begin();
+
+		Query q = entityManager.createQuery("DELETE FROM ApplicationMetadata ");
+		q.executeUpdate();
+		entityManager.flush();
+
+		entityTransaction.commit();
+
+	}
 
 	public void deleteAllUsers() {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -528,6 +543,20 @@ public class BakerJpaController {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 		ApplicationMetadata u = entityManager.find(ApplicationMetadata.class, appid);
 		return u;
+	}
+
+	public void deleteApp(int appid) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		ApplicationMetadata bun = entityManager.find(ApplicationMetadata.class, appid);
+
+		EntityTransaction entityTransaction = entityManager.getTransaction();
+
+		entityTransaction.begin();
+
+		entityManager.remove(bun);
+
+		entityTransaction.commit();
+		
 	}
 
 }

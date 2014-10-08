@@ -37,6 +37,15 @@ app.config(function($routeProvider, $locationProvider, $anchorScrollProvider) {
 	}).when('/edit_subscribed_machine/:id', {
 		templateUrl : 'SubscribedMachineEdit.html',
 		controller : 'SubscribedMachineEditController'
+	}).when('/apps', {
+		templateUrl : 'Apps.html',
+		controller : 'AppListController'
+	}).when('/app_add', {
+		templateUrl : 'AppAdd.html',
+		controller : 'AppAddController'
+	}).when('/app_edit/:id', {
+		templateUrl : 'AppEdit.html',
+		controller : 'AppEditController'
 	}).otherwise({
 		redirectTo : '/'
 	});
