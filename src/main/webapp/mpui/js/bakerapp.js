@@ -1,5 +1,5 @@
 var app = angular.module('bakerapp', [   'ngCookies', 'ngResource', 'ngRoute', 
-                                         'trNgGrid', 'bakerapp.controllers', 'bakerapp.services' ]);
+                                         'trNgGrid', 'bakerapp.controllers', 'bakerapp.services', 'ngDialog' ]);
 
 app.config(function($routeProvider, $locationProvider, $anchorScrollProvider) {
 	
@@ -22,9 +22,6 @@ app.config(function($routeProvider, $locationProvider, $anchorScrollProvider) {
 	}).when('/users', {
 		templateUrl : 'Users.html',
 		controller : 'UserListController'
-	}).when('/view_user/:id', {
-		templateUrl : 'UserView.html',
-		controller : 'UserViewController'
 	}).when('/users_add', {
 		templateUrl : 'UserAdd.html',
 		controller : 'UserAddController'
@@ -34,9 +31,6 @@ app.config(function($routeProvider, $locationProvider, $anchorScrollProvider) {
 	}).when('/subscribed_machines', {
 		templateUrl : 'SubscribedMachines.html',
 		controller : 'SubscribedMachineListController'
-	}).when('/view_subscribed_machine/:id', {
-		templateUrl : 'SubscribedMachineView.html',
-		controller : 'SubscribedMachineViewController'
 	}).when('/add_subscribed_machine', {
 		templateUrl : 'SubscribedMachineAdd.html',
 		controller : 'SubscribedMachineAddController'

@@ -24,7 +24,7 @@
 							<td nowrap="nowrap">
 								<a class="btn btn-danger" ng-click="deleteSubscribedMachine(gridItem, gridItem.id, gridItem.url)"><i class="fa fa-trash-o "></i></a>
 								<a class="btn btn-primary" ng-href="#/edit_subscribed_machine/{{gridDisplayItem.id}}"><i class="fa fa-pencil-square-o "></i></a>									
-								<a class="btn btn-info" ng-href="#/view_subscribed_machine/{{gridDisplayItem.id}}""><i class="fa fa-info-circle "></i></a>
+								<a class="btn btn-info" ng-click="clickToOpen(gridItem, gridItem.id, gridItem.url)""><i class="fa fa-info-circle "></i></a>
 							</td>
 						</tr>
 					</tbody>

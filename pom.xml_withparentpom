@@ -1,0 +1,604 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>gr.upatras.ece.nam.baker</artifactId>
+	<packaging>war</packaging>
+	<name>Baker</name>
+	<description>Baker is a simple CXF JAX-RS webapp service using spring configuration</description>
+
+	<parent>
+		<groupId>gr.upatras.ece.nam.baker</groupId>
+		<artifactId>gr.upatras.ece.nam.baker.project</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../gr.upatras.ece.nam.baker.project/pom.xml</relativePath>
+	</parent>
+
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-rs-client</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxrs</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-rs-security-cors</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${spring.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		
+		<dependency>
+			<groupId>javax.servlet.jsp</groupId>
+			<artifactId>jsp-api</artifactId>
+			<version>2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-exec</artifactId>
+			<version>1.2</version>
+		</dependency>
+
+			<!-- openjpa -->
+
+		<dependency>
+			<groupId>org.apache.openjpa</groupId>
+			<artifactId>openjpa</artifactId>
+			<version>${openjpa.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.openjpa</groupId>
+			<artifactId>openjpa-jdbc</artifactId>
+			<version>${openjpa.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.openjpa</groupId>
+			<artifactId>openjpa-persistence-jdbc</artifactId>
+			<version>${openjpa.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>1.4.179</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.1.0</version>
+		</dependency>
+
+		<!-- Shiro dependencies: -->
+		<dependency>
+			<groupId>org.apache.shiro</groupId>
+			<artifactId>shiro-core</artifactId>
+			<version>${shiro.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.shiro</groupId>
+			<artifactId>shiro-web</artifactId>
+			<version>${shiro.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.shiro</groupId>
+			<artifactId>shiro-spring</artifactId>
+			<version>${shiro.version}</version>
+		</dependency>
+
+		<!-- jackson dependencies -->
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-asl</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-jaxrs</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		
+	</dependencies>
+
+
+	<build>
+		<pluginManagement>
+			<plugins>
+
+
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.apache.openjpa
+										</groupId>
+										<artifactId>
+											openjpa-maven-plugin
+										</artifactId>
+										<versionRange>
+											[2.2.1,)
+										</versionRange>
+										<goals>
+											<goal>enhance</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+
+
+
+		</pluginManagement>
+		<plugins>
+			<!-- openjpa enhance plugin configuration -->
+			<plugin>
+				<groupId>org.apache.openjpa</groupId>
+				<artifactId>openjpa-maven-plugin</artifactId>
+				<version>${openjpa.version}</version>
+				<configuration>
+					<includes>gr.upatras.ece.nam.baker.model</includes>
+					<excludes>**/gr.upatras.ece.nam.baker/*.class</excludes>
+					<addDefaultConstructor>true</addDefaultConstructor>
+					<enforcePropertyRestrictions>true</enforcePropertyRestrictions>
+
+				</configuration>
+				<executions>
+					<execution>
+						<id>enhancer-classes</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>enhance</goal>
+						</goals>
+					</execution>
+				</executions>
+
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.openjpa</groupId>
+						<artifactId>openjpa</artifactId>
+						<!-- set the version to be the same as the level in your runtime -->
+						<version>${openjpa.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+		
+
+
+		</plugins>
+	</build>
+
+
+
+	<profiles>
+		<!-- To make documentation: mvn clean -Pdocbkx install -Dmaven.test.skip=true -->
+		<profile>
+			<id>docbkx</id>
+			<build>
+				<defaultGoal>package</defaultGoal>
+				<plugins>
+					<!-- documentation plugin -->
+					<plugin>
+						<groupId>com.agilejava.docbkx</groupId>
+						<artifactId>docbkx-maven-plugin</artifactId>
+						<version>2.0.14</version>
+						<executions>
+							<execution>
+								<id>doc</id>
+								<phase>package</phase>
+								<goals>
+									<goal>generate-html</goal>
+								</goals>
+							</execution>
+						</executions>
+
+						<dependencies>
+							<dependency>
+								<groupId>net.sf.docbook</groupId>
+								<artifactId>docbook-xml</artifactId>
+								<version>5.0-all</version>
+								<classifier>resources</classifier>
+								<type>zip</type>
+								<scope>runtime</scope>
+							</dependency>
+							<dependency>
+								<groupId>net.sf.xslthl</groupId>
+								<artifactId>xslthl</artifactId>
+								<version>2.0.1</version>
+								<scope>runtime</scope>
+							</dependency>
+							<dependency>
+								<groupId>net.sf.offo</groupId>
+								<artifactId>fop-hyph</artifactId>
+								<version>1.2</version>
+								<scope>runtime</scope>
+							</dependency>
+							<dependency>
+								<groupId>org.eclipse.jetty.toolchain</groupId>
+								<artifactId>jetty-xslt-tools</artifactId>
+								<version>1.3</version>
+								<scope>runtime</scope>
+							</dependency>
+						</dependencies>
+						<configuration>
+							<preProcess>
+								<copy todir="target/docs/html/baker_manual/images">
+									<fileset dir="src/documentation/docbkx/images" />
+								</copy>
+								<copy todir="target/docs/html/baker_manual/css">
+									<fileset dir="src/documentation/docbkx/css" />
+								</copy>
+								<copy todir="target/docs/html/baker_manual/font">
+									<fileset dir="src/documentation/docbkx/font" />
+								</copy>
+								<copy todir="target/docs/html/baker_manual/js">
+									<fileset dir="src/documentation/docbkx/js" />
+								</copy>
+							</preProcess>
+							<htmlStylesheet>css/docbook.css</htmlStylesheet>
+							<htmlCustomization>${project.basedir}/src/documentation/docbkx-stylesheet/html/docbook.xsl</htmlCustomization>
+
+							<sourceDirectory>${project.basedir}/src/documentation/docbkx</sourceDirectory>
+							<targetDirectory>target/docs/html</targetDirectory>
+							<xincludeSupported>true</xincludeSupported>
+							<useExtensions>1</useExtensions>
+							<calloutsExtension>1</calloutsExtension>
+							<paperType>A4</paperType>
+							<chunkedOutput>true</chunkedOutput><!-- this means that will produce 
+								per page.False makes all in one page -->
+							<fop1Extensions>1</fop1Extensions>
+							<foCustomization>${project.basedir}/src/documentation/docbkx-stylesheet/html/docbook.xsl</foCustomization>
+							<includes> baker_manual.xml, test.xml</includes>
+						</configuration>
+
+					</plugin>
+
+				</plugins>
+
+			</build>
+
+		</profile>
+
+
+		<profile>
+			<!--For continuous running: "mvn clean -Pjetty.integration jetty:run" 
+				and access to http://127.0.0.1:13000/jaxrs-srvtest/hello/echo/SierraTangoNevadaxx 
+				For jetty integration test: mvn clean -Pjetty.integration verify -->
+			<id>jetty.integration</id>
+			<build>
+				<pluginManagement>
+					<plugins>
+
+						<plugin>
+							<groupId>org.eclipse.jetty</groupId>
+							<artifactId>jetty-maven-plugin</artifactId>
+							<version>9.2.1.v20140609</version>
+							<configuration>
+								<!-- Uncomment this to run it with jetty:run and secure port 8443 
+									<jettyXml>${basedir}/src/test/resources/jetty.xml,${basedir}/src/test/resources/jetty-ssl.xml,${basedir}/src/test/resources/jetty-https.xml</jettyXml> -->
+
+								<httpConnector>
+									<port>13000</port>
+								</httpConnector>
+								<scanIntervalSeconds>4</scanIntervalSeconds>
+								<webApp>
+									<contextPath>/baker</contextPath>
+								</webApp>
+							</configuration>
+							<executions>
+								<execution>
+									<id>run-jetty</id>
+									<goals>
+										<goal>run</goal>
+									</goals>
+								</execution>
+							</executions>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+						<version>1.5</version>
+						<executions>
+							<execution>
+								<id>reserve-network-port</id>
+								<goals>
+									<goal>reserve-network-port</goal>
+								</goals>
+								<phase>process-test-resources</phase>
+								<configuration>
+									<portNames>
+										<portName>test.server.port</portName>
+									</portNames>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.eclipse.jetty</groupId>
+						<artifactId>jetty-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>start-jetty</id>
+								<goals>
+									<goal>run-war</goal>
+								</goals>
+								<phase>pre-integration-test</phase>
+								<configuration>
+									<httpConnector>
+										<port>${test.server.port}</port>
+									</httpConnector>
+									<webApp>
+										<contextPath>/rsbaker-srvtest</contextPath>
+									</webApp>
+									<stopPort>9999</stopPort>
+									<stopKey>STOP</stopKey>
+									<daemon>true</daemon>
+								</configuration>
+							</execution>
+							<execution>
+								<id>stop-jetty</id>
+								<goals>
+									<goal>stop</goal>
+								</goals>
+								<phase>post-integration-test</phase>
+								<configuration>
+									<stopKey>STOP</stopKey>
+									<stopPort>9999</stopPort>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-failsafe-plugin</artifactId>
+						<version>2.8.1</version>
+						<executions>
+							<execution>
+								<id>integration-test</id>
+								<goals>
+									<goal>integration-test</goal>
+								</goals>
+								<configuration>
+									<systemPropertyVariables>
+										<service.url>http://localhost:${test.server.port}/rsbaker-srvtest</service.url>
+									</systemPropertyVariables>
+								</configuration>
+							</execution>
+							<execution>
+								<id>verify</id>
+								<goals>
+									<goal>verify</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+
+		<profile>
+			<!-- Run profile for continuous running: mvn clean -Ptomcat.integration 
+				org.apache.tomcat.maven:tomcat7-maven-plugin:run and access to http://127.0.0.1:13000/jaxrs-service/hello/echo/SierraTangoNevadaxx 
+				For tomcat integration test: mvn clean -Ptomcat.integration verify -->
+			<id>tomcat.integration</id>
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.apache.tomcat.maven</groupId>
+							<artifactId>tomcat7-maven-plugin</artifactId>
+							<version>2.0</version>
+							<executions>
+								<execution>
+									<id>default-cli</id>
+									<goals>
+										<goal>run</goal>
+									</goals>
+									<configuration>
+										<port>13000</port>
+										<path>/baker</path>
+										<useSeparateTomcatClassLoader>true</useSeparateTomcatClassLoader>
+									</configuration>
+								</execution>
+							</executions>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+						<version>1.5</version>
+						<executions>
+							<execution>
+								<id>reserve-network-port</id>
+								<goals>
+									<goal>reserve-network-port</goal>
+								</goals>
+								<phase>process-test-resources</phase>
+								<configuration>
+									<portNames>
+										<portName>test.server.port</portName>
+									</portNames>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.tomcat.maven</groupId>
+						<artifactId>tomcat7-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>start-tomcat</id>
+								<goals>
+									<goal>run-war</goal>
+								</goals>
+								<phase>pre-integration-test</phase>
+								<configuration>
+									<port>${test.server.port}</port>
+									<path>/rsbaker-srvtest</path>
+									<fork>true</fork>
+									<useSeparateTomcatClassLoader>true</useSeparateTomcatClassLoader>
+								</configuration>
+							</execution>
+							<execution>
+								<id>stop-tomcat</id>
+								<goals>
+									<goal>shutdown</goal>
+								</goals>
+								<phase>post-integration-test</phase>
+								<configuration>
+									<path>/rsbaker-srvtest</path>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-failsafe-plugin</artifactId>
+						<version>2.8.1</version>
+						<executions>
+							<execution>
+								<id>integration-test</id>
+								<goals>
+									<goal>integration-test</goal>
+								</goals>
+								<configuration>
+									<systemPropertyVariables>
+										<service.url>http://localhost:${test.server.port}/rsbaker-srvtest</service.url>
+									</systemPropertyVariables>
+								</configuration>
+							</execution>
+							<execution>
+								<id>verify</id>
+								<goals>
+									<goal>verify</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+
+		<profile>
+			<id>cargo.run</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.cargo</groupId>
+						<artifactId>cargo-maven2-plugin</artifactId>
+						<version>1.4.8</version>
+
+						<configuration>
+							<container>
+								<containerId>jetty9x</containerId>
+								<zipUrlInstaller>
+									<url>http://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.2.1.v20140609/jetty-distribution-9.2.1.v20140609.tar.gz</url>
+								</zipUrlInstaller>
+							</container>
+							<configuration>
+								<home>${project.build.directory}/jetty</home>
+								<properties>
+									<cargo.servlet.port>8080</cargo.servlet.port>
+								</properties>
+								<configfiles>
+
+								</configfiles>
+								<files>
+
+								</files>
+							</configuration>
+							<deployables>
+								<deployable>
+									<location>../gr.upatras.ece.nam.baker-0.0.1-SNAPSHOT.war</location>
+									<type>war</type>
+									<properties>
+										<context>/baker</context>
+									</properties>
+								</deployable>
+							</deployables>
+							<packager>
+								<outputLocation>${project.build.directory}/jetty-packaged</outputLocation>
+							</packager>
+						</configuration>
+						<executions>
+							<execution>
+								<id>start</id>
+								<phase>pre-integration-test</phase>
+								<goals>
+									<goal>start</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>stop</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>stop</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>package</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>package</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+</project>
