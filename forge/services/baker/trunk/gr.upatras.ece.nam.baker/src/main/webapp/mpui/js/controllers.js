@@ -1,7 +1,7 @@
 var appControllers = angular.module('bakerapp.controllers',[]) 
 
-appControllers.controller('UserListController', ['$scope','$window','$log', 'BakerUser', 'popupService',
-                            	function($scope, $window, $log, BakerUser, popupService) {
+appControllers.controller('UserListController', ['$scope','$window','$log', 'BakerUser', 'popupService', 'ngDialog',
+                            	function($scope, $window, $log, BakerUser, popupService, ngDialog) {
 	
 	
 
@@ -29,6 +29,19 @@ appControllers.controller('UserListController', ['$scope','$window','$log', 'Bak
 		        }
 		 	});
 	    }
+	 
+	 $scope.clickToOpen = function (gridItem) {
+	        ngDialog.open({ 
+	        	template: 'UserView.html',
+	        	controller : ['$scope', 'BakerUser', function( $scope,  BakerUser){
+	        	    $scope.bakeruser=BakerUser.get({id:gridItem});
+	        	    console.log("WILL GET User with ID "+gridItem);   
+	    			}],
+	    		className: 'ngdialog-theme-default'
+	    		
+	        	});
+	    };
+	    
 }]);
 
 appControllers.controller('UserViewController', ['$scope', '$route', '$routeParams', '$location', 'BakerUser', '$anchorScroll',
@@ -78,37 +91,54 @@ appControllers.controller('UserEditController', ['$scope', '$route', '$routePara
 
 
 
-appControllers.controller('SubscribedMachineListController', ['$scope','$window','$log', 'SubscribedMachine', 'popupService',
-                                             	function($scope, $window, $log, SubscribedMachine, popupService) {
+appControllers.controller('SubscribedMachineListController', ['$scope','$window','$log', 'SubscribedMachine', 'popupService','ngDialog',
+                                             	function($scope, $window, $log, SubscribedMachine, popupService, ngDialog ) {
                  	
                  	
 
-                 	$scope.subscribedmachines = SubscribedMachine.query(function() {
-                 		    console.log($scope.subscribedmachines);
-                 		  }); //query() returns all the subscribedmachines
-                 		 
-                 	
-                 	
-                 	 $scope.deleteSubscribedMachine = function(gridItem, useridx, username, name){
+ 	$scope.subscribedmachines = SubscribedMachine.query(function() {
+ 		    console.log($scope.subscribedmachines);
+ 		  }); //query() returns all the subscribedmachines
+ 		 
+ 	
+ 	
+ 	 $scope.deleteSubscribedMachine = function(gridItem, useridx, url){
 
-                 		 	console.log("Selected to DELETE SubscribedMachine with id = "+ useridx);
-                 		 	
+ 		 	console.log("Selected to DELETE SubscribedMachine with id = "+ useridx);
+ 		 	
 
-                 		 	var subscribedmachine=SubscribedMachine.get({id:useridx}, function() {
-                 			    $log.debug("WILL DELETE SubscribedMachine with ID "+ subscribedmachine.id);
-                 			    
-                 		        if(popupService.showPopup('Really delete SubscribedMachine '+subscribedmachine.id+'" ?')){
-                 				 	
-                 		        	subscribedmachine.$delete(function(){
-                 		    			$scope.subscribedmachines.splice($scope.subscribedmachines.indexOf(gridItem),1)
-                 		            });
-                 		        
-                 		        }
-                 		 	});
-                 	    }
+ 		 	var subscribedmachine=SubscribedMachine.get({id:useridx}, function() {
+ 			    $log.debug("WILL DELETE SubscribedMachine with ID "+ subscribedmachine.id);
+ 			    
+ 		        if(popupService.showPopup('Really delete SubscribedMachine '+subscribedmachine.id+'" ?')){
+ 				 	
+ 		        	subscribedmachine.$delete(function(){
+ 		    			$scope.subscribedmachines.splice($scope.subscribedmachines.indexOf(gridItem),1)
+ 		            });
+ 		        
+ 		        }
+ 		 	});
+ 	    }
+ 	 
+ 	 $scope.clickToOpen = function (gridItem, useridx, url) {
+        ngDialog.open({ 
+        	template: 'SubscribedMachineView.html',
+        	controller : ['$scope', 'SubscribedMachine', function( $scope,  SubscribedMachine){
+        	    $scope.subscribedmachine=SubscribedMachine.get({id:useridx});
+        	    var i =SubscribedMachine.get({id:useridx});
+        	    console.log("WILL GET SubscribedMachine with ID "+useridx);
+        	    console.log("WILL GET SubscribedMachine with i "+i.id);	        	    
+    			}],
+    		className: 'ngdialog-theme-default'
+    		
+        	});
+    };
+
+              	
+                 	 
 }]);
 
-appControllers.controller('SubscribedMachineViewController', ['$scope', '$route', '$routeParams', '$location', 'SubscribedMachine', '$anchorScroll',
+appControllers.controller('SubscribedMachineViewController', ['$scope', '$route', '$routeParams', '$location', 'SubscribedMachine', '$anchorScroll', 
                                                  function( $scope, $route, $routeParams, $location, SubscribedMachine, $anchorScroll){
     $scope.subscribedmachine=SubscribedMachine.get({id:$routeParams.id});
     var i =SubscribedMachine.get({id:$routeParams.id});
@@ -118,7 +148,7 @@ appControllers.controller('SubscribedMachineViewController', ['$scope', '$route'
 	$scope.name = "SubscribedMachineViewController";
 	$scope.params = $routeParams;
 	
-	
+	  
 
 }]);
 
