@@ -21,6 +21,7 @@
 		<class>gr.upatras.ece.nam.baker.model.BakerUser</class>
 		<class>gr.upatras.ece.nam.baker.model.SubscribedMachine</class>
 		<class>gr.upatras.ece.nam.baker.model.ApplicationMetadata</class>
+		<class>gr.upatras.ece.nam.baker.model.Category</class>
 
 
 		<properties>
@@ -46,6 +47,7 @@
 		<class>gr.upatras.ece.nam.baker.model.BakerUser</class>
 		<class>gr.upatras.ece.nam.baker.model.SubscribedMachine</class>
 		<class>gr.upatras.ece.nam.baker.model.ApplicationMetadata</class>
+		<class>gr.upatras.ece.nam.baker.model.Category</class>
 
 
 

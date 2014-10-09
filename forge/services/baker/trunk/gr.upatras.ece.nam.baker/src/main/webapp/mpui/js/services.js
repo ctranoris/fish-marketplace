@@ -31,6 +31,16 @@ appServices.factory('SubscribedMachine', function($resource) {
 	});
 });
 
+//Category Resource
+appServices.factory('Category', function($resource) {
+	return $resource("/baker/services/api/repo/categories/:id", 
+			{ id: '@id' }, {
+	    update: {
+	        method: 'PUT' // this method issues a PUT request
+        	
+	      }
+	});
+});
 
 //Apps Resource
 appServices.factory('ApplicationMetadata', function($resource) {

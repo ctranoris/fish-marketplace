@@ -41,6 +41,12 @@ public interface IBakerRepositoryAPI {
 	public Response addUserSession(UserSession userSession);
 	public Response getUserSessions();
 	
+	//categories
+	Response getCategories();
+	Response getCategoryById(int catid);
+	Response addCategory(Category c);
+	Response updateCategory(int catId, Category c);
+	Response deleteCategory(int catId);
 	
 	//BUNs related API methods
 	Response getBuns();

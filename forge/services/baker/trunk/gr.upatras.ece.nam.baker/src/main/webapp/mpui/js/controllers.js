@@ -363,5 +363,65 @@ appControllers.controller('AppViewController', ['$scope', '$route', '$routeParam
 
 
 
+appControllers.controller('CategoriesListController', ['$scope','$window','$log', 'Category', 'popupService','ngDialog',
+                                             	function($scope, $window, $log, Category, popupService, ngDialog ) {
+                 	
+                 	
+
+ 	$scope.categories = Category.query(function() {
+ 		    console.log($scope.categories);
+ 		  }); //query() returns all the categories
+ 		 
+ 	
+ 	
+ 	 $scope.deleteCategory = function(gridItem, useridx){
+
+ 		 	console.log("Selected to DELETE Categorywith id = "+ useridx);
+ 		 	
+
+ 		 	var cat=Category.get({id:useridx}, function() {
+ 			    $log.debug("WILL DELETE Category with ID "+ app.id);
+ 			    
+ 		        if(popupService.showPopup('Really delete Category "'+cat.name+'" ?')){
+ 				 	
+ 		        	cat.$delete(function(){
+ 		    			$scope.apps.splice($scope.apps.indexOf(gridItem),1)
+ 		            });
+ 		        
+ 		        }
+ 		 	});
+ 	    }
+ 	          	
+                 	 
+}]);
+
+appControllers.controller('CategoryAddController',function($scope, $location, Category){
+
+    $scope.cat=new Category();
+
+    $scope.addCategory=function(){
+        $scope.cat.$save(function(){
+			$location.path("/categories");
+        });
+    }
+
+});
+
+appControllers.controller('CategoryEditController', ['$scope', '$route', '$routeParams', '$location', 'Category', '$anchorScroll',
+        function( $scope, $route, $routeParams, $location, Category, $anchorScroll){
 
 
+    console.log("WILL EDIT Category with ID "+$routeParams.id);
+	
+    $scope.updateCategory=function(){
+        $scope.cat.$update(function(){
+			$location.path("/categories");
+        });
+    };
+
+    $scope.loadCategory=function(){
+        $scope.cat=Category.get({id:$routeParams.id});
+    };
+
+    $scope.loadCategory();
+}]);

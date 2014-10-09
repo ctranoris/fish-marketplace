@@ -18,6 +18,7 @@ package gr.upatras.ece.nam.baker.repo;
 import gr.upatras.ece.nam.baker.model.ApplicationMetadata;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
+import gr.upatras.ece.nam.baker.model.Category;
 import gr.upatras.ece.nam.baker.model.IBakerRepositoryAPI;
 import gr.upatras.ece.nam.baker.model.SubscribedMachine;
 import gr.upatras.ece.nam.baker.model.UserSession;
@@ -917,6 +918,74 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		
 	}
 
+	
+
+	@GET
+	@Path("/categories/")
+	@Produces("application/json")
+	public Response getCategories() {
+		return Response.ok().entity(bakerRepositoryRef.getCategories()).build();
+	}
+
+
+	@POST
+	@Path("/categories/")
+	@Produces("application/json")
+	@Consumes("application/json")
+	public Response addCategory(Category c) {
+		Category u = bakerRepositoryRef.addCategory(c);
+
+		if (u != null) {
+			return Response.ok().entity(u).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.INTERNAL_SERVER_ERROR);
+			builder.entity("Requested Category with name=" + c.getName() + " cannot be installed");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+
+	@PUT
+	@Path("/categories/{catid}")
+	@Produces("application/json")
+	@Consumes("application/json")
+	public Response updateCategory(@PathParam("catid")int catid, Category c) {
+		Category previousCategory = bakerRepositoryRef.getCategoryByID(catid);		
+
+		Category u = bakerRepositoryRef.updateCategoryInfo(catid, c);
+
+		if (u != null) {
+			return Response.ok().entity(u).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.INTERNAL_SERVER_ERROR);
+			builder.entity("Requested Category with name=" + c.getName()+" cannot be updated");
+			throw new WebApplicationException(builder.build());
+		}
+
+		
+	}
+
+	@DELETE
+	@Path("/categories/{catid}")
+	public Response deleteCategory(@PathParam("catid") int catid) {
+		bakerRepositoryRef.deleteCategory(catid);
+		return Response.ok().build();
+	}
+
+
+	@GET
+	@Path("/categories/{catid}")
+	@Produces("application/json")
+	public Response getCategoryById(@PathParam("catid") int catid) {
+		Category sm = bakerRepositoryRef.getCategoryByID(catid);
+
+		if (sm != null) {
+			return Response.ok().entity(sm).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("Category " + catid + " not found in baker registry");
+			throw new WebApplicationException(builder.build());
+		}
+}
 
 
 }

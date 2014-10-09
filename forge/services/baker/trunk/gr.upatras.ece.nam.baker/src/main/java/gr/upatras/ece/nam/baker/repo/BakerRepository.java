@@ -19,6 +19,7 @@ import gr.upatras.ece.nam.baker.impl.BakerJpaController;
 import gr.upatras.ece.nam.baker.model.ApplicationMetadata;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
+import gr.upatras.ece.nam.baker.model.Category;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
 import gr.upatras.ece.nam.baker.model.SubscribedMachine;
 
@@ -191,6 +192,35 @@ public class BakerRepository {
 
 	public void deleteApp(int appid) {
 		bakerJpaController.deleteApp(appid);
+		
+	}
+
+
+	public Object getCategories() {
+
+		List<Category> ls = bakerJpaController.readCategories(0, 100000);
+		return ls;	}
+
+
+	public Category addCategory(Category c) {
+		bakerJpaController.saveCategory(c);
+		return c;
+	}
+
+
+	public Category getCategoryByID(int catid) {
+		return bakerJpaController.readCategoryByID(catid);
+	}
+
+
+	public Category updateCategoryInfo(int catid, Category c) {
+		Category bmr = bakerJpaController.updateCategory(c);
+		return bmr;
+	}
+
+
+	public void deleteCategory(int catid) {
+		bakerJpaController.deleteCategory(catid);
 		
 	}
 
