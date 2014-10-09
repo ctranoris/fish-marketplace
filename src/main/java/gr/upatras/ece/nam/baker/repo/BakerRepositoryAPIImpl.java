@@ -406,13 +406,13 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		try {
 			Files.createDirectories(Paths.get(tempDir));
 
-			if (!imageFileNamePosted.equals("")) {
+			if (!imageFileNamePosted.equals("unknown")) {
 				String imgfile = saveFile(image, tempDir + imageFileNamePosted);
 				logger.info("imgfile saved to = " + imgfile);
 				sm.setIconsrc(endpointUrl + "repo/images/" + uuid + File.separator + imageFileNamePosted);
 			}
 
-			if (!bunFileNamePosted.equals("")) {
+			if (!bunFileNamePosted.equals("unknown")) {
 				String bunfilepath = saveFile(bunFile, tempDir + bunFileNamePosted);
 				logger.info("bunfilepath saved to = " + bunfilepath);
 				sm.setPackageLocation(endpointUrl + "repo/packages/" + uuid + File.separator + bunFileNamePosted);
@@ -623,7 +623,10 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			AuthenticationToken token =	new UsernamePasswordToken(  userSession.getUsername(), userSession.getPassword());
 			try {
 				currentUser.login(token);
-
+				BakerUser bakerUser = bakerRepositoryRef.getUserByName( userSession.getUsername() );
+				userSession.setBakerUser(bakerUser );				
+				userSession.setPassword("");;//so not tosend in response
+				
 				logger.info(" currentUser = " + currentUser.toString() );
 				logger.info( "User [" + currentUser.getPrincipal() + "] logged in successfully." );
 				logger.info(" currentUser  employee  = " + currentUser.hasRole("employee")  );
@@ -801,7 +804,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@POST
 	@Path("/users/{userid}/apps/")
 	@Consumes("multipart/form-data")
-	public void addAppMetadata(@PathParam("userid") int userid, 
+	public Response addAppMetadata(@PathParam("userid") int userid, 
 			@Multipart(value = "appname", type = "text/plain") String appname, 
 			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription, 
 			@Multipart(value = "longDescription", type = "text/plain") String longDescription, 
@@ -840,7 +843,8 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		// Save now bun for User
 		BakerUser bunOwner = bakerRepositoryRef.getUserByID(userid);
 		bunOwner.addApplication(sm);
-		bakerRepositoryRef.updateUserInfo(userid, bunOwner);
+		bunOwner = bakerRepositoryRef.updateUserInfo(userid, bunOwner);
+		return Response.ok().entity(bunOwner).build();
 	}
 	
 	@PUT
@@ -883,7 +887,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		try {
 			Files.createDirectories(Paths.get(tempDir));
 
-			if (!imageFileNamePosted.equals("")) {
+			if (!imageFileNamePosted.equals("unknown")) {
 				String imgfile = saveFile(image, tempDir + imageFileNamePosted);
 				logger.info("imgfile saved to = " + imgfile);
 				appmeta.setIconsrc(endpointUrl + "repo/images/" + uuid + File.separator + imageFileNamePosted);

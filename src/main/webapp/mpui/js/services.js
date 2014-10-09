@@ -36,9 +36,26 @@ appServices.factory('SubscribedMachine', function($resource) {
 appServices.factory('ApplicationMetadata', function($resource) {
 	return $resource("/baker/services/api/repo/apps/:id", 
 			{ id: '@id' }, {
+		
 	    update: {
-	        method: 'PUT' // this method issues a PUT request
-      	
-	      }
+	        method: 'PUT' // this method issues a PUT request      	
+	      	}
 	});
 });
+
+appServices.factory('formDataObject', function() {
+	return function(data) {
+		var fd = new FormData();
+		angular.forEach(data, function(value, key) {
+			if (value){
+				fd.append(key, value);
+				console.log("key="+key+", value="+value);
+			}else{
+				fd.append(key, "");
+			}
+				
+		});
+		return fd;
+	};
+});
+

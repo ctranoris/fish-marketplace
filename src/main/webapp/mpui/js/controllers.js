@@ -225,3 +225,145 @@ appControllers.controller('SubscribedMachineEditController', ['$scope', '$route'
 
     $scope.loadSubscribedMachine();
 }]);
+
+
+//Apps controller
+
+
+appControllers.controller('AppListController', ['$scope','$window','$log', 'ApplicationMetadata', 'popupService','ngDialog',
+                                             	function($scope, $window, $log, ApplicationMetadata, popupService, ngDialog ) {
+                 	
+                 	
+
+ 	$scope.apps = ApplicationMetadata.query(function() {
+ 		    console.log($scope.apps);
+ 		  }); //query() returns all the subscribedmachines
+ 		 
+ 	
+ 	
+ 	 $scope.deleteApp = function(gridItem, useridx){
+
+ 		 	console.log("Selected to DELETE ApplicationMetadata with id = "+ useridx);
+ 		 	
+
+ 		 	var app=ApplicationMetadata.get({id:useridx}, function() {
+ 			    $log.debug("WILL DELETE ApplicationMetadata with ID "+ app.id);
+ 			    
+ 		        if(popupService.showPopup('Really delete Application "'+app.name+'" ?')){
+ 				 	
+ 		        	app.$delete(function(){
+ 		    			$scope.apps.splice($scope.apps.indexOf(gridItem),1)
+ 		            });
+ 		        
+ 		        }
+ 		 	});
+ 	    }
+ 	 
+ 	 $scope.clickToOpen = function (gridItem, useridx, url) {
+        ngDialog.open({ 
+        	template: 'AppView.html',
+        	controller : ['$scope', 'ApplicationMetadata', function( $scope,  SubscribedMachine){
+        	    $scope.app=ApplicationMetadata.get({id:useridx});
+        	    var i =ApplicationMetadata.get({id:useridx});
+        	    console.log("WILL GET ApplicationMetadata with ID "+useridx);
+        	    console.log("WILL GET ApplicationMetadata with i "+i.id);	        	    
+    			}],
+    		className: 'ngdialog-theme-default'
+    		
+        	});
+    };
+
+              	
+                 	 
+}]);
+
+appControllers.controller('AppAddController', function($scope, $location,
+		ApplicationMetadata, BakerUser, $rootScope, $http,formDataObject) {
+
+	$scope.app = new ApplicationMetadata();
+	$scope.app.owner = $rootScope.loggedinbakeruser;//BakerUser.get({id:$rootScope.loggedinbakeruser.id});
+
+	$scope.addApp = function() {
+		$scope.app.$save(function() {
+			$location.path("/apps");
+		});
+	}
+
+	$scope.submitNewApp = function submit() {
+		return $http({
+			method : 'POST',
+			url : '/baker/services/api/repo/users/'+$scope.app.owner.id+'/apps/',
+			headers : {
+				'Content-Type' : 'multipart/form-data'
+			},
+			data : {
+				appname: $scope.app.name,
+				shortDescription: $scope.app.teaser,
+				longDescription: $scope.app.longDescription,
+				version: $scope.app.version,
+				uploadedAppIcon: $scope.app.uploadedAppIcon,
+				//file : $scope.file
+			},
+			transformRequest : formDataObject
+		}).success(function() {
+			$location.path("/apps");
+		});
+	};
+
+});
+
+
+appControllers.directive('fileModel', ['$parse', function ($parse) {
+    return {
+        restrict: 'A',
+        link: function(scope, element, attrs) {
+            var model = $parse(attrs.fileModel);
+            var modelSetter = model.assign;
+            
+            element.bind('change', function(){
+                scope.$apply(function(){
+                    modelSetter(scope, element[0].files[0]);
+                });
+            });
+        }
+    };
+}]);
+
+appControllers.controller('AppEditController', ['$scope', '$route', '$routeParams', '$location', 'ApplicationMetadata', '$anchorScroll','$http', 'formDataObject', 'cfpLoadingBar',
+     function( $scope, $route, $routeParams, $location, ApplicationMetadata, $anchorScroll, $http,formDataObject, cfpLoadingBar){
+
+
+	 console.log("WILL EDIT ApplicationMetadata with ID "+$routeParams.id);
+	
+	 $scope.submitUpdateApp = function submit() {
+		 cfpLoadingBar.start();
+			return $http({
+				method : 'PUT',
+				url : '/baker/services/api/repo/apps/'+$routeParams.id,
+				headers : {
+					'Content-Type' : 'multipart/form-data'
+				},
+				data : {
+					userid: $scope.app.owner.id,
+					appname: $scope.app.name,
+					appid: $scope.app.id,
+					appuuid: $scope.app.uuid,
+					shortDescription: $scope.app.shortDescription,
+					longDescription: $scope.app.longDescription,
+					version: $scope.app.version,
+					uploadedAppIcon: $scope.app.uploadedAppIcon,
+					//file : $scope.file
+				},
+				transformRequest : formDataObject
+			}).success(function() {
+				$location.path("/apps");
+			});
+		};
+	
+
+    $scope.loadApp=function(){
+        $scope.app=ApplicationMetadata.get({id:$routeParams.id});
+    };
+
+    $scope.loadApp();
+}]);
