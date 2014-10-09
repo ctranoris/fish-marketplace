@@ -31,6 +31,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -823,7 +824,8 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		sm.setShortDescription(shortDescription);
 		sm.setLongDescription(longDescription);
 		sm.setVersion(version);
-
+		sm.setDateCreated(new Date());
+		sm.setDateUpdated(new Date());
 		URI endpointUrl = uri.getBaseUri();
 
 		String tempDir = METADATADIR + uuid + File.separator;
@@ -880,6 +882,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		appmeta.setVersion(version);
 		appmeta.setName(appname);
 		appmeta.setOwner(appOwner);
+		appmeta.setDateUpdated(new Date());
 
 		URI endpointUrl = uri.getBaseUri();
 

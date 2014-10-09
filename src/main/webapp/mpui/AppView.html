@@ -4,17 +4,16 @@
 		<div class="row">
 			<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 appIconMainScreen" >
 				<h1></h1>
-				<img width="120px" src="{{app.iconsrc}}">
+				<img width="160px" src="{{app.iconsrc}}">
 				<h4>Version: {{app.version}}</h4>
-				<p>Last update: {{app.dateupdated}}</p>
 			</div>
 			<div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
 				<h1 id="headerTitle">{{app.name}} </h1>
 				<h3>{{app.shortDescription}}</h3>
-				<p>Author: {{app.owner.username}}</p>
-				<p>Organization: {{app.owner.organization}}</p>
-				<p>Date created: {{app.datecreated}}</p>
-				<p>Last update: {{app.dateupdated}}</p>
+				<p>Author: <strong>{{app.owner.username}}</strong></p>
+				<p>Organization: <strong>{{app.owner.organization}}</strong></p>
+				<p>Date created: <strong>{{app.dateCreated| date:'medium'}}</strong></p>
+				<p>Last update: <strong>{{app.dateUpdated | date:'medium' }}</strong></p>
 				<p>{{app.longDescription}}</p>
 
 			</div>

@@ -15,6 +15,8 @@
 
 package gr.upatras.ece.nam.baker.model;
 
+import java.util.Date;
+
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -57,6 +59,12 @@ public class ApplicationMetadata {
 	@Basic()
 	private String version = null;
 
+	@Basic()
+	private Date dateCreated;
+
+	@Basic()
+	private Date dateUpdated;
+	
 
 	public ApplicationMetadata() {
 	}
@@ -121,6 +129,22 @@ public class ApplicationMetadata {
 
 	public void setId(long id) {
 		this.id = id;
+	}
+
+	public Date getDateCreated() {
+		return dateCreated;
+	}
+
+	public void setDateCreated(Date dateCreated) {
+		this.dateCreated = dateCreated;
+	}
+
+	public Date getDateUpdated() {
+		return dateUpdated;
+	}
+
+	public void setDateUpdated(Date dateUpdated) {
+		this.dateUpdated = dateUpdated;
 	}
 
 
