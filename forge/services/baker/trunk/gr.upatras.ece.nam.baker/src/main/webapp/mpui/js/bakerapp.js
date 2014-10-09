@@ -47,6 +47,9 @@ app.config(function($routeProvider, $locationProvider, $anchorScrollProvider, cf
 	}).when('/app_edit/:id', {
 		templateUrl : 'AppEdit.html',
 		controller : 'AppEditController'
+	}).when('/app_view/:id', {
+		templateUrl : 'AppView.html',
+		controller : 'AppViewController'
 	}).otherwise({
 		redirectTo : '/'
 	});

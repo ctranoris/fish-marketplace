@@ -44,17 +44,13 @@
 </head>
 <body  ng-app='bakerapp'>
 	<div class="slide-animate" ng-include="'menu.html'"></div>
-	
-	
-
-
 
 	<div id="main-content" class="content" ng-view autoscroll="true">
 	</div>
 	
 
-<div class="slide-animate" ng-include="'SignInHomeSection.html'"></div>
-<div class="slide-animate" ng-include="'FeaturedAppsHome.html'"></div>
+<div ng-show="!loggedIn" class="slide-animate" ng-include="'SignInHomeSection.html'"></div>
+<div ng-show="!loggedIn" class="slide-animate" ng-include="'FeaturedAppsHome.html'"></div>
 <div class="slide-animate" ng-include="'Footer.html'"></div>
 
 
