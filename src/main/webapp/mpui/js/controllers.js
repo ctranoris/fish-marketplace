@@ -258,22 +258,7 @@ appControllers.controller('AppListController', ['$scope','$window','$log', 'Appl
  		        }
  		 	});
  	    }
- 	 
- 	 $scope.clickToOpen = function (gridItem, useridx, url) {
-        ngDialog.open({ 
-        	template: 'AppView.html',
-        	controller : ['$scope', 'ApplicationMetadata', function( $scope,  SubscribedMachine){
-        	    $scope.app=ApplicationMetadata.get({id:useridx});
-        	    var i =ApplicationMetadata.get({id:useridx});
-        	    console.log("WILL GET ApplicationMetadata with ID "+useridx);
-        	    console.log("WILL GET ApplicationMetadata with i "+i.id);	        	    
-    			}],
-    		className: 'ngdialog-theme-default'
-    		
-        	});
-    };
-
-              	
+ 	          	
                  	 
 }]);
 
@@ -367,3 +352,16 @@ appControllers.controller('AppEditController', ['$scope', '$route', '$routeParam
 
     $scope.loadApp();
 }]);
+
+
+appControllers.controller('AppViewController', ['$scope', '$route', '$routeParams', '$location', 'ApplicationMetadata',
+                                                 function( $scope, $route, $routeParams, $location, ApplicationMetadata ){
+    $scope.app=ApplicationMetadata.get({id:$routeParams.id});
+    console.log("WILL GET ApplicationMetadata with ID "+$routeParams.id);
+
+}]);
+
+
+
+
+

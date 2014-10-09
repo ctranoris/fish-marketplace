@@ -22,12 +22,12 @@
 					<tbody>
 						<tr>
 							<td nowrap="nowrap" >
-								<img width="100px" src="{{gridItem.iconsrc}}"><br> 
+								<img width="120px" src="{{gridItem.iconsrc}}"><br> 
 								<strong>UUID: {{gridItem.uuid}}</strong><br>
 								<strong>Version: {{gridItem.version}}</strong><br>
 								<a class="btn btn-danger" ng-click="deleteApp(gridItem, gridItem.id)"><i class="fa fa-trash-o "></i></a>
 								<a class="btn btn-primary" ng-href="#/app_edit/{{gridDisplayItem.id}}"><i class="fa fa-pencil-square-o "></i></a>									
-								<a class="btn btn-info" ng-click="clickToOpen(gridItem, gridItem.id, gridItem.uuid)""><i class="fa fa-info-circle "></i></a>
+								<a class="btn btn-info" ng-href="#/app_view/{{gridDisplayItem.id}}"><i class="fa fa-info-circle "></i></a>
 							</td>
 						</tr>
 					</tbody>
