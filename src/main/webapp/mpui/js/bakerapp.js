@@ -50,6 +50,15 @@ app.config(function($routeProvider, $locationProvider, $anchorScrollProvider, cf
 	}).when('/app_view/:id', {
 		templateUrl : 'AppView.html',
 		controller : 'AppViewController'
+	}).when('/categories', {
+		templateUrl : 'Categories.html',
+		controller : 'CategoriesListController'
+	}).when('/add_category', {
+		templateUrl : 'CategoryAdd.html',
+		controller : 'CategoryAddController'
+	}).when('/edit_category/:id', {
+		templateUrl : 'CategoryEdit.html',
+		controller : 'CategoryEditController'
 	}).otherwise({
 		redirectTo : '/'
 	});

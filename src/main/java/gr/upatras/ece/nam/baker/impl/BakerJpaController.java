@@ -18,6 +18,7 @@ package gr.upatras.ece.nam.baker.impl;
 import gr.upatras.ece.nam.baker.model.ApplicationMetadata;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
+import gr.upatras.ece.nam.baker.model.Category;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
 import gr.upatras.ece.nam.baker.model.SubscribedMachine;
 
@@ -554,6 +555,73 @@ public class BakerJpaController {
 		entityTransaction.begin();
 
 		entityManager.remove(bun);
+
+		entityTransaction.commit();
+		
+	}
+
+	public List<Category> readCategories(int firstResult, int maxResults) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		Query q = entityManager.createQuery("SELECT m FROM Category m");
+		q.setFirstResult(firstResult);
+		q.setMaxResults(maxResults);
+		return q.getResultList();
+	}
+
+	public void saveCategory(Category c) {
+		logger.info("Will category = " + c.getName());
+
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		EntityTransaction entityTransaction = entityManager.getTransaction();
+		entityTransaction.begin();
+
+		entityManager.persist(c);
+		entityManager.flush();
+		entityTransaction.commit();
+	}
+
+	public Category readCategoryByID(int catid) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		Category u = entityManager.find(Category.class, catid);
+		return u;
+	}
+
+	public Category updateCategory(Category c) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		EntityTransaction entityTransaction = entityManager.getTransaction();
+
+		entityTransaction.begin();
+		Category  resis = entityManager.merge(c);
+		entityTransaction.commit();
+
+		return resis;
+	}
+
+	public void deleteCategory(int catid) {
+
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		Category c = entityManager.find(Category.class, catid);
+
+		EntityTransaction entityTransaction = entityManager.getTransaction();
+		entityTransaction.begin();
+		entityManager.remove(c);
+		entityTransaction.commit();
+		
+	}
+
+	public void deleteAllCategories() {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		EntityTransaction entityTransaction = entityManager.getTransaction();
+
+		entityTransaction.begin();
+
+		Query q = entityManager.createQuery("DELETE FROM Category");
+		q.executeUpdate();
+		entityManager.flush();
 
 		entityTransaction.commit();
 		

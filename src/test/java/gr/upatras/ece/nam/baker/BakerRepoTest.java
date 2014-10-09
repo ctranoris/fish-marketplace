@@ -23,6 +23,7 @@ import gr.upatras.ece.nam.baker.impl.BakerJpaController;
 import gr.upatras.ece.nam.baker.model.ApplicationMetadata;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
+import gr.upatras.ece.nam.baker.model.Category;
 import gr.upatras.ece.nam.baker.model.SubscribedMachine;
 import gr.upatras.ece.nam.baker.util.EncryptionUtil;
 
@@ -56,6 +57,7 @@ public class BakerRepoTest {
 		bakerJpaControllerTest.deleteAllUsers();
 		bakerJpaControllerTest.deleteAllSubscribedMachines();
 		bakerJpaControllerTest.deleteAllAppMetadata();
+		bakerJpaControllerTest.deleteAllCategories();
 
 	}
 
@@ -149,7 +151,16 @@ public class BakerRepoTest {
 	
 	@Test
 	public void testWriteReadApplications() {
-
+		
+		Category c = new Category();
+		c.setName("acategory");
+		bakerJpaControllerTest.saveCategory(c);
+		c.setName("acat");
+		bakerJpaControllerTest.updateCategory(c);
+		c = bakerJpaControllerTest.readCategoryByID(c.getId());
+		assertEquals("acat", c.getName());
+		
+		
 		BakerUser bu = new BakerUser();
 		bu.setUsername("ausername");
 
