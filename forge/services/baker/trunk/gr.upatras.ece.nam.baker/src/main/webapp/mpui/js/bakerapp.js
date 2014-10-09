@@ -1,7 +1,8 @@
 var app = angular.module('bakerapp', [   'ngCookies', 'ngResource', 'ngRoute', 
-                                         'trNgGrid', 'bakerapp.controllers', 'bakerapp.services', 'ngDialog' ]);
+                                         'trNgGrid', 'bakerapp.controllers', 'bakerapp.services', 'ngDialog',
+                                         'angular-loading-bar', 'ngAnimate']);
 
-app.config(function($routeProvider, $locationProvider, $anchorScrollProvider) {
+app.config(function($routeProvider, $locationProvider, $anchorScrollProvider, cfpLoadingBarProvider) {
 	
     $anchorScrollProvider.disableAutoScrolling();
     
@@ -49,6 +50,9 @@ app.config(function($routeProvider, $locationProvider, $anchorScrollProvider) {
 	}).otherwise({
 		redirectTo : '/'
 	});
+
+	cfpLoadingBarProvider.includeSpinner = true;
+	cfpLoadingBarProvider.includeBar = true;
 	
 });
 
@@ -68,7 +72,10 @@ app.factory('api', function ($http, $cookies) {
 	});
 
 
-app.controller('NavCtrl', [ '$scope', '$location', function($scope, $location) {
+app.controller('NavCtrl', [ '$scope', '$location', '$rootScope', function($scope, $location, $rootScope) {
+	
+	//$scope.user = $rootScope.bakeruser;
+	
 	$scope.navClass = function(page) {
 		var currentRoute = $location.path().substring(1) || 'home';
 		return page === currentRoute ? 'active' : '';
@@ -139,6 +146,11 @@ app.controller("LoginCtrl", ["$scope", "$location", "$window", "authenticationSv
             .then(function (result) {
     			$rootScope.loggedIn = true;
                 $scope.userInfo = result;
+                $rootScope.loggedinbakeruser = $scope.userInfo.bakerUser;
+
+        		$log.debug('========== > inside LoginCtrl controller $rootScope.bakeruser ='+ $rootScope.loggedinbakeruser);
+        		$log.debug('========== > inside LoginCtrl controller $rootScope.bakeruser ='+ $rootScope.loggedinbakeruser.username);
+                
                 $location.path("/");
             }, function (error) {
                 //$window.alert("Invalid credentials");
@@ -173,8 +185,14 @@ app.config(function($httpProvider) {
 				if ($window.sessionStorage["userInfo"]!=null) {
 		            userInfo = JSON.parse($window.sessionStorage["userInfo"]);
 		            if (userInfo){
-		            	$rootScope.loggedIn = true;
+		            	$rootScope.loggedIn = true;		            	
+		            	$rootScope.loggedinbakeruser = userInfo.bakerUser;
 		            	$log.debug('========== > $rootScope.loggedIn set to TRUE because userInfooo = '+userInfo);
+		            	if (userInfo.bakerUser){
+		            		$log.debug('========== > $rootScope.loggedIn set to TRUE because userInfo.bakerUser.username = '+userInfo.bakerUser.username);
+		            		$log.debug('========== > $rootScope.loggedIn set to TRUE because user $rootScope.bakeruser='+$rootScope.loggedinbakeruser.username);
+		            	}
+		            	
 		            }
 		        }
 				
@@ -208,12 +226,13 @@ app.factory("authenticationSvc", ["$http","$q","$window","$rootScope", "$log", f
 	
     function login(userName, password) {
         var deferred = $q.defer();
-
+        $log.debug('========== > authenticationSvc Login');
         $http.post("/baker/services/api/repo/sessions/", { username: userName, password: password })
             .then(function (result) {
                 userInfo = {
                     accesstoken: "NOTIMPLEMENTED",//result.data.access_token,
-                    username: result.data.username
+                    username: result.data.username,
+                    bakerUser: result.data.bakerUser,
                 };
                 $window.sessionStorage["userInfo"] = JSON.stringify(userInfo);
                 deferred.resolve(userInfo);
@@ -257,7 +276,13 @@ app.factory("authenticationSvc", ["$http","$q","$window","$rootScope", "$log", f
             userInfo = JSON.parse($window.sessionStorage["userInfo"]);
             if (userInfo){
             	$rootScope.loggedIn = true;
+            	$rootScope.loggedinbakeruser = userInfo.bakerUser;
             	$log.debug('========== > $rootScope.loggedIn set to TRUE because userInfo ='+userInfo);
+            	$log.debug('========== > $rootScope.loggedIn set to TRUE because userInfo.bakerUser ='+userInfo.bakerUser);
+            	if (userInfo.bakerUser){
+            		$log.debug('========== > $rootScope.loggedIn set to TRUE because user $rootScope.bakeruser.name ='+$rootScope.loggedinbakeruser.name);
+            		$log.debug('========== > $rootScope.loggedIn set to TRUE because user $rootScope.bakeruser.id ='+$rootScope.loggedinbakeruser.id);
+            	}
             }
         }
     }

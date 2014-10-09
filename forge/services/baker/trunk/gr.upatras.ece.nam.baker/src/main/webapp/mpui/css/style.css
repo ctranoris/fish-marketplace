@@ -119,3 +119,33 @@ body {
     height: 400px;
 }
 
+
+/*
+* override the default CSS as an example
+*/
+#loading-bar .bar {
+	background: #7EADDB;
+  	height: 10px;
+}
+
+#loading-bar-spinner{
+	
+	top: 60px;
+	
+}
+
+#loading-bar-spinner .spinner-icon {
+	border-top-color: #6589AB;
+	border-left-color: #7EADDB;
+	width:36px;
+	height:36px;
+  	border-radius: 25px;
+}
+
+
+#loading-bar .peg {
+	-moz-box-shadow: #2c3e50 1px 0 6px 1px;
+	-ms-box-shadow: #2c3e50 1px 0 6px 1px;
+	-webkit-box-shadow: #2c3e50 1px 0 6px 1px;
+	box-shadow: #2c3e50 1px 0 11px 1px;
+}

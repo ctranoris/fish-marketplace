@@ -8,29 +8,26 @@
 				<a class="btn btn-success btn-lg" data-toggle="modal" ng-href="#/app_add"> <i class="pull-left"></i>&nbsp;&nbsp;Create New<br>Application</a>
 				<br>
 				<br>
-				<table id="grid1" tr-ng-grid="" class="usersGrid" items="apps"
-					fields="['id', 'name','version','shortDescription','longDescription','uuid','image','owner' ]">
+				<table id="grid1" tr-ng-grid="" class="usersGrid" items="apps" page-items="10"
+					fields="['id', 'name','shortDescription','longDescription' ]">
 					
 					<thead>
 						<tr>
-							<th field-name="id" display-name="Id" cell-width="5em"
-								display-align="right"></th>
-
+							<th field-name="id" display-name="Id" cell-width="5em"display-align="right"></th>
 							<th field-name="name" display-name="Name"></th>
-							<th field-name="version" display-name="Version"></th>
 							<th field-name="shortDescription" display-name="Teaser"></th>
 							<th field-name="longDescription" display-name="Description"></th>
-							<th field-name="uuid" display-name="UUID"></th>
-							<th field-name="image" display-name="Image"></th>
-							<th field-name="owner" display-name="Owner"></th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr>
-							<td nowrap="nowrap">
-								<a class="btn btn-danger" ng-click="deleteApp(gridItem, gridItem.id, gridItem.url)"><i class="fa fa-trash-o "></i></a>
+							<td nowrap="nowrap" >
+								<img width="100px" src="{{gridItem.iconsrc}}"><br> 
+								<strong>UUID: {{gridItem.uuid}}</strong><br>
+								<strong>Version: {{gridItem.version}}</strong><br>
+								<a class="btn btn-danger" ng-click="deleteApp(gridItem, gridItem.id)"><i class="fa fa-trash-o "></i></a>
 								<a class="btn btn-primary" ng-href="#/app_edit/{{gridDisplayItem.id}}"><i class="fa fa-pencil-square-o "></i></a>									
-								<a class="btn btn-info" ng-click="clickToOpen(gridItem, gridItem.id, gridItem.url)""><i class="fa fa-info-circle "></i></a>
+								<a class="btn btn-info" ng-click="clickToOpen(gridItem, gridItem.id, gridItem.uuid)""><i class="fa fa-info-circle "></i></a>
 							</td>
 						</tr>
 					</tbody>

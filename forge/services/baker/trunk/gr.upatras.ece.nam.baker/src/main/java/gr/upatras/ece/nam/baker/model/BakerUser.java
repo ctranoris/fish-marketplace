@@ -44,7 +44,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonIgnoreType;
 
 @Entity(name = "BakerUser")
-@JsonIgnoreProperties(value = { "buns" })
+@JsonIgnoreProperties(value = { "buns", "apps" })
 public class BakerUser {
 
 	@Id

@@ -20,6 +20,7 @@ public class UserSession {
 
 	private String username = null;
 	private String password = null;
+	private BakerUser bakerUser = null;
 	
 	
 	
@@ -37,5 +38,11 @@ public class UserSession {
 	}
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	public BakerUser getBakerUser() {
+		return bakerUser;
+	}
+	public void setBakerUser(BakerUser bakerUser) {
+		this.bakerUser = bakerUser;
 	}
 }
