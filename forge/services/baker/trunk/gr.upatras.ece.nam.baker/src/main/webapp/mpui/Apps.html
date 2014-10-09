@@ -9,7 +9,7 @@
 				<br>
 				<br>
 				<table id="grid1" tr-ng-grid="" class="usersGrid" items="apps" page-items="10"
-					fields="['id', 'name','shortDescription','longDescription', 'dateCreated', 'dateUpdated' ]">
+					fields="['id', 'name','shortDescription','longDescription']">
 					
 					<thead>
 						<tr>
@@ -17,16 +17,16 @@
 							<th field-name="name" display-name="Name"></th>
 							<th field-name="shortDescription" display-name="Teaser"></th>
 							<th field-name="longDescription" display-name="Description"></th>
-							<th field-name="dateCreated" display-name="Created" display-format="date:'medium'"></th>
-							<th field-name="dateUpdated" display-name="Updated" display-format="date:'medium'"></th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr>
 							<td nowrap="nowrap" >
-								<img width="120px" src="{{gridItem.iconsrc}}"><br> 
-								<strong>UUID: {{gridItem.uuid}}</strong><br>
-								<strong>Version: {{gridItem.version}}</strong><br>
+								<img width="120px" src="{{gridItem.iconsrc}}"> 
+								<p><strong>UUID: {{gridItem.uuid}}</strong><br></p>
+								<p><strong>Version: {{gridItem.version}}</strong><br></p>
+								<p>Date created: <strong>{{gridItem.dateCreated| date:'medium'}}</strong></p>
+								<p>Last update: <strong>{{gridItem.dateUpdated | date:'medium' }}</strong></p>
 								<a class="btn btn-danger" ng-click="deleteApp(gridItem, gridItem.id)"><i class="fa fa-trash-o "></i></a>
 								<a class="btn btn-primary" ng-href="#/app_edit/{{gridDisplayItem.id}}"><i class="fa fa-pencil-square-o "></i></a>									
 								<a class="btn btn-info" ng-href="#/app_view/{{gridDisplayItem.id}}"><i class="fa fa-info-circle "></i></a>
