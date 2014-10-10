@@ -7,7 +7,7 @@
 					<li ng-class="{active: isNoneSelected()}"><a ng-click="filterCategory(-1)"> <span
 							class="badge pull-right">{{appsTotalNumber}}</span> All
 					</a></li>
-					<li ng-class="{active: isActive(category)}" ng-repeat="category in categories"><a ng-click="filterCategory(category)"> <span
+					<li ng-class="{active: isActive(category)}" ng-repeat="category in categories "><a ng-click="filterCategory(category)"> <span
 							class="badge pull-right">{{category.appscount}}</span>{{category.name}}
 					</a></li>
 				</ul>
