@@ -479,11 +479,12 @@ appControllers.controller('AppsMarketplaceController', ['$scope','$window','$log
  					console.log("key= "+key+", app.id="+app.id+", app.name="+app.name);
  					//app.name = app.name+'!!';
  				});
- 				$scope.apps = ApplicationMetadata.query({categoryid: category.id});
  				$scope.selectedcategory = category;
  			}else{
  				$scope.selectedcategory = null;
  			}
+
+			$scope.apps = ApplicationMetadata.query({categoryid: category.id});
     };
     
     $scope.isActive=function(c) {
