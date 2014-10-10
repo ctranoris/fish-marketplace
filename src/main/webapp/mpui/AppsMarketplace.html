@@ -1,0 +1,45 @@
+<div class="page-header">
+
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+				<ul class="nav nav-pills nav-stacked">
+					<li class="active"><a href="#/app_marketplace"> <span
+							class="badge pull-right">{{apps.length}}</span> All
+					</a></li>
+					<li ng-repeat="category in categories"><a href="#/app_marketplace/{{category.id}}"> <span
+							class="badge pull-right">{{category.id}}</span>{{category.name}}
+					</a></li>
+				</ul>
+
+			</div>
+			<div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
+				<div class="jumbotron">
+					<h1>FI-STAR MarketPlace!</h1>
+					<p>Welcome Service Platform Provider, you can now search for
+						Applications</p>
+				</div>
+				<div class="row">
+					<div ng-repeat="app in apps" class="col-xs-6 col-sm-6 col-md-6 col-lg-6 appTile">
+					
+						<div class="tileimg" style="background: url({{app.iconsrc}}) no-repeat center center;">
+						</div>
+						<strong>{{app.name}}</strong>
+						<p>{{app.shortDescription}}</p>
+						<p>
+							<a class="btn btn-default" href="#/app_view/{{app.id}}" role="button">View details</a>
+						</p>
+						
+					</div>
+					
+				</div>	
+				
+				<div class="col-12 col-sm-12 col-lg-12">	
+					<li class="animate-repeat" ng-if="results.length == 0">
+					<strong>No results found...</strong></li>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>

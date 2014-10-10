@@ -154,5 +154,21 @@ body {
 	text-align: center;	
 }
 
+.appTile {
+	height: 300px;
+	border: 1px dotted #ccc;
+	text-align: left;
+}
 
+.tileimg{
+	border: 1px dotted #ccc;
+	margin-left: 30px;
+	margin-right: 30px;
+	min-height: 200px;
+	
+}
+
+.appTile img{
+	max-width: 100%; 
+}
 

@@ -455,3 +455,24 @@ appControllers.controller('CategoryEditController', ['$scope', '$route', '$route
 
     $scope.loadCategory();
 }]);
+
+
+//Apps controller
+
+
+appControllers.controller('AppsMarketplaceController', ['$scope','$window','$log', 'ApplicationMetadata', 'Category',
+                                             	function($scope, $window, $log, ApplicationMetadata, Category ) {
+                 	
+
+	$scope.categories = Category.query(function() {
+		    console.log($scope.apps);
+	});
+ 	$scope.apps = ApplicationMetadata.query(function() {
+ 		    console.log($scope.apps);
+ 		  }); 
+ 		 
+ 	
+                 	 
+}]);
+	
+	

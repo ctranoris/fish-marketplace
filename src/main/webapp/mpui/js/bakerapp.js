@@ -59,6 +59,9 @@ app.config(function($routeProvider, $locationProvider, $anchorScrollProvider, cf
 	}).when('/edit_category/:id', {
 		templateUrl : 'CategoryEdit.html',
 		controller : 'CategoryEditController'
+	}).when('/app_marketplace', {
+		templateUrl : 'AppsMarketplace.html',
+		controller : 'AppsMarketplaceController'
 	}).otherwise({
 		redirectTo : '/'
 	});
