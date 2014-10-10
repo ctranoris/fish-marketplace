@@ -44,13 +44,15 @@ appServices.factory('Category', function($resource) {
 
 //Apps Resource
 appServices.factory('ApplicationMetadata', function($resource) {
+	
 	return $resource("/baker/services/api/repo/apps/:id", 
-			{ id: '@id' }, {
+			{ id: '@id' }, {				
 		
-	    update: {
-	        method: 'PUT' // this method issues a PUT request      	
-	      	}
+		    update: {
+		        method: 'PUT' // this method issues a PUT request      	
+		      	}
 	});
+	
 });
 
 appServices.factory('formDataObject', function() {

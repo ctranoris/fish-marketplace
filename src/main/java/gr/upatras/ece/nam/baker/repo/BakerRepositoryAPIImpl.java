@@ -45,6 +45,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
@@ -758,9 +759,9 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@GET
 	@Path("/apps")
 	@Produces("application/json")
-	public Response getApps() {
-		logger.info("getApps ");
-		List<ApplicationMetadata> buns = bakerRepositoryRef.getApps();
+	public Response getApps(@QueryParam("categoryid") Long categoryid) {
+		logger.info("getApps categoryid="+categoryid);
+		List<ApplicationMetadata> buns = bakerRepositoryRef.getApps(categoryid);
 		return Response.ok().entity(buns).build();
 	}
 
