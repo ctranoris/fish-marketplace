@@ -43,6 +43,9 @@ public class Category {
 	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
 	@JoinTable()
 	private List<ApplicationMetadata> apps = new ArrayList<ApplicationMetadata>();
+	
+	
+	private int appscount;
 
 
 	public String getName() {
@@ -75,6 +78,10 @@ public class Category {
 			app.setCategory(this);
 		}
 		
+	}
+
+	public int getAppscount() {
+		return apps.size();
 	}
 
 }

@@ -4,32 +4,41 @@
 		<div class="row">
 			<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 				<ul class="nav nav-pills nav-stacked">
-					<li class="active"><a href="#/app_marketplace"> <span
-							class="badge pull-right">{{apps.length}}</span> All
+					<li ng-class="{active: isNoneSelected()}"><a ng-click="filterCategory(-1)"> <span
+							class="badge pull-right">{{appsTotalNumber}}</span> All
 					</a></li>
-					<li ng-repeat="category in categories"><a href="#/app_marketplace/{{category.id}}"> <span
-							class="badge pull-right">{{category.id}}</span>{{category.name}}
+					<li ng-class="{active: isActive(category)}" ng-repeat="category in categories"><a ng-click="filterCategory(category)"> <span
+							class="badge pull-right">{{category.appscount}}</span>{{category.name}}
 					</a></li>
 				</ul>
 
 			</div>
 			<div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
 				<div class="jumbotron">
-					<h1>FI-STAR MarketPlace!</h1>
-					<p>Welcome Service Platform Provider, you can now search for
-						Applications</p>
+					<h2>Welcome to FI-STAR MarketPlace!</h2>
+					<p>Browse available applications and sign in as a Service Provider to deploy your application!</p>
 				</div>
-				<div class="row">
-					<div ng-repeat="app in apps" class="col-xs-6 col-sm-6 col-md-6 col-lg-6 appTile">
+				
+				<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8" ></div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4" >
+					<input  type="text" class="form-control"  ng-model="search.name" placeholder="Filter apps..." />
+					<h1></h1>
+				</div>
 					
-						<div class="tileimg" style="background: url({{app.iconsrc}}) no-repeat center center;">
+				<div class="row example-animate-container" >
+					
+					<div ng-repeat="app in apps | filter:search" class="col-xs-6 col-sm-6 col-md-6 col-lg-6 appTile animate-repeat">
+					
+						<div class="col-xs-5 col-sm-5 col-md-5 col-lg-5 tileimg" style="background: url({{app.iconsrc}}) no-repeat center center;">
 						</div>
-						<strong>{{app.name}}</strong>
-						<p>{{app.shortDescription}}</p>
-						<p>
-							<a class="btn btn-default" href="#/app_view/{{app.id}}" role="button">View details</a>
-						</p>
-						
+						<div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
+							<h4>{{app.name}}</h4>
+							<small>{{app.owner.username}}, {{app.owner.organization}}</small>
+							<p>{{app.shortDescription}}</p>
+							<p>
+								<a class="btn btn-default" href="#/app_view/{{app.id}}" role="button">View details</a>
+							</p>
+						</div>
 					</div>
 					
 				</div>	

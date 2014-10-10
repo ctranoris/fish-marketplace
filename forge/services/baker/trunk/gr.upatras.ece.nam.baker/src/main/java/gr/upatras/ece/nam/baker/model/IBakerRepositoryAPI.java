@@ -67,7 +67,7 @@ public interface IBakerRepositoryAPI {
 	Response deleteSubscribedMachine(int smId);
 	
 	//Apps Related API methods
-	Response getApps();
+	Response getApps(Long categoryid);
 	Response getAppMetadataByID(int appid);
 	Response getAppMetadataByUUID(String uuid);		
 	Response getAppofUser( int userid, int bunid);

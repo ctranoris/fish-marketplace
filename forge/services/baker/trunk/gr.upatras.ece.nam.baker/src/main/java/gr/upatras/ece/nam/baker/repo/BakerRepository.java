@@ -165,10 +165,11 @@ public class BakerRepository {
 
 	/**
 	 * returns first 100000 apps only :-)
+	 * @param categoryid 
 	 * @return list of apps
 	 */
-	public List<ApplicationMetadata> getApps() {
-		List<ApplicationMetadata> ls = bakerJpaController.readAppsMetadata(0, 100000);		
+	public List<ApplicationMetadata> getApps(Long categoryid) {
+		List<ApplicationMetadata> ls = bakerJpaController.readAppsMetadata(categoryid, 0, 100000);		
 		return ls;
 	}
 

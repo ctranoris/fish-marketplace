@@ -469,8 +469,36 @@ appControllers.controller('AppsMarketplaceController', ['$scope','$window','$log
 	});
  	$scope.apps = ApplicationMetadata.query(function() {
  		    console.log($scope.apps);
+ 		   $scope.appsTotalNumber = $scope.apps.length;
  		  }); 
  		 
+ 	$scope.filterCategory=function(category){
+ 			if (category.id){
+ 				console.log("Selected catid = "+ category.id);
+ 				angular.forEach($scope.apps, function(app, key) {
+ 					console.log("key= "+key+", app.id="+app.id+", app.name="+app.name);
+ 					//app.name = app.name+'!!';
+ 				});
+ 				$scope.apps = ApplicationMetadata.query({categoryid: category.id});
+ 				$scope.selectedcategory = category;
+ 			}else{
+ 				$scope.selectedcategory = null;
+ 			}
+    };
+    
+    $scope.isActive=function(c) {
+
+   		//console.log("isActive c= "+c.name+", $scope.selectedcategory="+$scope.selectedcategory.name);
+        return $scope.selectedcategory === c;
+    };
+    
+    $scope.isNoneSelected=function(c) {
+    	
+    	console.log("isNoneSelected c $scope.selectedcategory="+$scope.selectedcategory);
+   		//console.log("isActive c= "+c.name+", $scope.selectedcategory="+$scope.selectedcategory.name);
+        return ( (!$scope.selectedcategory) || ($scope.selectedcategory === null) );
+    };
+
  	
                  	 
 }]);
