@@ -363,8 +363,9 @@ appControllers.controller('AppEditController', ['$scope', '$route', '$routeParam
    	 		var selected_cat=0;
    	 		angular.forEach(cats, function(categ, key) {
    	    		console.log("key= "+key+", categ.id="+categ.id+", categ.name="+categ.name);
-   	    		if (myapp.category.id === categ.id)
-   	    			selected_cat = key;
+   	    		if (myapp.category)
+   	    			if (myapp.category.id === categ.id)
+   	    				selected_cat = key;
    	 		});
    	 		myapp.category = cats[selected_cat]; //This trick is to Synchronize selection in view for the two models form the API to current
    	 		$scope.app=myapp;    
