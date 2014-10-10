@@ -545,7 +545,7 @@ public class BakerJpaController {
 	public List<ApplicationMetadata> readAppsMetadata(int firstResult, int maxResults) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
-		Query q = entityManager.createQuery("SELECT m FROM ApplicationMetadata m");
+		Query q = entityManager.createQuery("SELECT a FROM ApplicationMetadata a ORDER BY a.id");
 		q.setFirstResult(firstResult);
 		q.setMaxResults(maxResults);
 		return q.getResultList();
@@ -574,7 +574,7 @@ public class BakerJpaController {
 	public List<Category> readCategories(int firstResult, int maxResults) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
-		Query q = entityManager.createQuery("SELECT m FROM Category m");
+		Query q = entityManager.createQuery("SELECT m FROM Category m  ORDER BY m.id");
 		q.setFirstResult(firstResult);
 		q.setMaxResults(maxResults);
 		return q.getResultList();

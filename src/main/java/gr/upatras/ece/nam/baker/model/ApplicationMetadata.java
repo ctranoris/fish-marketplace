@@ -69,7 +69,8 @@ public class ApplicationMetadata {
 	@Basic()
 	private Date dateUpdated;
 
-	@ManyToOne(cascade = { CascadeType.ALL }, fetch=FetchType.LAZY)
+	@ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }, fetch = FetchType.LAZY)
+	@JoinColumns({ @JoinColumn() })
 	private Category category;
 
 	public ApplicationMetadata() {
@@ -159,6 +160,7 @@ public class ApplicationMetadata {
 
 	public void setCategory(Category category) {
 		this.category = category;
+		this.category.addApp(this);
 	}
 
 

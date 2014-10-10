@@ -15,13 +15,22 @@
 
 package gr.upatras.ece.nam.baker.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
+import javax.persistence.OneToMany;
+
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 @Entity(name = "Category")
+@JsonIgnoreProperties(value = {  "apps" })
 public class Category {
 
 	@Id
@@ -30,6 +39,11 @@ public class Category {
 	
 	@Basic()
 	private String name=null;
+	
+	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
+	@JoinTable()
+	private List<ApplicationMetadata> apps = new ArrayList<ApplicationMetadata>();
+
 
 	public String getName() {
 		return name;
@@ -45,6 +59,22 @@ public class Category {
 
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	public List<ApplicationMetadata> getApps() {
+		return apps;
+	}
+
+	public void setApps(List<ApplicationMetadata> apps) {
+		this.apps = apps;
+	}
+
+	public void addApp(ApplicationMetadata app) {
+		if (!apps.contains(app)) {
+			apps.add(app);
+			app.setCategory(this);
+		}
+		
 	}
 
 }
