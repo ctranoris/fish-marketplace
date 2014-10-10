@@ -263,11 +263,16 @@ appControllers.controller('AppListController', ['$scope','$window','$log', 'Appl
 }]);
 
 appControllers.controller('AppAddController', function($scope, $location,
-		ApplicationMetadata, BakerUser, $rootScope, $http,formDataObject) {
+		ApplicationMetadata, BakerUser, $rootScope, $http,formDataObject, Category) {
 
+	
 	$scope.app = new ApplicationMetadata();
 	$scope.app.owner = $rootScope.loggedinbakeruser;//BakerUser.get({id:$rootScope.loggedinbakeruser.id});
-
+	
+	$scope.categories = Category.query(function() {
+		$scope.app.category = $scope.categories[0];
+	  }); 
+	
 	$scope.addApp = function() {
 		$scope.app.$save(function() {
 			$location.path("/apps");
@@ -287,6 +292,7 @@ appControllers.controller('AppAddController', function($scope, $location,
 				longDescription: $scope.app.longDescription,
 				version: $scope.app.version,
 				uploadedAppIcon: $scope.app.uploadedAppIcon,
+				categoryid: $scope.app.category.id,
 				//file : $scope.file
 			},
 			transformRequest : formDataObject
@@ -314,8 +320,8 @@ appControllers.directive('fileModel', ['$parse', function ($parse) {
     };
 }]);
 
-appControllers.controller('AppEditController', ['$scope', '$route', '$routeParams', '$location', 'ApplicationMetadata', '$anchorScroll','$http', 'formDataObject', 'cfpLoadingBar',
-     function( $scope, $route, $routeParams, $location, ApplicationMetadata, $anchorScroll, $http,formDataObject, cfpLoadingBar){
+appControllers.controller('AppEditController', ['$scope', '$route', '$routeParams', '$location', 'ApplicationMetadata', '$anchorScroll','$http', 'formDataObject', 'cfpLoadingBar', 'Category',
+     function( $scope, $route, $routeParams, $location, ApplicationMetadata, $anchorScroll, $http,formDataObject, cfpLoadingBar, Category){
 
 
 	 console.log("WILL EDIT ApplicationMetadata with ID "+$routeParams.id);
@@ -336,6 +342,7 @@ appControllers.controller('AppEditController', ['$scope', '$route', '$routeParam
 					shortDescription: $scope.app.shortDescription,
 					longDescription: $scope.app.longDescription,
 					version: $scope.app.version,
+					categoryid: $scope.app.category.id,
 					uploadedAppIcon: $scope.app.uploadedAppIcon,
 					//file : $scope.file
 				},
@@ -346,11 +353,33 @@ appControllers.controller('AppEditController', ['$scope', '$route', '$routeParam
 		};
 	
 
-    $scope.loadApp=function(){
-        $scope.app=ApplicationMetadata.get({id:$routeParams.id});
+    $scope.loadApp=function(cats){
+    	var myapp = ApplicationMetadata.get({id:$routeParams.id}, function() {
+
+    		console.log("loadApp appl.name "+myapp.name);
+    		console.log("loadApp cats "+cats);
+   	 		//console.log("loadApp appl.category.name "+myapp.category.name);  
+   	 		console.log("loadApp appl.category "+cats);
+   	 		var selected_cat=0;
+   	 		angular.forEach(cats, function(categ, key) {
+   	    		console.log("key= "+key+", categ.id="+categ.id+", categ.name="+categ.name);
+   	    		if (myapp.category.id === categ.id)
+   	    			selected_cat = key;
+   	 		});
+   	 		myapp.category = cats[selected_cat]; //This trick is to Synchronize selection in view for the two models form the API to current
+   	 		$scope.app=myapp;    
+    		
+    	});     
+    		      
+   	 	//appl.category = $scope.categories[appl.category];
+        
+    	//$scope.app=ApplicationMetadata.get({id:$routeParams.id});        
+   	 	
     };
 
-    $scope.loadApp();
+	$scope.categories = Category.query();
+    $scope.loadApp($scope.categories); 
+    
 }]);
 
 

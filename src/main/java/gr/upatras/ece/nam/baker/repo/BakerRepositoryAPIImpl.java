@@ -811,6 +811,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription, 
 			@Multipart(value = "longDescription", type = "text/plain") String longDescription, 
 			@Multipart(value = "version", type = "text/plain") String version, 
+			@Multipart(value = "categoryid", type = "text/plain") int catid, 
 			@Multipart(value = "uploadedAppIcon") Attachment image) {
 		
 		String imageFileNamePosted = getFileName(image.getHeaders());
@@ -827,6 +828,9 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		sm.setVersion(version);
 		sm.setDateCreated(new Date());
 		sm.setDateUpdated(new Date());
+		
+		Category category = bakerRepositoryRef.getCategoryByID(catid);
+		sm.setCategory(category);
 		URI endpointUrl = uri.getBaseUri();
 
 		String tempDir = METADATADIR + uuid + File.separator;
@@ -861,6 +865,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription, 
 			@Multipart(value = "longDescription", type = "text/plain") String longDescription, 
 			@Multipart(value = "version", type = "text/plain") String version,
+			@Multipart(value = "categoryid", type = "text/plain") int catid,
 			@Multipart(value = "uploadedAppIcon") Attachment image){
 		
 		String imageFileNamePosted = getFileName(image.getHeaders());
@@ -884,6 +889,9 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		appmeta.setName(appname);
 		appmeta.setOwner(appOwner);
 		appmeta.setDateUpdated(new Date());
+		
+		Category category = bakerRepositoryRef.getCategoryByID(catid);
+		appmeta.setCategory(category);
 
 		URI endpointUrl = uri.getBaseUri();
 

@@ -63,6 +63,10 @@ public class BakerJpaController {
 			bu.setOrganization("");
 			bu.setRole("ROLE_BOSS");			
 			saveUser(bu);
+			
+			Category c = new Category();
+			c.setName("None");
+			saveCategory(c);
 		}
 		
 	}
@@ -235,6 +239,13 @@ public class BakerJpaController {
 		entityTransaction.begin();
 
 		entityManager.persist(bu);
+		List<ApplicationMetadata> apps = bu.getApps();
+		for (ApplicationMetadata app : apps) {			
+			entityManager.persist(app.getCategory());
+			entityManager.persist(app);
+		}
+		
+		
 		entityManager.flush();
 		entityTransaction.commit();
 
@@ -624,6 +635,20 @@ public class BakerJpaController {
 		entityManager.flush();
 
 		entityTransaction.commit();
+		
+	}
+
+	public void getAllCategoriesPrinted() {
+		logger.info("================= getAllCategoriesPrinted() ==================START");
+
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		List<Category> lb = entityManager.createQuery("select p from Category p").getResultList();
+		for (Iterator iterator = lb.iterator(); iterator.hasNext();) {
+			Category sm = (Category) iterator.next();
+			logger.info("	======> Category found: " + sm.getName() + ", Id: " + sm.getId()  );			
+
+		}
 		
 	}
 

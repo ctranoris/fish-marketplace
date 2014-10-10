@@ -15,7 +15,9 @@
 
 package gr.upatras.ece.nam.baker.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -27,7 +29,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
@@ -64,7 +68,9 @@ public class ApplicationMetadata {
 
 	@Basic()
 	private Date dateUpdated;
-	
+
+	@ManyToOne(cascade = { CascadeType.ALL }, fetch=FetchType.LAZY)
+	private Category category;
 
 	public ApplicationMetadata() {
 	}
@@ -145,6 +151,14 @@ public class ApplicationMetadata {
 
 	public void setDateUpdated(Date dateUpdated) {
 		this.dateUpdated = dateUpdated;
+	}
+
+	public Category getCategory() {
+		return category;
+	}
+
+	public void setCategory(Category category) {
+		this.category = category;
 	}
 
 
