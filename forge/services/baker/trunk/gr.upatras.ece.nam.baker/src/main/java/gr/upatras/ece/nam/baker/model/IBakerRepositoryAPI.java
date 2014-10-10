@@ -72,8 +72,8 @@ public interface IBakerRepositoryAPI {
 	Response getAppMetadataByUUID(String uuid);		
 	Response getAppofUser( int userid, int bunid);
 	void updateAppMetadata(int aid, int userid, String appname, int appid, String uuid, String shortDescription, String longDescription, String version,
-			Attachment image);
-	Response addAppMetadata(int userid, String appname, String shortDescription, String longDescription, String version, Attachment image);
+			int catid, Attachment image);
+	Response addAppMetadata(int userid, String appname, String shortDescription, String longDescription, String version, int catid, Attachment image);
 	void deleteApp(int appid);
 	
 }
