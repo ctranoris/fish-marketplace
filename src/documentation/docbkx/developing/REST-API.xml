@@ -1,0 +1,523 @@
+
+<section version="5.0" xml:id="building-info-section" xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd"
+	xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xl="http://www.w3.org/1999/xlink"
+	xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns2="http://www.w3.org/1998/Math/MathML" xmlns:ns="http://docbook.org/ns/docbook">
+	<title>
+		REST API of <?eval ${project.name}?>
+	</title>
+
+	<para>
+	All API, 
+	Produces("application/json") and Consumes("application/json") except some POSTs that Consumes("multipart/form-data")
+	All requests should be to the repo of the webservice. For example if you have the path /baker 
+	for the webservice then put the full path as /baker/repo/users/
+	
+	</para>
+	
+	<para>
+	<ns:application>USERS</ns:application>
+	</para>
+	
+	<para> 
+	<informalexample>
+			<programlisting language="bash">
+			
+			
+	
+	GET Get all users
+	Path("/users/")
+	Produces("application/json")
+	
+	
+	GET Get user by id GET /users/{userid}
+	Path("/users/{userid}")
+	Produces("application/json")
+	
+	Example response in json
+	{
+		"role":"SERVICE_PLATFORM_PROVIDER",
+		"organization":"University of Patras",
+		"username":"ctranoris",
+		"password":"gnzLDuqKcGxMNKFokfhOew==",
+		"email":"tranoris@ece.upat.gr",
+		"name":"Christos Tranoris",
+		"id":1
+	}
+		
+	POST, adds a new user
+	Path("/users/")
+	Produces("application/json")
+	Consumes("application/json")	
+	Request payload:
+	{
+	   "name":"Test",
+	   "username":"ctest",
+	   "password":"passw",
+	   "email":"email@test.org",
+	   "organization":"myOrg",
+	   "role":"SERVICE_PLATFORM_PROVIDER"
+	}
+
+	Response
+	{
+	   "role":"SERVICE_PLATFORM_PROVIDER",
+	   "organization":"myOrg",
+	   "username":"ctest",
+	   "password":"15CWGItnDC+BtwAfc4ARFw==",
+	   "email":"email@test.org",
+	   "name":"Test",
+	   "id":46
+	}
+	
+	PUT, update a user
+	Path("/users/{userid}")
+	Produces("application/json")
+	Consumes("application/json")
+		
+	DELETE Delete user 
+	Path("/users/{userid}")
+	Produces("application/json")
+	
+			</programlisting>
+		</informalexample>
+	</para>
+	
+	<para>
+	<ns:application>Buns/Apps</ns:application>
+	</para>
+	
+	<para> 
+	<informalexample>
+			<programlisting language="bash">
+	GET Buns of user, by user id 
+	Path("/users/{userid}/buns")
+	Produces("application/json")
+	
+	GET apps of user by userid
+	Path("/users/{userid}/apps")
+	Produces("application/json")
+	
+	GET, specific bun by bunid of user
+	Path("/users/{userid}/buns/{bunid}")
+	Produces("application/json")
+	
+	GET, specific app by appid of user
+	Path("/users/{userid}/apps/{appid}")
+	Produces("application/json")
+	
+	POST add a new bun, with userid as an owner
+	Path("/users/{userid}/buns/")
+	Consumes("multipart/form-data")
+	Multipart(value = "bunname", type = "text/plain")
+	Multipart(value = "shortDescription", type = "text/plain")
+	Multipart(value = "longDescription", type = "text/plain") 
+	Multipart(value = "version", type = "text/plain"), 
+	Multipart(value = "uploadedBunIcon")
+	Multipart(value = "uploadedBunFile") 
+	
+	PUT, update bun metadata
+	Path("/buns/{bid}")
+	Consumes("multipart/form-data")
+	Multipart(value = "userid", type = "text/plain")
+	Multipart(value = "bunname", type = "text/plain") 
+	Multipart(value = "bunid", type = "text/plain")
+	Multipart(value = "bunuuid", type = "text/plain")
+	Multipart(value = "shortDescription", type = "text/plain")
+	Multipart(value = "longDescription", type = "text/plain")
+	Multipart(value = "version", type = "text/plain") 
+	Multipart(value = "uploadedBunIcon")
+	Multipart(value = "uploadedBunFile")
+	
+	GET all registered buns
+	Path("/buns")
+	Produces("application/json")
+			
+	GET a bun logo image by bun uuid
+	Path("/images/{uuid}/{imgfile}")
+	Produces("image/*")
+	
+	GET a bun's package by bun uuid
+	Path("/packages/{uuid}/{bunfile}")
+	Produces("application/gzip")
+	
+		
+	DELETE a bun by bun  UUID
+	Path("/buns/{bunid}")
+	
+	
+	GET a bun by bun ID
+	Path("/buns/{bunid}")
+	Produces("application/json")
+	
+	Response example:
+	{
+	   "version":"5.1",
+	   "shortDescription":"WS for experimenters",
+	   "longDescription":"",
+	   "uuid":"511af54b-222e-43c2-ad8f-b618d43abdb8",
+	   "packageLocation":"http://localhost:13000/baker/services/api/repo/packages/511af54b-222e-43c2-ad8f-b618d43abdb8/_examplebun.tar.gz",
+	   "iconsrc":"http://localhost:13000/baker/services/api/repo/images/511af54b-222e-43c2-ad8f-b618d43abdb8/labwiki.png",
+	   "name":"LabWiki",
+	   "id":2,
+	   "owner":{
+	      "role":"SERVICE_PLATFORM_PROVIDER",
+	      "organization":"University of Patras",
+	      "username":"ctranoris",
+	      "password":"gnzLDuqKcGxMNKFokfhOew==",
+	      "email":"tranoris@ece.upatras.gr",
+	      "name":"Christos Tranoris",
+	      "id":1
+	   }
+	}
+	
+	
+	GET a bun by bun UUID
+	Path("/buns/uuid/{uuid}")
+	Produces("application/json")
+	
+	
+	GET all registered Applications
+	Path("/apps")
+	Produces("application/json")
+		
+	GET application by ID
+	Path("/apps/{appid}") 
+	Produces("application/json")
+	
+	Response example:
+	{
+	   "category":{
+	      "appscount":2,
+	      "name":"IoT",
+	      "id":6
+	   },
+	   "version":"0.49.1",
+	   "shortDescription":"An example FISH application!!",
+	   "longDescription":"An example FISH application just for testing!!",
+	   "uuid":"9c29ff69-ec17-46c4-b238-65c8c84dbeec",
+	   "iconsrc":"http://localhost:13000/baker/services/api/repo/images/9c29ff69-ec17-46c4-b238-65c8c84dbeec/serviceico.PNG",
+	   "dateCreated":null,
+	   "dateUpdated":1412960201575,
+	   "name":"My First Application example",
+	   "id":15,
+	   "owner":{
+	      "role":"ROLE_BOSS",
+	      "organization":"FISH Organization",
+	      "username":"admin",
+	      "password":"TLnIqASP0CKUR3/LGkEZGg==",
+	      "email":"",
+	      "name":"Baker Administrator",
+	      "id":15
+	   }
+	}
+	
+	GET application by UUID
+	Path("/apps/uuid/{uuid}")
+	Produces("application/json")
+	
+	POST add a new Application with UserID as Owner
+	Path("/users/{userid}/apps/")
+	Consumes("multipart/form-data")
+	Multipart(value = "appname", type = "text/plain") 
+	Multipart(value = "shortDescription", type = "text/plain") 
+	Multipart(value = "longDescription", type = "text/plain") 
+	Multipart(value = "version", type = "text/plain") 
+	Multipart(value = "categoryid", type = "text/plain") 
+	Multipart(value = "uploadedAppIcon")
+	
+	
+	PUT appdate application by Application ID
+	Path("/apps/{aid}")
+	Consumes("multipart/form-data")
+	Multipart(value = "userid", type = "text/plain") 
+	Multipart(value = "appname", type = "text/plain") 
+	Multipart(value = "appid", type = "text/plain") 
+	Multipart(value = "appuuid", type = "text/plain") 
+	Multipart(value = "shortDescription", type = "text/plain") 
+	Multipart(value = "longDescription", type = "text/plain") 
+	Multipart(value = "version", type = "text/plain")
+	Multipart(value = "categoryid", type = "text/plain")
+	Multipart(value = "uploadedAppIcon")
+	
+	
+	DELETE Application by ID
+	Path("/apps/{appid}")
+	
+	
+			</programlisting>
+		</informalexample>
+	</para>
+	
+	<para>
+	<ns:application>Categories</ns:application>
+	</para>
+	
+	<para> 
+	<informalexample>
+			<programlisting language="bash">	
+	
+	GET all categories
+	Path("/categories/")
+	Produces("application/json")
+	Response example
+	[
+	   {
+	      "appscount":0,
+	      "name":"Service",
+	      "id":2
+	   },
+	   {
+	      "appscount":3,
+	      "name":"Healthcare",
+	      "id":3
+	   },
+	   {
+	      "appscount":0,
+	      "name":"Mobile monitoring",
+	      "id":5
+	   },
+	   {
+	      "appscount":2,
+	      "name":"IoT",
+	      "id":6
+	   },
+	   {
+	      "appscount":1,
+	      "name":"Backend",
+	      "id":8
+	   }
+	]
+	
+	
+	GET a category by ID
+	Path("/categories/{catid}")
+	Produces("application/json")
+	
+	POST add a new category
+	Path("/categories/")
+	Produces("application/json")
+	Consumes("application/json")
+	
+	PUT update a category by ID
+	Path("/categories/{catid}")
+	Produces("application/json")
+	Consumes("application/json")
+		
+	DELETE a category by ID
+	Path("/categories/{catid}")
+			</programlisting>
+		</informalexample>
+	</para>
+	
+	<para>
+	<ns:application>Sessions</ns:application>
+	</para>
+	
+	<para> 
+	<informalexample>
+			<programlisting language="bash">	
+			
+			
+			
+	POST add a new user session
+	Path("/sessions/")
+	Produces("application/json")
+	Consumes("application/json")
+	
+	{
+	   "username":"admin",
+	   "password":"changeme"
+	}
+	
+	Response: 
+	
+	{
+	   "username":"admin",
+	   "password":"",
+	   "bakerUser":{
+	      "role":"ROLE_BOSS",
+	      "organization":"FISH Organization",
+	      "username":"admin",
+	      "password":"TLnIqASP0CKUR3/LGkEZGg==",
+	      "email":"",
+	      "name":"Baker Administrator",
+	      "id":15
+	   }
+	}
+			</programlisting>
+		</informalexample>
+	</para>
+	
+	<para>
+	<ns:application>Subscribed Machines</ns:application>
+	</para>
+	
+	<para> 
+	<informalexample>
+			<programlisting language="bash">	
+			
+	GET all subscribed machines
+	Path("/subscribedmachines/")
+	Produces("application/json")
+	
+	GET subscribed machine by ID
+	Path("/subscribedmachines/{smId}")
+	Produces("application/json")
+	
+	{
+		"url":"www.subm.gr",
+		"id":1
+	}
+	
+	POST add a new Subscribed Machine
+	Path("/subscribedmachines/")
+	Produces("application/json")
+	Consumes("application/json")
+	
+	PUT update an existing
+	Path("/subscribedmachines/{smId}")
+	Produces("application/json")
+	Consumes("application/json")
+	
+	DELETE by subscribed machine ID
+	Path("/subscribedmachines/{smId}")
+	Produces("application/json")
+	
+		</programlisting>
+		</informalexample>
+	</para>
+	
+	<para>
+	<ns:application>Client API</ns:application>
+	This API is for applications that want to communicate with a client
+	installation of baker. The baker client communicates with a Baker
+	marketplace to download loccaly and install apps and buns to the local
+	machine where the baker client is installed.
+	</para>
+	
+	<para> 
+	<informalexample>
+			<programlisting language="bash">	
+	All requests should be to the /client url of the webservice for example http://localhost:13000/baker/client/ibuns
+			
+			
+	GET local bun information by bun uuid
+	Path("/ibuns/{uuid}")
+	Produces("application/json")
+		
+	GET all local installed buns
+	Path("/ibuns/")
+	Produces("application/json")
+	
+	Response example:
+	[
+	   {
+	      "status":"STARTED",
+	      "uuid":"51164853-1ed7-4d51-a342-1dfdfe8523a1",
+	      "repoUrl":"http://127.0.0.1:13000/baker/services/api/repo/buns/uuid/51164853-1ed7-4d51-a342-1dfdfe8523a1",
+	      "installedVersion":"1.0.2",
+	      "packageURL":"http://localhost:13000/baker/services/api/repo/packages/51164853-1ed7-4d51-a342-1dfdfe8523a1/_examplebun.tar.gz",
+	      "packageLocalPath":"/home/vagrant/.baker/extractedbuns/51164853-1ed7-4d51-a342-1dfdfe8523a1",
+	      "name":"ssh2web!",
+	      "id":3
+	   },
+	   {
+	      "status":"UNINSTALLED",
+	      "uuid":"40bf5bb4-9f9b-4380-a901-cd869ccd9964",
+	      "repoUrl":"http://127.0.0.1:13000/baker/services/api/repo/buns/uuid/40bf5bb4-9f9b-4380-a901-cd869ccd9964",
+	      "installedVersion":"6",
+	      "packageURL":"http://localhost:13000/baker/services/api/repo/packages/40bf5bb4-9f9b-4380-a901-cd869ccd9964/_examplebun.tar.gz",
+	      "packageLocalPath":"/home/vagrant/.baker/extractedbuns/40bf5bb4-9f9b-4380-a901-cd869ccd9964",
+	      "name":"OMFClient",
+	      "id":5
+	   },
+	   {
+	      "status":"FAILED",
+	      "uuid":"55cab8b8-668b-4c75-99a9-39b24ed3d8be",
+	      "repoUrl":"http://localhost:34908/rsbaker-srvtest/services/api/repo/buns/uuid/55cab8b8-668b-4c75-99a9-39b24ed3d8be",
+	      "installedVersion":null,
+	      "packageURL":"(pending url)",
+	      "packageLocalPath":null,
+	      "name":"(pending)",
+	      "id":1
+	   },
+	   {
+	      "status":"STOPPED",
+	      "uuid":"511af54b-222e-43c2-ad8f-b618d43abdb8",
+	      "repoUrl":"http://127.0.0.1:13000/baker/services/api/repo/buns/uuid/511af54b-222e-43c2-ad8f-b618d43abdb8",
+	      "installedVersion":"5.1",
+	      "packageURL":"http://localhost:13000/baker/services/api/repo/packages/511af54b-222e-43c2-ad8f-b618d43abdb8/_examplebun.tar.gz",
+	      "packageLocalPath":"/home/vagrant/.baker/extractedbuns/511af54b-222e-43c2-ad8f-b618d43abdb8",
+	      "name":"LabWiki",
+	      "id":4
+	   }
+	]	
+		
+	POST install a bun locally, by fetching it from the remote marketplace
+	Path("/ibuns/")
+	Produces("application/json")	
+	Example request payload
+	{
+		"uuid":"511af54b-222e-43c2-ad8f-b618d43abdb8",
+		"repoUrl":"http://127.0.0.1:13000/baker/services/api/repo/buns/uuid/511af54b-222e-43c2-ad8f-b618d43abdb8"
+	}
+	
+	Example response:
+	{
+		"status":"INIT",
+		"uuid":"511af54b-222e-43c2-ad8f-b618d43abdb8",
+		"repoUrl":"http://127.0.0.1:13000/baker/services/api/repo/buns/uuid/511af54b-222e-43c2-ad8f-b618d43abdb8",
+		"installedVersion":"5.1",
+		"packageURL":"http://localhost:13000/baker/services/api/repo/packages/511af54b-222e-43c2-ad8f-b618d43abdb8/_examplebun.tar.gz",
+		"packageLocalPath":"/home/vagrant/.baker/extractedbuns/511af54b-222e-43c2-ad8f-b618d43abdb8",
+		"name":"An Example Bun",
+		"id":4
+	}
+	
+	packageLocalPath, is the local path in the client that extracts the bun ad baker will execute the recipes
+	
+	
+	
+	DELETE, uninstall a bun from the local machine. You can uninstall a Stoped bun otherwise will follow lifecycle
+	Path("/ibuns/{uuid}")		
+	
+	
+	PUT, Stop a bun, put it to the Stopped state
+	Path("/ibuns/{uuid}/stop")
+	Produces("application/json")
+	Response example, should poll the service to get the current STATUS, :
+	{
+	   "status":"STARTED",
+	   "uuid":"77777777-668b-4c75-99a9-39b24ed3d8be",
+	   "repoUrl":"http://localhost:34908/rsbaker-srvtest/services/api/repo/buns/uuid/77777777-668b-4c75-99a9-39b24ed3d8be",
+	   "installedVersion":"1.0.0",
+	   "packageURL":"http://localhost:34908/rsbaker-srvtest/services/api/repo/packages/77777777-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz",
+	   "packageLocalPath":"/home/vagrant/.baker/extractedbuns/77777777-668b-4c75-99a9-39b24ed3d8be",
+	   "name":"IntegrTestLocal example service",
+	   "id":2
+	}
+	For example after a few seconds will give on a GET http://localhost:13000/baker/services/api/client/ibuns/77777777-668b-4c75-99a9-39b24ed3d8be
+	{"status":"CONFIGURING","uuid":"77777777-668b-4c75-99a9-39b24ed3d8be","repoUrl":"http://localhost:34908/rsbaker-srvtest/services/api/repo/buns/uuid/77777777-668b-4c75-99a9-39b24ed3d8be","installedVersion":"1.0.0","packageURL":"http://localhost:34908/rsbaker-srvtest/services/api/repo/packages/77777777-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz","packageLocalPath":"/home/vagrant/.baker/extractedbuns/77777777-668b-4c75-99a9-39b24ed3d8be","name":"IntegrTestLocal example service","id":2}
+	
+	
+	PUT, Start a bun, put it to the Started phase by following all correct states and configuration
+	Path("/ibuns/{uuid}/start")
+	Produces("application/json")
+	Response example:
+	
+	
+	PUT, reconfigure a bun. follows the bun lifecycle to restart the bun
+	Path("/ibuns/{uuid}/reconfigure")
+	Produces("application/json")
+			</programlisting>
+		</informalexample>
+	</para>
+	
+	
+	
+		
+	
+	
+
+
+</section>

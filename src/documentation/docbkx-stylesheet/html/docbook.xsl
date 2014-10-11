@@ -470,7 +470,7 @@ Override the default header navigation to insert a home button on the top.
                 <xsl:if test="count($prev)>0">
                   <a accesskey="p">
                     <xsl:attribute name="href">
-                      <xsl:call-template >
+                      <xsl:call-template name="generate.html.title">
                         <xsl:with-param name="object" select="$prev"/>
                       </xsl:call-template>
                     </xsl:attribute>
@@ -499,7 +499,7 @@ Override the default header navigation to insert a home button on the top.
                 -->
                 <a accesskey="p">
                     <xsl:attribute name="href">
-                      <xsl:call-template>
+                      <xsl:call-template name="generate.html.title">
                         <xsl:with-param name="object" select="$home"/>
                       </xsl:call-template>
                     </xsl:attribute>
@@ -512,8 +512,8 @@ Override the default header navigation to insert a home button on the top.
                 <xsl:text>&#160;</xsl:text>
                 <xsl:if test="count($next)>0">
                   <a accesskey="n">
-                    <xsl:attribute name="href">
-                      <xsl:call-template >
+                    <xsl:attribute name="href" >
+                      <xsl:call-template name="generate.html.title">
                         <xsl:with-param name="object" select="$next"/>
                       </xsl:call-template>
                     </xsl:attribute>

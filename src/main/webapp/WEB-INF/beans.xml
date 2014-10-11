@@ -130,6 +130,8 @@
                 /services/api/repo/packages/** = anon, rest
                 /services/api/repo/images/** = anon, rest
                 /services/api/repo/sessions/** = anon, rest
+                /services/api/repo/categories/** = anon, rest
+                /services/api/repo/apps/** = anon, rest
                 /services/api/** = userfilter, rest
                 /admin/logout = logout
                 /admin/viewUsers.html = authc, roles[ROLE_BOSS]         

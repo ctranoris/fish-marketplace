@@ -19,5 +19,6 @@
 	<xi:include href="quick-launch-info.xml"/>
 	<xi:include href="developing-info.xml"/>
 	<xi:include href="building-info.xml"/>
+	<xi:include href="REST-API.xml"/>
   
 </chapter>
