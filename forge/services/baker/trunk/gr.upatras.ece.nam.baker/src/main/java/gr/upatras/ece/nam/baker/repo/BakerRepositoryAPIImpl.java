@@ -647,6 +647,8 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		return Response.status(Status.UNAUTHORIZED).build();
 	}
 
+	
+	//THIS IS NOT USED
 	@GET
 	@Path("/sessions/")
 	@Produces("application/json")

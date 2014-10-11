@@ -211,7 +211,7 @@ app.config(function($httpProvider) {
 		            }
 		        }
 				
-				if (!$rootScope.loggedIn && $location.path() != '/login' && $location.path() != '/marketplace') {
+				if (!$rootScope.loggedIn && $location.path() != '/login' && $location.path() != '/app_marketplace') {
 					$log.debug('========== > $rootScope.loggedIn IS FALSE');
 					$location.path('/login');
 				}
