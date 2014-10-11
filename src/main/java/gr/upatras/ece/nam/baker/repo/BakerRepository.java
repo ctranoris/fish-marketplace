@@ -214,7 +214,7 @@ public class BakerRepository {
 	}
 
 
-	public Category updateCategoryInfo(int catid, Category c) {
+	public Category updateCategoryInfo(Category c) {
 		Category bmr = bakerJpaController.updateCategory(c);
 		return bmr;
 	}

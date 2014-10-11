@@ -875,7 +875,6 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		logger.info("userid = " + userid);
 		logger.info("appname = " + appname);
 		logger.info("appid = " + appid);
-		;
 		logger.info("appuuid = " + uuid);
 		logger.info("version = " + version);
 		logger.info("shortDescription = " + shortDescription);
@@ -893,6 +892,12 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		appmeta.setOwner(appOwner);
 		appmeta.setDateUpdated(new Date());
 		
+		//first remove the application from the previous category
+		if (appmeta.getCategory()!=null){
+			appmeta.getCategory().removeApp(appmeta);
+			bakerRepositoryRef.updateCategoryInfo(appmeta.getCategory());
+		}
+		//and now add the new one
 		Category category = bakerRepositoryRef.getCategoryByID(catid);
 		appmeta.setCategory(category);
 
@@ -962,7 +967,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	public Response updateCategory(@PathParam("catid")int catid, Category c) {
 		Category previousCategory = bakerRepositoryRef.getCategoryByID(catid);		
 
-		Category u = bakerRepositoryRef.updateCategoryInfo(catid, c);
+		Category u = bakerRepositoryRef.updateCategoryInfo(c);
 
 		if (u != null) {
 			return Response.ok().entity(u).build();
@@ -978,8 +983,15 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@DELETE
 	@Path("/categories/{catid}")
 	public Response deleteCategory(@PathParam("catid") int catid) {
-		bakerRepositoryRef.deleteCategory(catid);
-		return Response.ok().build();
+		Category category = bakerRepositoryRef.getCategoryByID(catid);
+		if (category.getApps().size()>0){
+			ResponseBuilder builder = Response.status(Status.METHOD_NOT_ALLOWED );
+			builder.entity("The category has assigned elements. You cannot delete it!");
+			throw new WebApplicationException(builder.build());
+		}else{		
+			bakerRepositoryRef.deleteCategory(catid);
+			return Response.ok().build();
+		}
 	}
 
 

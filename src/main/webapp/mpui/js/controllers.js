@@ -1,5 +1,16 @@
 var appControllers = angular.module('bakerapp.controllers',[]) 
 
+
+appControllers.controller('FeaturedApps', ['$scope','$window','$log', 'ApplicationMetadata', 'Category', '$filter',
+                                                     	function($scope, $window, $log, ApplicationMetadata, Category,$filter ) {
+                         	
+        	var orderBy = $filter('orderBy');
+         	$scope.apps = ApplicationMetadata.query(function() {
+        		    $scope.apps = orderBy($scope.apps, 'name', true);
+         		  }); 
+}]);
+         	
+         	
 appControllers.controller('UserListController', ['$scope','$window','$log', 'BakerUser', 'popupService', 'ngDialog',
                             	function($scope, $window, $log, BakerUser, popupService, ngDialog) {
 	
@@ -320,8 +331,8 @@ appControllers.directive('fileModel', ['$parse', function ($parse) {
     };
 }]);
 
-appControllers.controller('AppEditController', ['$scope', '$route', '$routeParams', '$location', 'ApplicationMetadata', '$anchorScroll','$http', 'formDataObject', 'cfpLoadingBar', 'Category',
-     function( $scope, $route, $routeParams, $location, ApplicationMetadata, $anchorScroll, $http,formDataObject, cfpLoadingBar, Category){
+appControllers.controller('AppEditController', ['$scope', '$route', '$routeParams', '$location', 'ApplicationMetadata', '$anchorScroll','$http', 'formDataObject', 'cfpLoadingBar', 'Category', '$filter',
+     function( $scope, $route, $routeParams, $location, ApplicationMetadata, $anchorScroll, $http,formDataObject, cfpLoadingBar, Category, $filter){
 
 
 	 console.log("WILL EDIT ApplicationMetadata with ID "+$routeParams.id);
@@ -355,9 +366,8 @@ appControllers.controller('AppEditController', ['$scope', '$route', '$routeParam
 
     $scope.loadApp=function(cats){
     	var myapp = ApplicationMetadata.get({id:$routeParams.id}, function() {
-
     		console.log("loadApp appl.name "+myapp.name);
-    		console.log("loadApp cats "+cats);
+    		console.log("loadApp cats "+cats.length);
    	 		//console.log("loadApp appl.category.name "+myapp.category.name);  
    	 		console.log("loadApp appl.category "+cats);
    	 		var selected_cat=0;
@@ -378,8 +388,12 @@ appControllers.controller('AppEditController', ['$scope', '$route', '$routeParam
    	 	
     };
 
-	$scope.categories = Category.query();
-    $scope.loadApp($scope.categories); 
+    var orderBy = $filter('orderBy');
+	$scope.categories = Category.query(function() {
+		console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! loadApp cats "+$scope.categories.length);	    
+		$scope.categories = orderBy($scope.categories, 'name', false);
+		$scope.loadApp($scope.categories);
+	}); 
     
 }]);
 
@@ -410,12 +424,14 @@ appControllers.controller('CategoriesListController', ['$scope','$window','$log'
  		 	
 
  		 	var cat=Category.get({id:useridx}, function() {
- 			    $log.debug("WILL DELETE Category with ID "+ app.id);
+ 			    $log.debug("WILL DELETE Category with ID "+ cat.id);
  			    
  		        if(popupService.showPopup('Really delete Category "'+cat.name+'" ?')){
  				 	
  		        	cat.$delete(function(){
- 		    			$scope.apps.splice($scope.apps.indexOf(gridItem),1)
+ 		    			$scope.categories.splice($scope.categories.indexOf(gridItem),1)
+ 		            }, function(error) {
+ 		            	$window.alert("Cannot delete: "+error.data);
  		            });
  		        
  		        }
@@ -470,9 +486,9 @@ appControllers.controller('AppsMarketplaceController', ['$scope','$window','$log
 	});
  	$scope.apps = ApplicationMetadata.query(function() {
  		    console.log($scope.apps);
- 		   $scope.appsTotalNumber = $scope.apps.length;
+ 		    $scope.appsTotalNumber = $scope.apps.length;
 		    $scope.apps = orderBy($scope.apps, 'name', false);
- 		  }); 
+ 	}); 
  		 
  	$scope.filterCategory=function(category){
  			if (category.id){
@@ -486,7 +502,11 @@ appControllers.controller('AppsMarketplaceController', ['$scope','$window','$log
  				$scope.selectedcategory = null;
  			}
 
-			$scope.apps = ApplicationMetadata.query({categoryid: category.id});
+			//$scope.apps = ApplicationMetadata.query();
+			$scope.apps = ApplicationMetadata.query({categoryid: category.id}, function() {
+	 		    console.log($scope.apps);
+			    $scope.apps = orderBy($scope.apps, 'name', false);
+	 	});
     };
     
     $scope.isActive=function(c) {
