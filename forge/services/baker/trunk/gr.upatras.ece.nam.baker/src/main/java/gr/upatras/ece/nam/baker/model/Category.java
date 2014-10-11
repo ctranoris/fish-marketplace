@@ -79,6 +79,13 @@ public class Category {
 		}
 		
 	}
+	
+	public void removeApp(ApplicationMetadata app) {
+		if (apps.contains(app)) {
+			apps.remove(app);			
+		}
+		
+	}
 
 	public int getAppscount() {
 		return apps.size();

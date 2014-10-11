@@ -89,6 +89,37 @@
 	<para> 
 	<informalexample>
 			<programlisting language="bash">
+			
+	GET a bun by bun ID
+	Path("/buns/{bunid}")
+	Produces("application/json")
+	
+	Response example:
+	{
+	   "version":"5.1",
+	   "shortDescription":"WS for experimenters",
+	   "longDescription":"",
+	   "uuid":"511af54b-222e-43c2-ad8f-b618d43abdb8",
+	   "packageLocation":"http://localhost:13000/baker/services/api/repo/packages/511af54b-222e-43c2-ad8f-b618d43abdb8/_examplebun.tar.gz",
+	   "iconsrc":"http://localhost:13000/baker/services/api/repo/images/511af54b-222e-43c2-ad8f-b618d43abdb8/labwiki.png",
+	   "name":"LabWiki",
+	   "id":2,
+	   "owner":{
+	      "role":"SERVICE_PLATFORM_PROVIDER",
+	      "organization":"University of Patras",
+	      "username":"ctranoris",
+	      "password":"gnzLDuqKcGxMNKFokfhOew==",
+	      "email":"tranoris@ece.upatras.gr",
+	      "name":"Christos Tranoris",
+	      "id":1
+	   }
+	}
+	
+	
+	GET a bun by bun UUID
+	Path("/buns/uuid/{uuid}")
+	Produces("application/json")
+	
 	GET Buns of user, by user id 
 	Path("/users/{userid}/buns")
 	Produces("application/json")
@@ -145,35 +176,6 @@
 	Path("/buns/{bunid}")
 	
 	
-	GET a bun by bun ID
-	Path("/buns/{bunid}")
-	Produces("application/json")
-	
-	Response example:
-	{
-	   "version":"5.1",
-	   "shortDescription":"WS for experimenters",
-	   "longDescription":"",
-	   "uuid":"511af54b-222e-43c2-ad8f-b618d43abdb8",
-	   "packageLocation":"http://localhost:13000/baker/services/api/repo/packages/511af54b-222e-43c2-ad8f-b618d43abdb8/_examplebun.tar.gz",
-	   "iconsrc":"http://localhost:13000/baker/services/api/repo/images/511af54b-222e-43c2-ad8f-b618d43abdb8/labwiki.png",
-	   "name":"LabWiki",
-	   "id":2,
-	   "owner":{
-	      "role":"SERVICE_PLATFORM_PROVIDER",
-	      "organization":"University of Patras",
-	      "username":"ctranoris",
-	      "password":"gnzLDuqKcGxMNKFokfhOew==",
-	      "email":"tranoris@ece.upatras.gr",
-	      "name":"Christos Tranoris",
-	      "id":1
-	   }
-	}
-	
-	
-	GET a bun by bun UUID
-	Path("/buns/uuid/{uuid}")
-	Produces("application/json")
 	
 	
 	GET all registered Applications

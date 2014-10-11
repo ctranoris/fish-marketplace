@@ -166,7 +166,7 @@ app.controller("LoginCtrl", ["$scope", "$location", "$window", "authenticationSv
         		$log.debug('========== > inside LoginCtrl controller $rootScope.bakeruser ='+ $rootScope.loggedinbakeruser);
         		$log.debug('========== > inside LoginCtrl controller $rootScope.bakeruser ='+ $rootScope.loggedinbakeruser.username);
                 
-                $location.path("/");
+                $location.path("/app_marketplace");
             }, function (error) {
                 //$window.alert("Invalid credentials");
     			$scope.loginError = true;
