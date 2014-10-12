@@ -12,6 +12,11 @@ appServices.factory('BakerUser', function($resource) {
 });
 
 
+appServices.factory('SessionService', function($resource) {
+	return $resource('/baker/services/api/repo/sessions/');
+});
+
+
 appServices.service('popupService',function($window){
     this.showPopup=function(message){
         return $window.confirm(message);
@@ -61,7 +66,7 @@ appServices.factory('formDataObject', function() {
 		angular.forEach(data, function(value, key) {
 			if (value){
 				fd.append(key, value);
-				console.log("key="+key+", value="+value);
+				//console.log("key="+key+", value="+value);
 			}else{
 				fd.append(key, "");
 			}
@@ -70,4 +75,18 @@ appServices.factory('formDataObject', function() {
 		return fd;
 	};
 });
+
+
+//BakerUser Resource
+appServices.factory('BunMetadata', function($resource) {
+	return $resource("/baker/services/api/repo/buns/:id", 
+		{id : "@id"	}, {
+		"update" : {
+			method : "PUT"
+		}
+
+	});
+});
+
+
 

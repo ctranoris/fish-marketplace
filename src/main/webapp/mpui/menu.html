@@ -14,6 +14,7 @@
 			<div class="collapse navbar-collapse"id="bs-example-navbar-collapse-1">
 				<ul class="nav navbar-nav" >
 						<li ng-class="navClass('marketplace')" ><a href="#/app_marketplace">Applications</a></li>
+						<li ng-class="navClass('marketplace')" ><a href="#/bun_marketplace">Buns</a></li>
 						
 						
 						<li ng-show="loggedIn" class="dropdown"><a class="dropdown-toggle"
@@ -26,17 +27,16 @@
 							</ul>
 						</li>
 							
-						<li ng-show="loggedIn" class="dropdown"><a class="dropdown-toggle"
+						<li ng-show="loggedIn && (loggedinbakeruser.role === 'ROLE_BOSS')" class="dropdown"><a class="dropdown-toggle"
 							href="" data-toggle="dropdown">Admin <span class="caret"></span></a>
 							<ul class="dropdown-menu" role="menu">
-								<li><a href="#/users">Users</a></li>
-								<li><a href="#/apps">Applications</a></li>
-								<li ><a href="#/bun_marketplace">Buns</a></li>
-								<li><a href="#/categories">Categories</a></li>		
+								<li><a href="#/users">System Users</a></li>
+								<li><a href="#/apps">All registered Applications</a></li>
+								<li ><a href="#/buns">All registered Buns</a></li>
+								<li><a href="#/categories">System Categories</a></li>		
 								<li class="divider"></li>						
-								<li ><a href="#/installedbuns">Installed Buns</a></li>
-								<li><a href="#/subscribed_machines">Subscribed Machines</a></li>
-								<li><a href="#">Machine groups</a></li>
+								<li><a href="#/subscribed_machines">All registered Subscribed Machines</a></li>
+								<li><a href="#">System Machine groups</a></li>
 								<li class="divider"></li>
 								<li><a href="#">System info</a></li>
 							</ul></li>
@@ -44,7 +44,7 @@
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
 					<li ng-show="loggedIn" class="dropdown"><a href="" class="dropdown-toggle"
-						data-toggle="dropdown">My Account {{loggedinbakeruser.username}} <span class="caret"></span></a>
+						data-toggle="dropdown">{{loggedinbakeruser.username}} ({{loggedinbakeruser.role}}) <span class="caret"></span></a>
 						<ul class="dropdown-menu" role="menu">
 							<li><a href="#">Details</a></li>
 							<li class="divider"></li>

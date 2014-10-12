@@ -17,21 +17,21 @@ appControllers.controller('UserListController', ['$scope','$window','$log', 'Bak
 	
 
 	$scope.bakerusers = BakerUser.query(function() {
-		    console.log($scope.bakerusers);
+		    //console.log($scope.bakerusers);
 		  }); //query() returns all the bakerUsers
 		 
 	
 	
 	 $scope.deleteBakerUser = function(gridItem, useridx, username, name){
 
-		 	console.log("Selected to DELETE User with userID = "+ useridx);
+		 	$log.debug("Selected to DELETE User with userID = "+ useridx);
 		 	
 
 		 	var bakeruser=BakerUser.get({id:useridx}, function() {
 			    $log.debug("WILL DELETE User with ID "+ bakeruser.id);
 			    
 		        if(popupService.showPopup('Really delete user '+name+' with username "'+username+'" ?')){
-		        	console.log("WILL DELETE User with $scope.bakeruser.id = "+ bakeruser.id);
+		        	$log.debug("WILL DELETE User with $scope.bakeruser.id = "+ bakeruser.id);
 				 	
 		        	bakeruser.$delete(function(){
 		    			$scope.bakerusers.splice($scope.bakerusers.indexOf(gridItem),1)
@@ -46,7 +46,7 @@ appControllers.controller('UserListController', ['$scope','$window','$log', 'Bak
 	        	template: 'UserView.html',
 	        	controller : ['$scope', 'BakerUser', function( $scope,  BakerUser){
 	        	    $scope.bakeruser=BakerUser.get({id:gridItem});
-	        	    console.log("WILL GET User with ID "+gridItem);   
+	        	    $log.debug("WILL GET User with ID "+gridItem);   
 	    			}],
 	    		className: 'ngdialog-theme-default'
 	    		
@@ -58,7 +58,6 @@ appControllers.controller('UserListController', ['$scope','$window','$log', 'Bak
 appControllers.controller('UserViewController', ['$scope', '$route', '$routeParams', '$location', 'BakerUser', '$anchorScroll',
                                                  function( $scope, $route, $routeParams, $location, BakerUser, $anchorScroll){
     $scope.bakeruser=BakerUser.get({id:$routeParams.id});
-    console.log("WILL GET User with ID "+$routeParams.id);
     
 	$scope.name = "UserViewController";
 	$scope.params = $routeParams;
@@ -83,16 +82,16 @@ appControllers.controller('UserEditController', ['$scope', '$route', '$routePara
         function( $scope, $route, $routeParams, $location, BakerUser, $anchorScroll){
 
 
-    console.log("WILL EDIT User with ID "+$routeParams.id);
+    //console.log("WILL EDIT User with ID "+$routeParams.id);
 	
     $scope.updateUser=function(){
 
-        console.log("$scope.password = "+$scope.password);
-        console.log("$scope.retypepassword = "+$scope.retypepassword);
+        //console.log("$scope.password = "+$scope.password);
+        //console.log("$scope.retypepassword = "+$scope.retypepassword);
     	if ( ($scope.password) && ($scope.password === $scope.retypepassword))
     		$scope.bakeruser.password= $scope.password;
     	else {
-            console.log("Will send to server empty password to keep old one ");
+            //console.log("Will send to server empty password to keep old one ");
     		$scope.bakeruser.password= ''; //send empty to server, so not to change!
     	}
     	
@@ -113,10 +112,10 @@ appControllers.directive('equals', function() {
 	    restrict: 'A', // only activate on element attribute
 	    require: 'ngModel', // get a hold of NgModelController
 	    link: function(scope, elem, attrs, ngModel) {
-	        console.log("IN LINK! ");
+	        //console.log("IN LINK! ");
 	      if(!ngModel) return; // do nothing if no ng-model
 
-	        console.log("PASS IN LINK! ");
+	        //console.log("PASS IN LINK! ");
 	      // watch own value and re-validate on change
 	        
 	      scope.$watch(attrs.ngModel, function() {
@@ -133,8 +132,8 @@ appControllers.directive('equals', function() {
 	        var val1 = ngModel.$viewValue;
 	        var val2 = attrs.equals;
 
-	        console.log("val1= "+val1);
-	        console.log("val2= "+val2);
+	        //console.log("val1= "+val1);
+	        //console.log("val2= "+val2);
 	        // set validity
 	        ngModel.$setValidity('passwordVerify', ! val1 || ! val2 || val1 === val2);
 	      };
@@ -151,14 +150,14 @@ appControllers.controller('SubscribedMachineListController', ['$scope','$window'
                  	
 
  	$scope.subscribedmachines = SubscribedMachine.query(function() {
- 		    console.log($scope.subscribedmachines);
+ 		    //console.log($scope.subscribedmachines);
  		  }); //query() returns all the subscribedmachines
  		 
  	
  	
  	 $scope.deleteSubscribedMachine = function(gridItem, useridx, url){
 
- 		 	console.log("Selected to DELETE SubscribedMachine with id = "+ useridx);
+ 		 $log.debug("Selected to DELETE SubscribedMachine with id = "+ useridx);
  		 	
 
  		 	var subscribedmachine=SubscribedMachine.get({id:useridx}, function() {
@@ -180,8 +179,8 @@ appControllers.controller('SubscribedMachineListController', ['$scope','$window'
         	controller : ['$scope', 'SubscribedMachine', function( $scope,  SubscribedMachine){
         	    $scope.subscribedmachine=SubscribedMachine.get({id:useridx});
         	    var i =SubscribedMachine.get({id:useridx});
-        	    console.log("WILL GET SubscribedMachine with ID "+useridx);
-        	    console.log("WILL GET SubscribedMachine with i "+i.id);	        	    
+        	    //console.log("WILL GET SubscribedMachine with ID "+useridx);
+        	    //console.log("WILL GET SubscribedMachine with i "+i.id);	        	    
     			}],
     		className: 'ngdialog-theme-default'
     		
@@ -196,8 +195,8 @@ appControllers.controller('SubscribedMachineViewController', ['$scope', '$route'
                                                  function( $scope, $route, $routeParams, $location, SubscribedMachine, $anchorScroll){
     $scope.subscribedmachine=SubscribedMachine.get({id:$routeParams.id});
     var i =SubscribedMachine.get({id:$routeParams.id});
-    console.log("WILL GET SubscribedMachine with ID "+$routeParams.id);
-    console.log("WILL GET SubscribedMachine with i "+i.id);
+    //console.log("WILL GET SubscribedMachine with ID "+$routeParams.id);
+    //console.log("WILL GET SubscribedMachine with i "+i.id);
     
 	$scope.name = "SubscribedMachineViewController";
 	$scope.params = $routeParams;
@@ -222,7 +221,7 @@ appControllers.controller('SubscribedMachineEditController', ['$scope', '$route'
         function( $scope, $route, $routeParams, $location, SubscribedMachine, $anchorScroll){
 
 
-    console.log("WILL EDIT SubscribedMachine with ID "+$routeParams.id);
+    //console.log("WILL EDIT SubscribedMachine with ID "+$routeParams.id);
 	
     $scope.updateSubscribedMachine=function(){
         $scope.subscribedmachine.$update(function(){
@@ -247,14 +246,14 @@ appControllers.controller('AppListController', ['$scope','$window','$log', 'Appl
                  	
 
  	$scope.apps = ApplicationMetadata.query(function() {
- 		    console.log($scope.apps);
+ 		    //console.log($scope.apps);
  		  }); //query() returns all the subscribedmachines
  		 
  	
  	
  	 $scope.deleteApp = function(gridItem, useridx){
 
- 		 	console.log("Selected to DELETE ApplicationMetadata with id = "+ useridx);
+ 		$log.debug("Selected to DELETE ApplicationMetadata with id = "+ useridx);
  		 	
 
  		 	var app=ApplicationMetadata.get({id:useridx}, function() {
@@ -274,15 +273,18 @@ appControllers.controller('AppListController', ['$scope','$window','$log', 'Appl
 }]);
 
 appControllers.controller('AppAddController', function($scope, $location,
-		ApplicationMetadata, BakerUser, $rootScope, $http,formDataObject, Category) {
+		ApplicationMetadata, BakerUser, $rootScope, $http,formDataObject, Category,$filter) {
 
 	
 	$scope.app = new ApplicationMetadata();
 	$scope.app.owner = $rootScope.loggedinbakeruser;//BakerUser.get({id:$rootScope.loggedinbakeruser.id});
 	
+	var orderBy = $filter('orderBy');
 	$scope.categories = Category.query(function() {
-		$scope.app.category = $scope.categories[0];
-	  }); 
+		$scope.categories = orderBy($scope.categories, 'name', false);
+		
+	}); 
+	
 	
 	$scope.addApp = function() {
 		$scope.app.$save(function() {
@@ -335,7 +337,7 @@ appControllers.controller('AppEditController', ['$scope', '$route', '$routeParam
      function( $scope, $route, $routeParams, $location, ApplicationMetadata, $anchorScroll, $http,formDataObject, cfpLoadingBar, Category, $filter){
 
 
-	 console.log("WILL EDIT ApplicationMetadata with ID "+$routeParams.id);
+	 //console.log("WILL EDIT ApplicationMetadata with ID "+$routeParams.id);
 	
 	 $scope.submitUpdateApp = function submit() {
 		 cfpLoadingBar.start();
@@ -366,13 +368,12 @@ appControllers.controller('AppEditController', ['$scope', '$route', '$routeParam
 
     $scope.loadApp=function(cats){
     	var myapp = ApplicationMetadata.get({id:$routeParams.id}, function() {
-    		console.log("loadApp appl.name "+myapp.name);
-    		console.log("loadApp cats "+cats.length);
-   	 		//console.log("loadApp appl.category.name "+myapp.category.name);  
-   	 		console.log("loadApp appl.category "+cats);
+    		//console.log("loadApp appl.name "+myapp.name);
+    		//console.log("loadApp cats "+cats.length);
+   	 		//console.log("loadApp appl.category "+cats);
    	 		var selected_cat=0;
    	 		angular.forEach(cats, function(categ, key) {
-   	    		console.log("key= "+key+", categ.id="+categ.id+", categ.name="+categ.name);
+   	    		//console.log("key= "+key+", categ.id="+categ.id+", categ.name="+categ.name);
    	    		if (myapp.category)
    	    			if (myapp.category.id === categ.id)
    	    				selected_cat = key;
@@ -390,7 +391,6 @@ appControllers.controller('AppEditController', ['$scope', '$route', '$routeParam
 
     var orderBy = $filter('orderBy');
 	$scope.categories = Category.query(function() {
-		console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! loadApp cats "+$scope.categories.length);	    
 		$scope.categories = orderBy($scope.categories, 'name', false);
 		$scope.loadApp($scope.categories);
 	}); 
@@ -401,7 +401,7 @@ appControllers.controller('AppEditController', ['$scope', '$route', '$routeParam
 appControllers.controller('AppViewController', ['$scope', '$route', '$routeParams', '$location', 'ApplicationMetadata',
                                                  function( $scope, $route, $routeParams, $location, ApplicationMetadata ){
     $scope.app=ApplicationMetadata.get({id:$routeParams.id});
-    console.log("WILL GET ApplicationMetadata with ID "+$routeParams.id);
+    //console.log("WILL GET ApplicationMetadata with ID "+$routeParams.id);
 
 }]);
 
@@ -413,14 +413,14 @@ appControllers.controller('CategoriesListController', ['$scope','$window','$log'
                  	
 
  	$scope.categories = Category.query(function() {
- 		    console.log($scope.categories);
+ 		    //console.log($scope.categories);
  		  }); //query() returns all the categories
  		 
  	
  	
  	 $scope.deleteCategory = function(gridItem, useridx){
 
- 		 	console.log("Selected to DELETE Categorywith id = "+ useridx);
+ 		 	//console.log("Selected to DELETE Categorywith id = "+ useridx);
  		 	
 
  		 	var cat=Category.get({id:useridx}, function() {
@@ -457,7 +457,7 @@ appControllers.controller('CategoryEditController', ['$scope', '$route', '$route
         function( $scope, $route, $routeParams, $location, Category, $anchorScroll){
 
 
-    console.log("WILL EDIT Category with ID "+$routeParams.id);
+    //console.log("WILL EDIT Category with ID "+$routeParams.id);
 	
     $scope.updateCategory=function(){
         $scope.cat.$update(function(){
@@ -481,20 +481,20 @@ appControllers.controller('AppsMarketplaceController', ['$scope','$window','$log
                  	
 	var orderBy = $filter('orderBy');
 	$scope.categories = Category.query(function() {
-		    console.log($scope.apps);
+		    //console.log($scope.apps);
 		    $scope.categories = orderBy($scope.categories, 'name', false);
 	});
  	$scope.apps = ApplicationMetadata.query(function() {
- 		    console.log($scope.apps);
+ 		    //console.log($scope.apps);
  		    $scope.appsTotalNumber = $scope.apps.length;
 		    $scope.apps = orderBy($scope.apps, 'name', false);
  	}); 
  		 
  	$scope.filterCategory=function(category){
  			if (category.id){
- 				console.log("Selected catid = "+ category.id);
+ 				//console.log("Selected catid = "+ category.id);
  				angular.forEach($scope.apps, function(app, key) {
- 					console.log("key= "+key+", app.id="+app.id+", app.name="+app.name);
+ 					//console.log("key= "+key+", app.id="+app.id+", app.name="+app.name);
  					//app.name = app.name+'!!';
  				});
  				$scope.selectedcategory = category;
@@ -504,7 +504,7 @@ appControllers.controller('AppsMarketplaceController', ['$scope','$window','$log
 
 			//$scope.apps = ApplicationMetadata.query();
 			$scope.apps = ApplicationMetadata.query({categoryid: category.id}, function() {
-	 		    console.log($scope.apps);
+	 		    //console.log($scope.apps);
 			    $scope.apps = orderBy($scope.apps, 'name', false);
 	 	});
     };
@@ -517,13 +517,213 @@ appControllers.controller('AppsMarketplaceController', ['$scope','$window','$log
     
     $scope.isNoneSelected=function(c) {
     	
-    	console.log("isNoneSelected c $scope.selectedcategory="+$scope.selectedcategory);
-   		//console.log("isActive c= "+c.name+", $scope.selectedcategory="+$scope.selectedcategory.name);
-        return ( (!$scope.selectedcategory) || ($scope.selectedcategory === null) );
+    	//console.log("isNoneSelected c $scope.selectedcategory="+$scope.selectedcategory);
+   		return ( (!$scope.selectedcategory) || ($scope.selectedcategory === null) );
     };
 
  	
                  	 
 }]);
 	
+
+
+
+appControllers.controller('BunListController', ['$scope','$window','$log', 'BunMetadata', 'popupService','ngDialog',
+                                             	function($scope, $window, $log, BunMetadata, popupService, ngDialog ) {
+                 	
+                 	
+ 	$scope.buns= BunMetadata.query(function() {
+ 		    //console.log($scope.apps);
+ 		  }); //query() returns all the subscribedmachines
+ 		 
+ 	
+ 	
+ 	 $scope.deleteBun = function(gridItem, useridx){
+
+ 		$log.debug("Selected to DELETE BunMetadata with id = "+ useridx);
+ 		 	
+
+ 		 	var bun=BunMetadata.get({id:useridx}, function() {
+ 			    $log.debug("WILL DELETE BunMetadatawith ID "+ bun.id);
+ 			    
+ 		        if(popupService.showPopup('Really delete Bun "'+bun.name+'" ?')){
+ 				 	
+ 		        	bun.$delete(function(){
+ 		    			$scope.buns.splice($scope.buns.indexOf(gridItem),1)
+ 		            });
+ 		        
+ 		        }
+ 		 	});
+ 	    }
+ 	          	
+                 	 
+}]);
+
+
+appControllers.controller('BunAddController', function($scope, $location,
+		BunMetadata, BakerUser, $rootScope, $http,formDataObject, Category, $filter) {
+
 	
+	$scope.bun = new BunMetadata();
+	$scope.bun.owner = $rootScope.loggedinbakeruser;//BakerUser.get({id:$rootScope.loggedinbakeruser.id});
+	 
+	var orderBy = $filter('orderBy');
+	$scope.categories = Category.query(function() {
+		$scope.categories = orderBy($scope.categories, 'name', false);
+		
+	}); 
+	
+	$scope.addBun = function() {
+		$scope.bun.$save(function() {
+			$location.path("/buns");
+		});
+	}
+
+	$scope.submitNewBun = function submit() {
+		return $http({
+			method : 'POST',
+			url : '/baker/services/api/repo/users/'+$scope.bun.owner.id+'/buns/',
+			headers : {
+				'Content-Type' : 'multipart/form-data'
+			},
+			data : {
+				bunname: $scope.bun.name,
+				shortDescription: $scope.bun.teaser,
+				longDescription: $scope.bun.longDescription,
+				version: $scope.bun.version,
+				uploadedBunIcon: $scope.bun.uploadedBunIcon,
+				uploadedBunFile: $scope.bun.uploadedBunFile,
+				categoryid: $scope.bun.category.id,
+				//file : $scope.file
+			},
+			transformRequest : formDataObject
+		}).success(function() {
+			$location.path("/buns");
+		});
+	};
+
+});
+
+
+
+appControllers.controller('BunEditController', ['$scope', '$route', '$routeParams', '$location', 'BunMetadata', '$anchorScroll',
+                                                '$http', 'formDataObject', 'cfpLoadingBar', 'Category', '$filter',
+     function( $scope, $route, $routeParams, $location, BunMetadata, $anchorScroll, $http,formDataObject, cfpLoadingBar, Category, $filter){
+
+
+	
+	 $scope.submitUpdateBun = function submit() {
+		 cfpLoadingBar.start();
+			return $http({
+				method : 'PUT',
+				url : '/baker/services/api/repo/buns/'+$routeParams.id,
+				headers : {
+					'Content-Type' : 'multipart/form-data'
+				},
+				data : {
+					userid: $scope.bun.owner.id,
+					bunname: $scope.bun.name,
+					bunid: $scope.bun.id,
+					bunuuid: $scope.bun.uuid,
+					shortDescription: $scope.bun.shortDescription,
+					longDescription: $scope.bun.longDescription,
+					version: $scope.bun.version,
+					categoryid: $scope.bun.category.id,
+					uploadedBunIcon: $scope.bun.uploadedBunIcon,
+					uploadedBunFile: $scope.bun.uploadedBunFile,
+					//file : $scope.file
+				},
+				transformRequest : formDataObject
+			}).success(function() {
+				$location.path("/buns");
+			});
+		};
+	
+
+    $scope.loadBun=function(cats){
+    	var mybun = BunMetadata.get({id:$routeParams.id}, function() {
+    		console.log("loadBun bun.name "+mybun.name);
+    		console.log("loadBun cats "+cats.length);
+   	 		//console.log("loadApp appl.category "+cats);
+   	 		var selected_cat=0;
+   	 		angular.forEach(cats, function(categ, key) {
+   	    		//console.log("key= "+key+", categ.id="+categ.id+", categ.name="+categ.name);
+   	    		if (mybun.category)
+   	    			if (mybun.category.id === categ.id)
+   	    				selected_cat = key;
+   	 		});
+   	 		mybun.category = cats[selected_cat]; //This trick is to Synchronize selection in view for the two models form the API to current
+   	 		$scope.bun=mybun;    
+    		
+    	});     
+    		      
+   	 	//appl.category = $scope.categories[appl.category];
+        
+    	//$scope.app=ApplicationMetadata.get({id:$routeParams.id});        
+   	 	
+    };
+
+    var orderBy = $filter('orderBy');
+	$scope.categories = Category.query(function() {
+		$scope.categories = orderBy($scope.categories, 'name', false);
+		$scope.loadBun($scope.categories);
+	}); 
+    
+}]);
+
+
+appControllers.controller('BunViewController', ['$scope', '$route', '$routeParams', '$location', 'BunMetadata',
+                                                 function( $scope, $route, $routeParams, $location, BunMetadata ){
+    $scope.bun=BunMetadata.get({id:$routeParams.id});
+
+}]);
+
+
+appControllers.controller('BunsMarketplaceController', ['$scope','$window','$log', 'BunMetadata', 'Category', '$filter',
+                                                     	function($scope, $window, $log, BunMetadata, Category,$filter ) {
+                         	
+        	var orderBy = $filter('orderBy');
+        	$scope.categories = Category.query(function() {
+        		    //console.log($scope.apps);
+        		    $scope.categories = orderBy($scope.categories, 'name', false);
+        	});
+         	$scope.buns = BunMetadata.query(function() {
+         		    //console.log($scope.apps);
+         		    $scope.bunsTotalNumber = $scope.buns.length;
+        		    $scope.buns = orderBy($scope.buns, 'name', false);
+         	}); 
+         		 
+         	$scope.filterCategory=function(category){
+         			if (category.id){
+         				//console.log("Selected catid = "+ category.id);
+         				angular.forEach($scope.buns, function(bun, key) {
+         					//console.log("key= "+key+", app.id="+app.id+", app.name="+app.name);
+         					//app.name = app.name+'!!';
+         				});
+         				$scope.selectedcategory = category;
+         			}else{
+         				$scope.selectedcategory = null;
+         			}
+
+        			//$scope.apps = ApplicationMetadata.query();
+        			$scope.buns = BunMetadata.query({categoryid: category.id}, function() {
+        	 		    //console.log($scope.apps);
+        			    $scope.buns = orderBy($scope.buns, 'name', false);
+        	 	});
+            };
+            
+            $scope.isActive=function(c) {
+
+           		//console.log("isActive c= "+c.name+", $scope.selectedcategory="+$scope.selectedcategory.name);
+                return $scope.selectedcategory === c;
+            };
+            
+            $scope.isNoneSelected=function(c) {
+            	
+            	//console.log("isNoneSelected c $scope.selectedcategory="+$scope.selectedcategory);
+           		return ( (!$scope.selectedcategory) || ($scope.selectedcategory === null) );
+            };
+
+         	
+                         	 
+        }]);

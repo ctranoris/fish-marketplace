@@ -340,10 +340,16 @@ public class BakerJpaController {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<BunMetadata> readBunsMetadata(int firstResult, int maxResults) {
+	public List<BunMetadata> readBunsMetadata(Long categoryid, int firstResult, int maxResults) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		//Query q = entityManager.createQuery("SELECT m FROM BunMetadata m");
+		Query q;
+		
+		if ((categoryid!=null) && (categoryid>=0))
+			q = entityManager.createQuery("SELECT a FROM BunMetadata a WHERE a.category.id="+categoryid+" ORDER BY a.id");
+		else
+			q = entityManager.createQuery("SELECT a FROM BunMetadata a ORDER BY a.id");
 
-		Query q = entityManager.createQuery("SELECT m FROM BunMetadata m");
 		q.setFirstResult(firstResult);
 		q.setMaxResults(maxResults);
 		return q.getResultList();

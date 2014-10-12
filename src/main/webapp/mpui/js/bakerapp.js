@@ -6,13 +6,7 @@ app.config(function($routeProvider, $locationProvider, $anchorScrollProvider, cf
 	
     $anchorScrollProvider.disableAutoScrolling();
     
-	$routeProvider.when('/bun_marketplace', {
-		templateUrl : 'viewBunMarketplaceJS.html',
-		controller : 'bunsCtrl'
-	}).when('/installedbuns', {
-		templateUrl : 'viewInstalledBunsJS.html',
-		controller : 'bakerCtrl'
-	}).when('/login', {
+	$routeProvider.when('/login', {
 		controller : 'LoginCtrl'
 	}).when('/logout', {
 		templateUrl : 'logout.html',
@@ -62,6 +56,21 @@ app.config(function($routeProvider, $locationProvider, $anchorScrollProvider, cf
 	}).when('/app_marketplace', {
 		templateUrl : 'AppsMarketplace.html',
 		controller : 'AppsMarketplaceController'
+	}).when('/buns', {
+		templateUrl : 'Buns.html',
+		controller : 'BunListController'
+	}).when('/bun_add', {
+		templateUrl : 'BunAdd.html',
+		controller : 'BunAddController'
+	}).when('/bun_edit/:id', {
+		templateUrl : 'BunEdit.html',
+		controller : 'BunEditController'
+	}).when('/bun_view/:id', {
+		templateUrl : 'BunView.html',
+		controller : 'BunViewController'
+	}).when('/bun_marketplace', {
+		templateUrl : 'BunsMarketplace.html',
+		controller : 'BunsMarketplaceController'
 	}).otherwise({
 		redirectTo : '/'
 	});
@@ -113,16 +122,11 @@ app.controller('LogoutCtrl', [ '$scope', '$location', 'authenticationSvc', '$log
     
 } ]);
 
-app.controller('bakerCtrl', function($scope, BakerUser) {
-	console.log('inside bakerCtrl controller');
+app.controller('bakerCtrl', function($scope, BakerUser, $log) {
+	$log.debug('inside bakerCtrl controller');
 	//$scope.bakerusers = BakerUser.query();
 });
 
-app.controller('bunsCtrl', function($scope, Buns, $log) {
-	$log.debug('========== > inside bunsCtrl controller');
-	$scope.buns = Buns.query();
-	$scope.lalakis = 'Lalaks';
-});
 
 app.controller('SignupCtrl', function($scope) {
 
@@ -130,26 +134,8 @@ app.controller('SignupCtrl', function($scope) {
 
 
 
-
-
-// BakerUser Resource
-app.factory('Buns', function($resource) {
-	return $resource("/baker/services/api/repo/buns/:Id", {
-		Id : "@Id"
-	}, {
-		"update" : {
-			method : "PUT"
-		}
-
-	});
-});
-
-app.factory('SessionService', function($resource) {
-	return $resource('/baker/services/api/repo/sessions/');
-});
-
-
-app.controller("LoginCtrl", ["$scope", "$location", "$window", "authenticationSvc", "$log", "$rootScope",function ($scope, $location, $window, authenticationSvc, $log, $rootScope) {
+app.controller("LoginCtrl", ["$scope", "$location", "$window", "authenticationSvc", "$log", "$rootScope",
+                             function ($scope, $location, $window, authenticationSvc, $log, $rootScope) {
 	$log.debug('========== > inside LoginCtrl controller');
     $scope.userInfo = null;
     $scope.user = {

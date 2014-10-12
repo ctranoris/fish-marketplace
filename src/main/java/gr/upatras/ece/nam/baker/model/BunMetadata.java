@@ -15,6 +15,8 @@
 
 package gr.upatras.ece.nam.baker.model;
 
+import java.util.Date;
+
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -61,6 +63,16 @@ public class BunMetadata {
 	private String version = null;
 	@Basic()
 	private String packageLocation = null;
+	
+	@Basic()
+	private Date dateCreated;
+
+	@Basic()
+	private Date dateUpdated;
+
+	@ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }, fetch = FetchType.LAZY)
+	@JoinColumns({ @JoinColumn() })
+	private Category category;
 
 
 	public BunMetadata() {
@@ -133,5 +145,29 @@ public class BunMetadata {
 		this.id = id;
 	}
 
+	public Date getDateCreated() {
+		return dateCreated;
+	}
+
+	public void setDateCreated(Date dateCreated) {
+		this.dateCreated = dateCreated;
+	}
+
+	public Date getDateUpdated() {
+		return dateUpdated;
+	}
+
+	public void setDateUpdated(Date dateUpdated) {
+		this.dateUpdated = dateUpdated;
+	}
+
+	public Category getCategory() {
+		return category;
+	}
+
+	public void setCategory(Category category) {
+		this.category = category;
+		this.category.addBun(this);
+	}
 
 }
