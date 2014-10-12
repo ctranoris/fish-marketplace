@@ -312,11 +312,12 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@POST
 	@Path("/users/{userid}/buns/")
 	@Consumes("multipart/form-data")
-	public void addBunMetadata(@PathParam("userid") int userid,
+	public Response addBunMetadata(@PathParam("userid") int userid,
 			@Multipart(value = "bunname", type = "text/plain") String bunname,
 			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription,
 			@Multipart(value = "longDescription", type = "text/plain") String longDescription,
-			@Multipart(value = "version", type = "text/plain") String version, 
+			@Multipart(value = "version", type = "text/plain") String version,  
+			@Multipart(value = "categoryid", type = "text/plain") int catid, 
 			@Multipart(value = "uploadedBunIcon") Attachment image,
 			@Multipart(value = "uploadedBunFile") Attachment bunFile) {
 
@@ -334,7 +335,11 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		sm.setShortDescription(shortDescription);
 		sm.setLongDescription(longDescription);
 		sm.setVersion(version);
-
+		sm.setDateCreated(new Date());
+		sm.setDateUpdated(new Date());
+		
+		Category category = bakerRepositoryRef.getCategoryByID(catid);
+		sm.setCategory(category);
 		URI endpointUrl = uri.getBaseUri();
 
 		String tempDir = METADATADIR + uuid + File.separator;
@@ -359,9 +364,9 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 		// Save now bun for User
 		BakerUser bunOwner = bakerRepositoryRef.getUserByID(userid);
-		sm.setOwner(bunOwner);
 		bunOwner.addBun(sm);
 		bakerRepositoryRef.updateUserInfo(userid, bunOwner);
+		return Response.ok().entity(sm).build();
 
 	}
 
@@ -369,7 +374,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@PUT
 	@Path("/buns/{bid}")
 	@Consumes("multipart/form-data")
-	public void updateBunMetadata(@PathParam("bid") int bid, 
+	public Response updateBunMetadata(@PathParam("bid") int bid, 
 			@Multipart(value = "userid", type = "text/plain") int userid,
 			@Multipart(value = "bunname", type = "text/plain") String bunname, 
 			@Multipart(value = "bunid", type = "text/plain") int bunid,
@@ -377,6 +382,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription,
 			@Multipart(value = "longDescription", type = "text/plain") String longDescription,
 			@Multipart(value = "version", type = "text/plain") String version, 
+			@Multipart(value = "categoryid", type = "text/plain") int catid,
 			@Multipart(value = "uploadedBunIcon") Attachment image,
 			@Multipart(value = "uploadedBunFile") Attachment bunFile) {
 
@@ -402,6 +408,17 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		sm.setVersion(version);
 		sm.setName(bunname);
 		sm.setOwner(bunOwner);
+		sm.setDateUpdated(new Date());
+
+		//first remove the bun from the previous category
+		if (sm.getCategory()!=null){
+			sm.getCategory().removeBun(sm);
+			bakerRepositoryRef.updateCategoryInfo(sm.getCategory());
+		}
+		//and now add the new one
+		Category category = bakerRepositoryRef.getCategoryByID(catid);
+		sm.setCategory(category);
+
 
 		URI endpointUrl = uri.getBaseUri();
 
@@ -431,6 +448,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		if (bunOwner.getBunById(bunid) == null)
 			bunOwner.addBun(sm);
 		bakerRepositoryRef.updateUserInfo(userid, bunOwner);
+		return Response.ok().entity(sm).build();
 
 	}
 
@@ -439,10 +457,10 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@GET
 	@Path("/buns")
 	@Produces("application/json")
-	public Response getBuns() {
-		logger.info("getBuns ");
+	public Response getBuns(@QueryParam("categoryid") Long categoryid) {
+		logger.info("getBuns categoryid="+categoryid);
 
-		List<BunMetadata> buns = bakerRepositoryRef.getBuns();
+		List<BunMetadata> buns = bakerRepositoryRef.getBuns(categoryid);
 		return Response.ok().entity(buns).build();
 
 	}
@@ -860,7 +878,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@PUT
 	@Path("/apps/{aid}")
 	@Consumes("multipart/form-data")
-	public void updateAppMetadata(@PathParam("aid") int aid, 
+	public Response updateAppMetadata(@PathParam("aid") int aid, 
 			@Multipart(value = "userid", type = "text/plain")int userid, 
 			@Multipart(value = "appname", type = "text/plain")String appname, 
 			@Multipart(value = "appid", type = "text/plain") int appid, 
@@ -924,6 +942,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		if (appOwner.getAppById(appid) == null)
 			appOwner.addApplication(appmeta);
 		bakerRepositoryRef.updateUserInfo(userid, appOwner);
+		return Response.ok().entity(appmeta).build();
 	}
 
 
@@ -984,7 +1003,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@Path("/categories/{catid}")
 	public Response deleteCategory(@PathParam("catid") int catid) {
 		Category category = bakerRepositoryRef.getCategoryByID(catid);
-		if (category.getApps().size()>0){
+		if ((category.getApps().size()>0) || (category.getBuns().size()>0)){
 			ResponseBuilder builder = Response.status(Status.METHOD_NOT_ALLOWED );
 			builder.entity("The category has assigned elements. You cannot delete it!");
 			throw new WebApplicationException(builder.build());

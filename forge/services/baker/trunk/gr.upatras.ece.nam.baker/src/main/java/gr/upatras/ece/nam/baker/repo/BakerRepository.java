@@ -90,8 +90,8 @@ public class BakerRepository {
 		bakerJpaController.deleteUser(userid);
 	}
 
-	public List<BunMetadata> getBuns() {
-		List<BunMetadata> ls = bakerJpaController.readBunsMetadata(0, 100000);
+	public List<BunMetadata> getBuns(Long categoryid) {
+		List<BunMetadata> ls = bakerJpaController.readBunsMetadata(categoryid,0, 100000);
 		
 		return ls;
 	}

@@ -30,7 +30,7 @@ import javax.persistence.OneToMany;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 @Entity(name = "Category")
-@JsonIgnoreProperties(value = {  "apps" })
+@JsonIgnoreProperties(value = {  "buns", "apps" })
 public class Category {
 
 	@Id
@@ -39,10 +39,14 @@ public class Category {
 	
 	@Basic()
 	private String name=null;
-	
+
 	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
 	@JoinTable()
 	private List<ApplicationMetadata> apps = new ArrayList<ApplicationMetadata>();
+	
+	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
+	@JoinTable()
+	private List<BunMetadata> buns = new ArrayList<BunMetadata>();
 	
 	
 	private int appscount;
@@ -89,6 +93,32 @@ public class Category {
 
 	public int getAppscount() {
 		return apps.size();
+	}
+	
+	public List<BunMetadata> getBuns() {
+		return buns;
+	}
+
+	public void setBuns(List<BunMetadata> buns) {
+		this.buns = buns;
+	}
+
+	public void addBun(BunMetadata bun) {
+		if (!buns.contains(bun)) {
+			buns.add(bun);
+			bun.setCategory(this);
+		}		
+	}
+	
+	public void removeBun(BunMetadata bun) {
+		if (buns.contains(bun)) {
+			buns.remove(bun);			
+		}
+		
+	}
+	
+	public int getBunscount() {
+		return buns.size();
 	}
 
 }
