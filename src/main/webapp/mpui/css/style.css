@@ -1,5 +1,7 @@
 @CHARSET "UTF-8";
+
 body {
+	font-family: 'Open Sans', sans-serif;
   padding: 40px 0;
   /*TODO: Use media queries to load smallest image that will fill screen.*/
   /*background: url(http://www.wallpaperup.com/uploads/wallpapers/2014/05/20/355030/big_thumb_493d117744b6f0d01da7b16f25da1e82.jpg) no-repeat center top fixed;
@@ -11,6 +13,22 @@ body {
           background-size: cover;
 }
 
+
+h1 {
+	font-size: 50px;	
+}
+
+p {
+	font-size: 16px;	
+}
+
+.shadowed{
+	text-shadow: 4px 4px 6px #aaa;
+}
+
+.shadowed-dark{
+	text-shadow: 4px 4px 6px #513838;
+}
 
 
 .container {
@@ -87,7 +105,7 @@ body {
 
 
 .navbar-default {
-	background-color: #3D2D44;
+	background-color: rgba(245, 245, 245, 0.93);
 	color: #ffffff;
 }
 
@@ -99,6 +117,7 @@ body {
 .section-signup {	
 	color: #FFFFFF;	
 	background: url('../images/loginlayer_background.PNG') no-repeat center center #aeaeae; 
+	margin-top:10px;
 }
 
 .section-teaser-apps {	
@@ -160,9 +179,23 @@ body {
 }
 
 .appTile {
-	height: 200px;
+	height: 280px;
 	text-align: left;
 }
+
+.appTitle{
+	font-size: 26px;	
+	padding-left: 0px;
+	
+    border-bottom: rgb(238, 207, 207);
+    border-bottom-style: dotted;
+    border-bottom-width: 1px;
+	margin-bottom : 5px;
+	padding-bottom : 5px;
+	
+}
+
+
 
 .tileimg{	
 	min-height: 160px;
