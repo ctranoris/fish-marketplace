@@ -63,7 +63,9 @@ public class MockRepositoryWebClient implements IRepositoryWebClient {
 
 		BunMetadata sm = null;
 		if (mockRepositoryBehavior != MockRepositoryBehavior.RETURN_NULLMETADATA) {
-			sm = new BunMetadata(uuid, "TemporaryServiceFromMockClass");
+			sm = new BunMetadata();
+			sm.setUuid(uuid);
+			sm.setName("TemporaryServiceFromMockClass");
 			if (url.contains("EBUNID") )
 				sm.setPackageLocation("/files/examplebun.tar.gz");
 			else if (url.contains("EBUNERR"))

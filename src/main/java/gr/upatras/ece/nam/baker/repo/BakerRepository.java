@@ -22,6 +22,7 @@ import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
 import gr.upatras.ece.nam.baker.model.SubscribedMachine;
+import gr.upatras.ece.nam.baker.model.Widget;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -96,8 +97,8 @@ public class BakerRepository {
 		return ls;
 	}
 	
-	public void deleteBun(int bunid) {
-		bakerJpaController.deleteBun(bunid);
+	public void deleteProduct(int bunid) {
+		bakerJpaController.deleteProduct(bunid);
 		
 	}
 
@@ -112,11 +113,11 @@ public class BakerRepository {
 	
 
 	public BunMetadata getBunByID(int bunid) {
-		return bakerJpaController.readBunMetadataByID(bunid);
+		return (BunMetadata) bakerJpaController.readProductByID(bunid);
 	}
 	
 	public BunMetadata getBunByUUID(String uuid) {
-		return bakerJpaController.readBunMetadataByUUID(uuid);
+		return (BunMetadata) bakerJpaController.readProductByUUID(uuid);
 	}
 
 
@@ -175,24 +176,18 @@ public class BakerRepository {
 
 
 	public ApplicationMetadata getApplicationMetadataByID(int appid) {
-		return bakerJpaController.readApplicationMetadataByID(appid);
+		return (ApplicationMetadata) bakerJpaController.readProductByID(appid);
 	}
 
 
 	public ApplicationMetadata getApplicationMetadataByUUID(String uuid) {
-		return bakerJpaController.readApplicationMetadataByUUID(uuid);
+		return (ApplicationMetadata) bakerJpaController.readProductByUUID(uuid);
 	}
 
 
 	public ApplicationMetadata updateApplicationInfo(int appid, ApplicationMetadata sm) {
 		ApplicationMetadata bmr = bakerJpaController.updateApplicationMetadata(sm);
 		return bmr;
-		
-	}
-
-
-	public void deleteApp(int appid) {
-		bakerJpaController.deleteApp(appid);
 		
 	}
 
@@ -223,6 +218,12 @@ public class BakerRepository {
 	public void deleteCategory(int catid) {
 		bakerJpaController.deleteCategory(catid);
 		
+	}
+
+
+	public List<Widget> getWidgets(Long categoryid) {
+		List<Widget> ls = bakerJpaController.readWidgetMetadata(categoryid, 0, 100000);		
+		return ls;
 	}
 
 

@@ -27,10 +27,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 
+import org.apache.commons.collections.ListUtils;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 @Entity(name = "Category")
-@JsonIgnoreProperties(value = {  "buns", "apps" })
+@JsonIgnoreProperties(value = {  "products" })
 public class Category {
 
 	@Id
@@ -40,16 +41,22 @@ public class Category {
 	@Basic()
 	private String name=null;
 
+
+
 	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
 	@JoinTable()
-	private List<ApplicationMetadata> apps = new ArrayList<ApplicationMetadata>();
-	
-	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
-	@JoinTable()
-	private List<BunMetadata> buns = new ArrayList<BunMetadata>();
+	private List<Product> products = new ArrayList<Product>();
 	
 	
-	private int appscount;
+	
+	public List<Product> getProducts() {
+		return products;
+	}
+
+	public void setProducts(List<Product> products) {
+		this.products = products;
+	}
+
 
 
 	public String getName() {
@@ -68,57 +75,51 @@ public class Category {
 		this.id = id;
 	}
 
-	public List<ApplicationMetadata> getApps() {
-		return apps;
-	}
 
-	public void setApps(List<ApplicationMetadata> apps) {
-		this.apps = apps;
-	}
-
-	public void addApp(ApplicationMetadata app) {
-		if (!apps.contains(app)) {
-			apps.add(app);
-			app.setCategory(this);
-		}
-		
-	}
-	
-	public void removeApp(ApplicationMetadata app) {
-		if (apps.contains(app)) {
-			apps.remove(app);			
-		}
-		
-	}
-
-	public int getAppscount() {
-		return apps.size();
-	}
-	
-	public List<BunMetadata> getBuns() {
-		return buns;
-	}
-
-	public void setBuns(List<BunMetadata> buns) {
-		this.buns = buns;
-	}
-
-	public void addBun(BunMetadata bun) {
-		if (!buns.contains(bun)) {
-			buns.add(bun);
-			bun.setCategory(this);
+	public void addProduct(Product product) {
+		if (!products.contains(product)) {
+			products.add(product);
+			product.setCategory(this);
 		}		
 	}
 	
-	public void removeBun(BunMetadata bun) {
-		if (buns.contains(bun)) {
-			buns.remove(bun);			
+
+	public void removeProduct(Product p) {
+		if (products.contains(p)) {
+			products.remove(p);			
+		}		
+	}
+	
+	public int getAppscount() {
+		int c = 0;
+		for (int i = 0; i < this.products.size(); i++) {
+			if (this.products.get(i) instanceof ApplicationMetadata)
+				c++;
 		}
-		
+		return c;
 	}
 	
 	public int getBunscount() {
-		return buns.size();
+		int c = 0;
+		for (int i = 0; i < this.products.size(); i++) {
+			if (this.products.get(i) instanceof BunMetadata)
+				c++;
+		}
+		return c;
 	}
+	
+	public int getWidgetscount() {
+		int c = 0;
+		for (int i = 0; i < this.products.size(); i++) {
+			if (this.products.get(i) instanceof Widget)
+				c++;
+		}
+		return c;
+	}
+	
+	public int getProductsCount() {
+		return products.size();
+	}
+	
 
 }
