@@ -44,7 +44,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonIgnoreType;
 
 @Entity(name = "BakerUser")
-@JsonIgnoreProperties(value = { "buns", "apps" })
+@JsonIgnoreProperties(value = { "products" })
 public class BakerUser {
 
 	@Id
@@ -64,14 +64,59 @@ public class BakerUser {
 	@Basic()
 	private String role = null;
 
+	/**
+	 * 
+	 */
 	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
 	@JoinTable()
-	private List<BunMetadata> buns = new ArrayList<BunMetadata>();
+	private List<Product> products = new ArrayList<Product>();
 	
+	
+//	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
+//	@JoinTable()
+//	private List<BunMetadata> buns = new ArrayList<BunMetadata>();
+//	
+//
+//	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
+//	@JoinTable()
+//	private List<ApplicationMetadata> apps = new ArrayList<ApplicationMetadata>();
 
-	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
-	@JoinTable()
-	private List<ApplicationMetadata> apps = new ArrayList<ApplicationMetadata>();
+	public List<Product> getProducts() {
+		return products;
+	}
+
+	public void setProducts(List<Product> products) {
+		this.products = products;
+	}
+	
+	public void addProduct(Product prod) {
+		if (!this.products.contains(prod)) {
+			this.products.add(prod);
+			prod.setOwner(this);
+		}
+	}
+	
+	public void removeFromProducts(Product prod) {
+		if (this.products.contains(prod)) {
+			this.products.remove(prod);
+		}
+	}
+	
+	public void clearProducts() {
+		while (!this.products.isEmpty()) {
+			removeFromProducts(this.products.iterator().next());
+		}
+	}
+	
+	public Product getProductById(long l) {
+
+		for (Iterator iterator = this.products.iterator(); iterator.hasNext();) {
+			Product prod = (Product) iterator.next();
+			if (prod.getId() == l)
+				return prod;
+		}
+		return null;
+	}
 
 	public String getOrganization() {
 		return organization;
@@ -81,32 +126,32 @@ public class BakerUser {
 		organization = newOrganization;
 	}
 
-	public List<BunMetadata> getBuns() {
-		return buns;
-	}
+//	public List<BunMetadata> getBuns() {
+//		return buns;
+//	}
 
-	public void addBun(BunMetadata bunsValue) {
-		if (!buns.contains(bunsValue)) {
-			buns.add(bunsValue);
-			bunsValue.setOwner(this);
-		}
-	}
-
-	public void removeFromBuns(BunMetadata bunsValue) {
-		if (buns.contains(bunsValue)) {
-			buns.remove(bunsValue);
-		}
-	}
-
-	public void clearBuns() {
-		while (!buns.isEmpty()) {
-			removeFromBuns(buns.iterator().next());
-		}
-	}
-
-	public void setBuns(List<BunMetadata> newBuns) {
-		buns = newBuns;
-	}
+//	public void addBun(BunMetadata bunsValue) {
+//		if (!buns.contains(bunsValue)) {
+//			buns.add(bunsValue);
+//			bunsValue.setOwner(this);
+//		}
+//	}
+//
+//	public void removeFromBuns(BunMetadata bunsValue) {
+//		if (buns.contains(bunsValue)) {
+//			buns.remove(bunsValue);
+//		}
+//	}
+//
+//	public void clearBuns() {
+//		while (!buns.isEmpty()) {
+//			removeFromBuns(buns.iterator().next());
+//		}
+//	}
+//
+//	public void setBuns(List<BunMetadata> newBuns) {
+//		buns = newBuns;
+//	}
 
 	public int getId() {
 		return id;
@@ -153,15 +198,15 @@ public class BakerUser {
 		this.password = password;
 	}
 
-	public BunMetadata getBunById(int bunid) {
-
-		for (Iterator iterator = buns.iterator(); iterator.hasNext();) {
-			BunMetadata bunMetadata = (BunMetadata) iterator.next();
-			if (bunMetadata.getId() == bunid)
-				return bunMetadata;
-		}
-		return null;
-	}
+//	public BunMetadata getBunById(int bunid) {
+//
+//		for (Iterator iterator = buns.iterator(); iterator.hasNext();) {
+//			BunMetadata bunMetadata = (BunMetadata) iterator.next();
+//			if (bunMetadata.getId() == bunid)
+//				return bunMetadata;
+//		}
+//		return null;
+//	}
 
 	public String getEmail() {
 		return email;
@@ -179,28 +224,28 @@ public class BakerUser {
 		this.role = role;
 	}
 	
-	public void addApplication(ApplicationMetadata app) {
-		if (!apps.contains(app)) {
-			apps.add(app);
-			app.setOwner(this);
-		}
-	}
-
-	public List<ApplicationMetadata> getApps() {
-		return apps;
-	}
-
-	public void setApps(List<ApplicationMetadata> apps) {
-		this.apps = apps;
-	}
-
-	public ApplicationMetadata getAppById(int appid) {
-
-		for (Iterator iterator = apps.iterator(); iterator.hasNext();) {
-			ApplicationMetadata appMetadata = (ApplicationMetadata) iterator.next();
-			if (appMetadata.getId() == appid)
-				return appMetadata;
-		}
-		return null;
-	}
+//	public void addApplication(ApplicationMetadata app) {
+//		if (!apps.contains(app)) {
+//			apps.add(app);
+//			app.setOwner(this);
+//		}
+//	}
+//
+//	public List<ApplicationMetadata> getApps() {
+//		return apps;
+//	}
+//
+//	public void setApps(List<ApplicationMetadata> apps) {
+//		this.apps = apps;
+//	}
+//
+//	public ApplicationMetadata getAppById(int appid) {
+//
+//		for (Iterator iterator = apps.iterator(); iterator.hasNext();) {
+//			ApplicationMetadata appMetadata = (ApplicationMetadata) iterator.next();
+//			if (appMetadata.getId() == appid)
+//				return appMetadata;
+//		}
+//		return null;
+//	}
 }

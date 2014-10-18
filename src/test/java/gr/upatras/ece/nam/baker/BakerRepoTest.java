@@ -81,14 +81,14 @@ public class BakerRepoTest {
 		bmeta.setLongDescription("longDescription");
 		bmeta.setShortDescription("shortDescription");
 		bmeta.setPackageLocation("packageLocation");
-		bu.addBun(bmeta);
+		bu.addProduct(bmeta);
 
 		bakerJpaControllerTest.updateBakerUser(bu);
 		
 		// change name and reSave
 		bmeta = (BunMetadata) bakerJpaControllerTest.readProductByUUID(uuid);
 		bmeta.setName("NewBunName");
-		bakerJpaControllerTest.updateBunMetadata(bmeta);		
+		bakerJpaControllerTest.updateProduct(bmeta);		
 
 		bakerJpaControllerTest.getAllProductsPrinted();
 		
@@ -100,7 +100,7 @@ public class BakerRepoTest {
 		bmeta.setShortDescription("shortDescription2");
 		bmeta.setPackageLocation("packageLocation2");
 		bu = bakerJpaControllerTest.readBakerUserByUsername("ausername");
-		bu.addBun(bmeta);
+		bu.addProduct(bmeta);
 
 		bakerJpaControllerTest.updateBakerUser(bu);
 
@@ -113,7 +113,7 @@ public class BakerRepoTest {
 
 		bakerJpaControllerTest.getAllProductsPrinted();
 		
-		assertEquals(2, testbu.getBuns().size());
+		assertEquals(2, testbu.getProducts().size());
 
 		BunMetadata testbm = (BunMetadata) bakerJpaControllerTest.readProductByUUID(uuid);
 		assertEquals("NewBunName", testbm.getName());
@@ -178,13 +178,13 @@ public class BakerRepoTest {
 		appmeta.setShortDescription("shortDescription");
 		appmeta.addCategory(c);
 		appmeta.addCategory(c2);
-		bu.addApplication(appmeta);
+		bu.addProduct(appmeta);
 
 		bakerJpaControllerTest.saveUser(bu);
 
 		// change name and reSave
 		appmeta.setName("NewAppName");
-		bakerJpaControllerTest.updateApplicationMetadata(appmeta);
+		bakerJpaControllerTest.updateProduct(appmeta);
 		assertEquals(2, appmeta.getCategories().size() );
 
 		ApplicationMetadata appmeta2 = new ApplicationMetadata();
@@ -193,13 +193,13 @@ public class BakerRepoTest {
 		appmeta2.setShortDescription("shortDescription2");
 		appmeta2.setOwner(bu);
 		appmeta2.addCategory(c);
-		bu.addApplication(appmeta2);
+		bu.addProduct(appmeta2);
 
 		bakerJpaControllerTest.updateBakerUser(bu);
 		bakerJpaControllerTest.getAllUsersPrinted();
 
 		BakerUser testbu = bakerJpaControllerTest.readBakerUserByUsername("ausername");
-		assertEquals(2, testbu.getApps().size());
+		assertEquals(2, testbu.getProducts().size());
 
 		ApplicationMetadata testApp = (ApplicationMetadata) bakerJpaControllerTest.readProductByUUID(uuid);
 		assertEquals("NewAppName", testApp.getName());
