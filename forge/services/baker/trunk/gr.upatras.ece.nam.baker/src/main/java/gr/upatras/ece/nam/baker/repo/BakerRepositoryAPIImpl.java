@@ -20,8 +20,10 @@ import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
 import gr.upatras.ece.nam.baker.model.IBakerRepositoryAPI;
+import gr.upatras.ece.nam.baker.model.Product;
 import gr.upatras.ece.nam.baker.model.SubscribedMachine;
 import gr.upatras.ece.nam.baker.model.UserSession;
+import gr.upatras.ece.nam.baker.model.Widget;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -331,7 +333,9 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		logger.info("bunFile = " + bunFileNamePosted);
 
 		String uuid = UUID.randomUUID().toString();
-		BunMetadata sm = new BunMetadata(uuid, bunname);
+		BunMetadata sm = new BunMetadata();
+		sm.setUuid(uuid);
+		sm.setName(bunname);
 		sm.setShortDescription(shortDescription);
 		sm.setLongDescription(longDescription);
 		sm.setVersion(version);
@@ -412,7 +416,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 		//first remove the bun from the previous category
 		if (sm.getCategory()!=null){
-			sm.getCategory().removeBun(sm);
+			sm.getCategory().removeProduct(sm);
 			bakerRepositoryRef.updateCategoryInfo(sm.getCategory());
 		}
 		//and now add the new one
@@ -505,7 +509,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@DELETE
 	@Path("/buns/{bunid}")
 	public void deleteBun(@PathParam("bunid") int bunid) {
-		bakerRepositoryRef.deleteBun(bunid);
+		bakerRepositoryRef.deleteProduct(bunid);
 
 	}
 
@@ -535,7 +539,9 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 		URI endpointUrl = uri.getBaseUri();
 		if (uuid.equals("77777777-668b-4c75-99a9-39b24ed3d8be")) {
-			bun = new BunMetadata(uuid, "IntegrTestLocal example service");
+			bun = new BunMetadata();
+			bun.setUuid(uuid);
+			bun.setName("IntegrTestLocal example service");
 			bun.setShortDescription("An example local service");
 			bun.setVersion("1.0.0");
 			bun.setIconsrc("");
@@ -552,7 +558,9 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			//
 			// bun.setPackageLocation( endpointUrl +"repo/packages/12cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebun.tar.gz");
 		} else if (uuid.equals("22cab8b8-668b-4c75-99a9-39b24ed3d8be")) {
-			bun = new BunMetadata(uuid, "IntegrTestLocal example ErrInstall service");
+			bun = new BunMetadata();
+			bun.setUuid(uuid);
+			bun.setName("IntegrTestLocal example ErrInstall service");
 			bun.setShortDescription("An example ErrInstall local service");
 			bun.setVersion("1.0.0");
 			bun.setIconsrc("");
@@ -843,7 +851,9 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		logger.info("image = " + imageFileNamePosted);
 
 		String uuid = UUID.randomUUID().toString();
-		ApplicationMetadata sm = new ApplicationMetadata(uuid, appname);
+		ApplicationMetadata sm = new ApplicationMetadata();
+		sm.setUuid(uuid);
+		sm.setName(appname);
 		sm.setShortDescription(shortDescription);
 		sm.setLongDescription(longDescription);
 		sm.setVersion(version);
@@ -912,7 +922,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		
 		//first remove the application from the previous category
 		if (appmeta.getCategory()!=null){
-			appmeta.getCategory().removeApp(appmeta);
+			appmeta.getCategory().removeProduct(appmeta);
 			bakerRepositoryRef.updateCategoryInfo(appmeta.getCategory());
 		}
 		//and now add the new one
@@ -949,7 +959,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@DELETE
 	@Path("/apps/{appid}")
 	public void deleteApp(@PathParam("appid") int appid) {
-		bakerRepositoryRef.deleteApp(appid);
+		bakerRepositoryRef.deleteProduct(appid);
 		
 	}
 
@@ -1003,7 +1013,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@Path("/categories/{catid}")
 	public Response deleteCategory(@PathParam("catid") int catid) {
 		Category category = bakerRepositoryRef.getCategoryByID(catid);
-		if ((category.getApps().size()>0) || (category.getBuns().size()>0)){
+		if ((category.getProducts().size()>0) ){
 			ResponseBuilder builder = Response.status(Status.METHOD_NOT_ALLOWED );
 			builder.entity("The category has assigned elements. You cannot delete it!");
 			throw new WebApplicationException(builder.build());
@@ -1027,7 +1037,17 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			builder.entity("Category " + catid + " not found in baker registry");
 			throw new WebApplicationException(builder.build());
 		}
-}
+	}
 
+	//Widgets related API
+
+	@GET
+	@Path("/widgets")
+	@Produces("application/json")
+	public Response getWidgets(@QueryParam("categoryid") Long categoryid) {
+		logger.info("getWidgets categoryid="+categoryid);
+		List<Widget> w = bakerRepositoryRef.getWidgets(categoryid);
+		return Response.ok().entity(w).build();
+	}
 
 }

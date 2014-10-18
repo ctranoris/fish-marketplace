@@ -15,25 +15,20 @@
 
 package gr.upatras.ece.nam.baker.model;
 
-import java.util.Date;
-
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
-import javax.persistence.ManyToOne;
 
+@Entity
+public class Widget extends Product{
+	
+	private String URL;
 
-@Entity(name = "ApplicationMetadata")
-public class ApplicationMetadata extends Product{
+	public String getURL() {
+		return URL;
+	}
 
+	public void setURL(String uRL) {
+		URL = uRL;
+	}
 
-
-
+	
 }

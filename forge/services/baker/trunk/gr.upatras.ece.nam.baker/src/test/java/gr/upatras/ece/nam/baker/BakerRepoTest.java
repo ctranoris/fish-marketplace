@@ -53,10 +53,9 @@ public class BakerRepoTest {
 	@Before
 	public void deletePreviousobjectsDB() {
 
-		bakerJpaControllerTest.deleteAllBunMetadata();
+		bakerJpaControllerTest.deleteAllProducts();
 		bakerJpaControllerTest.deleteAllUsers();
 		bakerJpaControllerTest.deleteAllSubscribedMachines();
-		bakerJpaControllerTest.deleteAllAppMetadata();
 		bakerJpaControllerTest.deleteAllCategories();
 
 	}
@@ -64,6 +63,8 @@ public class BakerRepoTest {
 	@Test
 	public void testWriteReadDB() {
 
+		bakerJpaControllerTest.getAllProductsPrinted();
+		
 		BakerUser bu = new BakerUser();
 		bu.setOrganization("UoP");
 		bu.setName("aname");
@@ -71,6 +72,8 @@ public class BakerRepoTest {
 		bu.setPassword("apassword");
 		bu.setEmail("e@e.com");
 
+		bakerJpaControllerTest.saveUser(bu);
+		
 		BunMetadata bmeta = new BunMetadata();
 		bmeta.setName("abun");
 		String uuid = UUID.randomUUID().toString();
@@ -80,23 +83,26 @@ public class BakerRepoTest {
 		bmeta.setPackageLocation("packageLocation");
 		bu.addBun(bmeta);
 
-		bakerJpaControllerTest.saveUser(bu);
-
+		bakerJpaControllerTest.updateBakerUser(bu);
+		
 		// change name and reSave
+		bmeta = (BunMetadata) bakerJpaControllerTest.readProductByUUID(uuid);
 		bmeta.setName("NewBunName");
-		bakerJpaControllerTest.updateBunMetadata(bmeta);
-		// bakerJpaControllerTest.getAllBunsPrinted();
+		bakerJpaControllerTest.updateBunMetadata(bmeta);		
 
+		bakerJpaControllerTest.getAllProductsPrinted();
+		
 		bmeta = new BunMetadata();
+		String uuid2 = UUID.randomUUID().toString();
+		bmeta.setUuid(uuid2);
 		bmeta.setName("abun2");
 		bmeta.setLongDescription("longDescription2");
 		bmeta.setShortDescription("shortDescription2");
 		bmeta.setPackageLocation("packageLocation2");
+		bu = bakerJpaControllerTest.readBakerUserByUsername("ausername");
 		bu.addBun(bmeta);
 
 		bakerJpaControllerTest.updateBakerUser(bu);
-		// bakerJpaControllerTest.getAllBunsPrinted();
-		bakerJpaControllerTest.getAllUsersPrinted();
 
 		BakerUser testbu = bakerJpaControllerTest.readBakerUserByUsername("ausername");
 		assertEquals("aname", testbu.getName());
@@ -104,9 +110,12 @@ public class BakerRepoTest {
 		assertEquals("UoP", testbu.getOrganization());
 		assertEquals("e@e.com", testbu.getEmail());
 
+
+		bakerJpaControllerTest.getAllProductsPrinted();
+		
 		assertEquals(2, testbu.getBuns().size());
 
-		BunMetadata testbm = bakerJpaControllerTest.readBunMetadataByUUID(uuid);
+		BunMetadata testbm = (BunMetadata) bakerJpaControllerTest.readProductByUUID(uuid);
 		assertEquals("NewBunName", testbm.getName());
 		assertEquals(uuid, testbm.getUuid());
 		assertNotNull(testbm.getOwner());
@@ -194,7 +203,7 @@ public class BakerRepoTest {
 		BakerUser testbu = bakerJpaControllerTest.readBakerUserByUsername("ausername");
 		assertEquals(2, testbu.getApps().size());
 
-		ApplicationMetadata testApp = bakerJpaControllerTest.readApplicationMetadataByUUID(uuid);
+		ApplicationMetadata testApp = (ApplicationMetadata) bakerJpaControllerTest.readProductByUUID(uuid);
 		assertEquals("NewAppName", testApp.getName());
 		assertEquals(uuid, testApp.getUuid());
 		assertNotNull(testApp.getOwner());

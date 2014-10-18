@@ -22,6 +22,8 @@
 		<class>gr.upatras.ece.nam.baker.model.SubscribedMachine</class>
 		<class>gr.upatras.ece.nam.baker.model.ApplicationMetadata</class>
 		<class>gr.upatras.ece.nam.baker.model.Category</class>
+		<class>gr.upatras.ece.nam.baker.model.Widget</class>
+		<class>gr.upatras.ece.nam.baker.model.Product</class>
 
 
 		<properties>
@@ -48,6 +50,8 @@
 		<class>gr.upatras.ece.nam.baker.model.SubscribedMachine</class>
 		<class>gr.upatras.ece.nam.baker.model.ApplicationMetadata</class>
 		<class>gr.upatras.ece.nam.baker.model.Category</class>
+		<class>gr.upatras.ece.nam.baker.model.Widget</class>
+		<class>gr.upatras.ece.nam.baker.model.Product</class>
 
 
 
