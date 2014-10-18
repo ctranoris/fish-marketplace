@@ -55,9 +55,9 @@ public interface IBakerRepositoryAPI {
 	Response getBunofUser( int userid, int bunid);
 	Response downloadBunPackage(String uuid, String bunfile);	
 	Response updateBunMetadata(int bid, int userid, String bunname, int bunid, String uuid, String shortDescription, String longDescription, String version,
-			int catid, Attachment image, Attachment bunFile);
+			String categories, Attachment image, Attachment bunFile);
 	Response addBunMetadata(int userid, String bunname, String shortDescription, String longDescription, 
-			String version, int catid,Attachment image, Attachment bunFile);
+			String version,  String categories ,Attachment image, Attachment bunFile);
 	void deleteBun( int bunid);
 	
 	//Subscribed machines
@@ -73,8 +73,8 @@ public interface IBakerRepositoryAPI {
 	Response getAppMetadataByUUID(String uuid);		
 	Response getAppofUser( int userid, int bunid);
 	Response updateAppMetadata(int aid, int userid, String appname, int appid, String uuid, String shortDescription, String longDescription, String version,
-			int catid, Attachment image);
-	Response addAppMetadata(int userid, String appname, String shortDescription, String longDescription, String version, int catid, Attachment image);
+			String categories, Attachment image);
+	Response addAppMetadata(int userid, String appname, String shortDescription, String longDescription, String version, String categories, Attachment image);
 	void deleteApp(int appid);
 	
 }

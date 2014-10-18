@@ -15,7 +15,9 @@
 
 package gr.upatras.ece.nam.baker.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -29,19 +31,18 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.InheritanceType;
 import javax.persistence.DiscriminatorType;
 
-
 @Entity(name = "Product")
-@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="app_type", discriminatorType=DiscriminatorType.STRING)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "app_type", discriminatorType = DiscriminatorType.STRING)
 public class Product {
 
-
 	@Id
-	@GeneratedValue( strategy = GenerationType.IDENTITY  )
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id = 0;
 
 	@ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }, fetch = FetchType.LAZY)
@@ -56,9 +57,9 @@ public class Product {
 	private String iconsrc = null;
 	@Basic()
 	private String shortDescription = null;
-	
+
 	@Basic()
-	@Column(name="LONGDESCRIPTION", length=1024)
+	@Column(name = "LONGDESCRIPTION", length = 1024)
 	private String longDescription = null;
 	@Basic()
 	private String version = null;
@@ -71,56 +72,62 @@ public class Product {
 	@Basic()
 	private Date dateUpdated;
 
-	@ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }, fetch = FetchType.LAZY)
-	@JoinColumns({ @JoinColumn() })
-	private Category category;
+	@ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }, fetch = FetchType.LAZY)
+	private List<Category> categories = new ArrayList<Category>();
 
 	public Product() {
 	}
-	
+
 	public Product(String uuid, String name) {
 		super();
 		this.name = name;
 		this.uuid = uuid;
 	}
-	
+
 	public BakerUser getOwner() {
 		return owner;
 	}
-	
+
 	public void setOwner(BakerUser newOwner) {
 		owner = newOwner;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
-	
 
 	public String getIconsrc() {
 		return iconsrc;
 	}
+
 	public void setIconsrc(String iconsrc) {
 		this.iconsrc = iconsrc;
 	}
+
 	public String getShortDescription() {
 		return shortDescription;
 	}
+
 	public void setShortDescription(String shortDescription) {
 		this.shortDescription = shortDescription;
 	}
+
 	public String getLongDescription() {
 		return longDescription;
 	}
+
 	public void setLongDescription(String longDescription) {
 		this.longDescription = longDescription;
 	}
+
 	public String getVersion() {
 		return version;
 	}
+
 	public void setVersion(String version) {
 		this.version = version;
 	}
@@ -128,12 +135,15 @@ public class Product {
 	public String getUuid() {
 		return uuid;
 	}
+
 	public void setUuid(String uuid) {
 		this.uuid = uuid;
 	}
+
 	public String getPackageLocation() {
 		return packageLocation;
 	}
+
 	public void setPackageLocation(String packageLocation) {
 		this.packageLocation = packageLocation;
 	}
@@ -162,14 +172,27 @@ public class Product {
 		this.dateUpdated = dateUpdated;
 	}
 
-	public Category getCategory() {
-		return category;
+	public List<Category> getCategories() {
+		return categories;
 	}
 
-	public void setCategory(Category category) {
-		this.category = category;
-		this.category.addProduct(this);
+	public void setCategories(List<Category> categories) {
+		this.categories = categories;
 	}
+	
 
+	public void addCategory(Category category) {
+		if (!this.categories.contains(category) ){
+			this.categories.add(category);
+			category.addProduct(this);
+		}
+	}
+	
+	public void removeCategory(Category category) {
+		if (this.categories.contains(category) ){
+			this.categories.remove(category);
+			category.removeProduct(this);
+		}
+	}
 
 }

@@ -34,6 +34,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -319,7 +320,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription,
 			@Multipart(value = "longDescription", type = "text/plain") String longDescription,
 			@Multipart(value = "version", type = "text/plain") String version,  
-			@Multipart(value = "categoryid", type = "text/plain") int catid, 
+			@Multipart(value = "categories", type = "text/plain") String categories, 
 			@Multipart(value = "uploadedBunIcon") Attachment image,
 			@Multipart(value = "uploadedBunFile") Attachment bunFile) {
 
@@ -342,8 +343,12 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		sm.setDateCreated(new Date());
 		sm.setDateUpdated(new Date());
 		
-		Category category = bakerRepositoryRef.getCategoryByID(catid);
-		sm.setCategory(category);
+		String[] catIDs = categories.split(",");
+		for (String catid : catIDs) {
+			Category category = bakerRepositoryRef.getCategoryByID( Integer.valueOf(catid) );		
+			sm.addCategory(category);
+		}
+
 		URI endpointUrl = uri.getBaseUri();
 
 		String tempDir = METADATADIR + uuid + File.separator;
@@ -386,7 +391,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription,
 			@Multipart(value = "longDescription", type = "text/plain") String longDescription,
 			@Multipart(value = "version", type = "text/plain") String version, 
-			@Multipart(value = "categoryid", type = "text/plain") int catid,
+			@Multipart(value = "categories", type = "text/plain") String categories,
 			@Multipart(value = "uploadedBunIcon") Attachment image,
 			@Multipart(value = "uploadedBunFile") Attachment bunFile) {
 
@@ -414,14 +419,26 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		sm.setOwner(bunOwner);
 		sm.setDateUpdated(new Date());
 
+		
 		//first remove the bun from the previous category
-		if (sm.getCategory()!=null){
-			sm.getCategory().removeProduct(sm);
-			bakerRepositoryRef.updateCategoryInfo(sm.getCategory());
+		List<Category> cats = sm.getCategories();
+		List<Category> catsToUpdate = new ArrayList<Category>();
+		for (Category category : cats) {
+			catsToUpdate.add(category);
+		}		
+		
+		for (Category c : catsToUpdate) {
+			c.removeProduct(sm);
+			sm.removeCategory(c);
+			bakerRepositoryRef.updateCategoryInfo( c );
 		}
-		//and now add the new one
-		Category category = bakerRepositoryRef.getCategoryByID(catid);
-		sm.setCategory(category);
+		
+		String[] catIDs = categories.split(",");
+		for (String catid : catIDs) {
+			//and now add the new one
+			Category category = bakerRepositoryRef.getCategoryByID(Integer.valueOf(catid));
+			sm.addCategory(category);
+		}
 
 
 		URI endpointUrl = uri.getBaseUri();
@@ -840,7 +857,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription, 
 			@Multipart(value = "longDescription", type = "text/plain") String longDescription, 
 			@Multipart(value = "version", type = "text/plain") String version, 
-			@Multipart(value = "categoryid", type = "text/plain") int catid, 
+			@Multipart(value = "categories", type = "text/plain") String categories, 
 			@Multipart(value = "uploadedAppIcon") Attachment image) {
 		
 		String imageFileNamePosted = getFileName(image.getHeaders());
@@ -860,8 +877,13 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		sm.setDateCreated(new Date());
 		sm.setDateUpdated(new Date());
 		
-		Category category = bakerRepositoryRef.getCategoryByID(catid);
-		sm.setCategory(category);
+		String[] catIDs = categories.split(",");
+		for (String catid : catIDs) {
+			Category category = bakerRepositoryRef.getCategoryByID( Integer.valueOf(catid) );		
+			sm.addCategory(category);
+		}
+		
+		
 		URI endpointUrl = uri.getBaseUri();
 
 		String tempDir = METADATADIR + uuid + File.separator;
@@ -896,7 +918,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription, 
 			@Multipart(value = "longDescription", type = "text/plain") String longDescription, 
 			@Multipart(value = "version", type = "text/plain") String version,
-			@Multipart(value = "categoryid", type = "text/plain") int catid,
+			@Multipart(value = "categories", type = "text/plain") String categories,
 			@Multipart(value = "uploadedAppIcon") Attachment image){
 		
 		String imageFileNamePosted = getFileName(image.getHeaders());
@@ -920,14 +942,25 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		appmeta.setOwner(appOwner);
 		appmeta.setDateUpdated(new Date());
 		
-		//first remove the application from the previous category
-		if (appmeta.getCategory()!=null){
-			appmeta.getCategory().removeProduct(appmeta);
-			bakerRepositoryRef.updateCategoryInfo(appmeta.getCategory());
+		//first remove the bun from the previous category
+		List<Category> cats = appmeta.getCategories();
+		List<Category> catsToUpdate = new ArrayList<Category>();
+		for (Category category : cats) {
+			catsToUpdate.add(category);
+		}		
+		
+		for (Category c : catsToUpdate) {
+			c.removeProduct(appmeta);
+			appmeta.removeCategory(c);
+			bakerRepositoryRef.updateCategoryInfo( c );
 		}
-		//and now add the new one
-		Category category = bakerRepositoryRef.getCategoryByID(catid);
-		appmeta.setCategory(category);
+		
+		String[] catIDs = categories.split(",");
+		for (String catid : catIDs) {
+			//and now add the new one
+			Category category = bakerRepositoryRef.getCategoryByID(Integer.valueOf(catid));
+			appmeta.addCategory(category);
+		}
 
 		URI endpointUrl = uri.getBaseUri();
 

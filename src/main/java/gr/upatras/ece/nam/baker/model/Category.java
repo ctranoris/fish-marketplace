@@ -25,6 +25,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
 import org.apache.commons.collections.ListUtils;
@@ -43,8 +44,7 @@ public class Category {
 
 
 
-	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
-	@JoinTable()
+	@ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
 	private List<Product> products = new ArrayList<Product>();
 	
 	
@@ -79,14 +79,15 @@ public class Category {
 	public void addProduct(Product product) {
 		if (!products.contains(product)) {
 			products.add(product);
-			product.setCategory(this);
+			product.addCategory(this);
 		}		
 	}
 	
 
 	public void removeProduct(Product p) {
 		if (products.contains(p)) {
-			products.remove(p);			
+			products.remove(p);
+			//p.removeCategory(this);
 		}		
 	}
 	

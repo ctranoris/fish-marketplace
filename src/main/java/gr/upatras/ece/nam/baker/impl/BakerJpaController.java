@@ -341,7 +341,7 @@ public class BakerJpaController {
 		Query q;
 		
 		if ((categoryid!=null) && (categoryid>=0))
-			q = entityManager.createQuery("SELECT a FROM BunMetadata a WHERE a.category.id="+categoryid+" ORDER BY a.id");
+			q = entityManager.createQuery("SELECT a FROM BunMetadata a WHERE a.categories.id="+categoryid+" ORDER BY a.id");
 		else
 			q = entityManager.createQuery("SELECT a FROM BunMetadata a ORDER BY a.id");
 
@@ -572,7 +572,7 @@ public class BakerJpaController {
 		Query q;
 		
 		if ((categoryid!=null) && (categoryid>=0))
-			q = entityManager.createQuery("SELECT a FROM ApplicationMetadata a WHERE a.category.id="+categoryid+" ORDER BY a.id");
+			q = entityManager.createQuery("SELECT a FROM ApplicationMetadata a WHERE a.categories.id="+categoryid+" ORDER BY a.id");
 		else
 			q = entityManager.createQuery("SELECT a FROM ApplicationMetadata a ORDER BY a.id");
 		q.setFirstResult(firstResult);
