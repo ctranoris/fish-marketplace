@@ -210,10 +210,10 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		BakerUser previousUser = bakerRepositoryRef.getUserByID(userid);
 		
 
-		List<BunMetadata> previousBuns = previousUser.getBuns();
+		List<Product> previousProducts = previousUser.getProducts();
 
-		if (user.getBuns().size() == 0) {
-			user.getBuns().addAll(previousBuns);
+		if (user.getProducts().size() == 0) {
+			user.getProducts().addAll(previousProducts);
 		}
 
 		BakerUser u = bakerRepositoryRef.updateUserInfo(userid, user);
@@ -246,8 +246,13 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		BakerUser u = bakerRepositoryRef.getUserByID(userid);
 
 		if (u != null) {
-			List<BunMetadata> buns = u.getBuns();
-			// Collection<BunMetadata> b = buns;
+			List<Product> prods = u.getProducts();
+			List<BunMetadata> buns = new ArrayList<BunMetadata>();
+			for (Product p : prods) {
+				if (p instanceof BunMetadata)
+					buns.add(  (BunMetadata) p );
+			}
+
 			return Response.ok().entity(buns).build();
 		} else {
 			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
@@ -265,8 +270,13 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		BakerUser u = bakerRepositoryRef.getUserByID(userid);
 
 		if (u != null) {
-			List<ApplicationMetadata> apps = u.getApps();
-			// Collection<BunMetadata> b = buns;
+			List<Product> prods = u.getProducts();
+			List<ApplicationMetadata> apps = new ArrayList<ApplicationMetadata>();
+			for (Product p : prods) {
+				if (p instanceof ApplicationMetadata)
+					apps.add(  (ApplicationMetadata) p );
+			}
+
 			return Response.ok().entity(apps).build();
 		} else {
 			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
@@ -284,7 +294,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		BakerUser u = bakerRepositoryRef.getUserByID(userid);
 
 		if (u != null) {
-			BunMetadata bun = u.getBunById(bunid);
+			BunMetadata bun = (BunMetadata) u.getProductById(bunid);
 			return Response.ok().entity(bun).build();
 		} else {
 			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
@@ -302,7 +312,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		BakerUser u = bakerRepositoryRef.getUserByID(userid);
 
 		if (u != null) {
-			ApplicationMetadata appmeta = u.getAppById(appid);
+			ApplicationMetadata appmeta = (ApplicationMetadata) u.getProductById(appid);
 			return Response.ok().entity(appmeta).build();
 		} else {
 			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
@@ -324,19 +334,30 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			@Multipart(value = "uploadedBunIcon") Attachment image,
 			@Multipart(value = "uploadedBunFile") Attachment bunFile) {
 
+
+		
+		BunMetadata sm = new BunMetadata();
+		sm = (BunMetadata) addNewProductData(sm, userid, bunname, shortDescription, longDescription, version, categories, image, bunFile);
+
+		
+		return Response.ok().entity(sm).build();
+
+	}
+
+	
+	private Product addNewProductData(Product sm, int userid, String prodName, String shortDescription, String longDescription, String version,
+			String categories, Attachment image, Attachment bunFile) {
+		String uuid = UUID.randomUUID().toString();
 		String imageFileNamePosted = getFileName(image.getHeaders());
-		String bunFileNamePosted = getFileName(bunFile.getHeaders());
-		logger.info("bunname = " + bunname);
+		
+		logger.info("bunname = " + prodName);
 		logger.info("version = " + version);
 		logger.info("shortDescription = " + shortDescription);
 		logger.info("longDescription = " + longDescription);
 		logger.info("image = " + imageFileNamePosted);
-		logger.info("bunFile = " + bunFileNamePosted);
-
-		String uuid = UUID.randomUUID().toString();
-		BunMetadata sm = new BunMetadata();
+		
 		sm.setUuid(uuid);
-		sm.setName(bunname);
+		sm.setName(prodName);
 		sm.setShortDescription(shortDescription);
 		sm.setLongDescription(longDescription);
 		sm.setVersion(version);
@@ -361,11 +382,19 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 				sm.setIconsrc(endpointUrl + "repo/images/" + uuid + File.separator + imageFileNamePosted);
 			}
 
-			if (!bunFileNamePosted.equals("")) {
-				String bunfilepath = saveFile(bunFile, tempDir + bunFileNamePosted);
-				logger.info("bunfilepath saved to = " + bunfilepath);
-				sm.setPackageLocation(endpointUrl + "repo/packages/" + uuid + File.separator + bunFileNamePosted);
+			
+
+			if (bunFile!=null){
+				String bunFileNamePosted = getFileName(bunFile.getHeaders());
+				logger.info("bunFile = " + bunFileNamePosted);
+				if (!bunFileNamePosted.equals("")) {
+					String bunfilepath = saveFile(bunFile, tempDir + bunFileNamePosted);
+					logger.info("bunfilepath saved to = " + bunfilepath);
+					sm.setPackageLocation(endpointUrl + "repo/packages/" + uuid + File.separator + bunFileNamePosted);
+				}
 			}
+			
+			
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -373,13 +402,11 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 		// Save now bun for User
 		BakerUser bunOwner = bakerRepositoryRef.getUserByID(userid);
-		bunOwner.addBun(sm);
+		bunOwner.addProduct(sm);
 		bakerRepositoryRef.updateUserInfo(userid, bunOwner);
-		return Response.ok().entity(sm).build();
-
+		return sm;
 	}
 
-	
 	@PUT
 	@Path("/buns/{bid}")
 	@Consumes("multipart/form-data")
@@ -395,23 +422,34 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			@Multipart(value = "uploadedBunIcon") Attachment image,
 			@Multipart(value = "uploadedBunFile") Attachment bunFile) {
 
+		
+
+		BunMetadata sm = bakerRepositoryRef.getBunByID(bunid);
+		sm = (BunMetadata) updateProductMetadata(sm, userid, bunname, uuid, shortDescription, longDescription, version, categories, image, bunFile);
+		
+		
+		return Response.ok().entity(sm).build();
+
+	}
+
+	// Buns related API
+
+	private Product updateProductMetadata(Product sm, int userid, String bunname, String uuid, String shortDescription, String longDescription,
+			String version, String categories, Attachment image, Attachment bunFile) {
 		String imageFileNamePosted = getFileName(image.getHeaders());
-		String bunFileNamePosted = getFileName(bunFile.getHeaders());
+		
 		logger.info("userid = " + userid);
 		logger.info("bunname = " + bunname);
-		logger.info("bunid = " + bunid);
-		;
+		logger.info("bunid = " + sm.getId());
+		
 		logger.info("bunuuid = " + uuid);
 		logger.info("version = " + version);
 		logger.info("shortDescription = " + shortDescription);
 		logger.info("longDescription = " + longDescription);
 		logger.info("image = " + imageFileNamePosted);
-		logger.info("bunFile = " + bunFileNamePosted);
 
 		// Save now bun for User
 		BakerUser bunOwner = bakerRepositoryRef.getUserByID(userid);
-
-		BunMetadata sm = bakerRepositoryRef.getBunByID(bunid);
 		sm.setShortDescription(shortDescription);
 		sm.setLongDescription(longDescription);
 		sm.setVersion(version);
@@ -453,10 +491,14 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 				sm.setIconsrc(endpointUrl + "repo/images/" + uuid + File.separator + imageFileNamePosted);
 			}
 
-			if (!bunFileNamePosted.equals("unknown")) {
-				String bunfilepath = saveFile(bunFile, tempDir + bunFileNamePosted);
-				logger.info("bunfilepath saved to = " + bunfilepath);
-				sm.setPackageLocation(endpointUrl + "repo/packages/" + uuid + File.separator + bunFileNamePosted);
+			if (bunFile!=null){
+				String bunFileNamePosted = getFileName(bunFile.getHeaders());
+				logger.info("bunFile = " + bunFileNamePosted);
+				if (!bunFileNamePosted.equals("unknown")) {
+					String bunfilepath = saveFile(bunFile, tempDir + bunFileNamePosted);
+					logger.info("bunfilepath saved to = " + bunfilepath);
+					sm.setPackageLocation(endpointUrl + "repo/packages/" + uuid + File.separator + bunFileNamePosted);
+				}
 			}
 
 		} catch (IOException e) {
@@ -464,16 +506,13 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			e.printStackTrace();
 		}
 
-		bakerRepositoryRef.updateBunInfo(bunid, sm);
+		bakerRepositoryRef.updateProductInfo(sm);
 
-		if (bunOwner.getBunById(bunid) == null)
-			bunOwner.addBun(sm);
+		if (bunOwner.getProductById(sm.getId()) == null)
+			bunOwner.addProduct(sm);
 		bakerRepositoryRef.updateUserInfo(userid, bunOwner);
-		return Response.ok().entity(sm).build();
-
+		return sm;
 	}
-
-	// Buns related API
 
 	@GET
 	@Path("/buns")
@@ -860,51 +899,13 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			@Multipart(value = "categories", type = "text/plain") String categories, 
 			@Multipart(value = "uploadedAppIcon") Attachment image) {
 		
-		String imageFileNamePosted = getFileName(image.getHeaders());
-		logger.info("appname = " + appname);
-		logger.info("version = " + version);
-		logger.info("shortDescription = " + shortDescription);
-		logger.info("longDescription = " + longDescription);
-		logger.info("image = " + imageFileNamePosted);
+		
 
 		String uuid = UUID.randomUUID().toString();
 		ApplicationMetadata sm = new ApplicationMetadata();
-		sm.setUuid(uuid);
-		sm.setName(appname);
-		sm.setShortDescription(shortDescription);
-		sm.setLongDescription(longDescription);
-		sm.setVersion(version);
-		sm.setDateCreated(new Date());
-		sm.setDateUpdated(new Date());
-		
-		String[] catIDs = categories.split(",");
-		for (String catid : catIDs) {
-			Category category = bakerRepositoryRef.getCategoryByID( Integer.valueOf(catid) );		
-			sm.addCategory(category);
-		}
-		
-		
-		URI endpointUrl = uri.getBaseUri();
+		sm = (ApplicationMetadata) addNewProductData(sm, userid, appname, shortDescription, longDescription, version, categories, image, null);
 
-		String tempDir = METADATADIR + uuid + File.separator;
-		try {
-			Files.createDirectories(Paths.get(tempDir));
-
-			if (!imageFileNamePosted.equals("")) {
-				String imgfile = saveFile(image, tempDir + imageFileNamePosted);
-				logger.info("imgfile saved to = " + imgfile);
-				sm.setIconsrc(endpointUrl + "repo/images/" + uuid + File.separator + imageFileNamePosted);
-			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		// Save now bun for User
-		BakerUser bunOwner = bakerRepositoryRef.getUserByID(userid);
-		bunOwner.addApplication(sm);
-		bunOwner = bakerRepositoryRef.updateUserInfo(userid, bunOwner);
-		return Response.ok().entity(bunOwner).build();
+		return Response.ok().entity(sm).build();
 	}
 	
 	@PUT
@@ -921,70 +922,12 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			@Multipart(value = "categories", type = "text/plain") String categories,
 			@Multipart(value = "uploadedAppIcon") Attachment image){
 		
-		String imageFileNamePosted = getFileName(image.getHeaders());
-		logger.info("userid = " + userid);
-		logger.info("appname = " + appname);
-		logger.info("appid = " + appid);
-		logger.info("appuuid = " + uuid);
-		logger.info("version = " + version);
-		logger.info("shortDescription = " + shortDescription);
-		logger.info("longDescription = " + longDescription);
-		logger.info("image = " + imageFileNamePosted);
-
-		// Save now bun for User
-		BakerUser appOwner = bakerRepositoryRef.getUserByID(userid);
+		
 
 		ApplicationMetadata appmeta = bakerRepositoryRef.getApplicationMetadataByID(appid);
-		appmeta.setShortDescription(shortDescription);
-		appmeta.setLongDescription(longDescription);
-		appmeta.setVersion(version);
-		appmeta.setName(appname);
-		appmeta.setOwner(appOwner);
-		appmeta.setDateUpdated(new Date());
+		appmeta = (ApplicationMetadata) updateProductMetadata(appmeta, userid, appname, uuid, shortDescription, longDescription, 
+				version, categories, image, null);
 		
-		//first remove the bun from the previous category
-		List<Category> cats = appmeta.getCategories();
-		List<Category> catsToUpdate = new ArrayList<Category>();
-		for (Category category : cats) {
-			catsToUpdate.add(category);
-		}		
-		
-		for (Category c : catsToUpdate) {
-			c.removeProduct(appmeta);
-			appmeta.removeCategory(c);
-			bakerRepositoryRef.updateCategoryInfo( c );
-		}
-		
-		String[] catIDs = categories.split(",");
-		for (String catid : catIDs) {
-			//and now add the new one
-			Category category = bakerRepositoryRef.getCategoryByID(Integer.valueOf(catid));
-			appmeta.addCategory(category);
-		}
-
-		URI endpointUrl = uri.getBaseUri();
-
-		String tempDir = METADATADIR + uuid + File.separator;
-		try {
-			Files.createDirectories(Paths.get(tempDir));
-
-			if (!imageFileNamePosted.equals("unknown")) {
-				String imgfile = saveFile(image, tempDir + imageFileNamePosted);
-				logger.info("imgfile saved to = " + imgfile);
-				appmeta.setIconsrc(endpointUrl + "repo/images/" + uuid + File.separator + imageFileNamePosted);
-			}
-
-
-		} catch (IOException e) {
-			
-			e.printStackTrace();
-		}
-
-		bakerRepositoryRef.updateApplicationInfo(appid, appmeta);
-
-		if (appOwner.getAppById(appid) == null)
-			appOwner.addApplication(appmeta);
-		bakerRepositoryRef.updateUserInfo(userid, appOwner);
 		return Response.ok().entity(appmeta).build();
 	}
 

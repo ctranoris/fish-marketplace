@@ -246,6 +246,23 @@ public class BakerJpaController {
 
 	}
 	
+
+	public BakerUser readBakerUserByUsername(String username) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		Query q = entityManager.createQuery("SELECT m FROM BakerUser m WHERE m.username='" + username + "'");
+		return (q.getResultList().size()==0)?null:(BakerUser) q.getSingleResult();
+	}
+	
+	public BakerUser readBakerUserById(int userid) {
+		
+		
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		return entityManager.find(BakerUser.class, userid);
+		
+//		Query q = entityManager.createQuery("SELECT m FROM BakerUser m WHERE m.id=" + userid );		
+//		return (q.getResultList().size()==0)?null:(BakerUser) q.getSingleResult();
+		
+	}
 	
 	
 	
@@ -289,50 +306,62 @@ public class BakerJpaController {
 			BakerUser bu = (BakerUser) iterator.next();
 			logger.info("	======> BakerUser found: " + bu.getName() + ", Id: " + bu.getId() + ", Id: " + bu.getOrganization() + ", username: " + bu.getUsername());
 
-			List<BunMetadata> buns = bu.getBuns();
-			for (BunMetadata bunMetadata : buns) {
-				logger.info("	======> bunMetadata found: " + bunMetadata.getName() + ", Id: " + bunMetadata.getId() + ", getUuid: " + bunMetadata.getUuid()
-						+ ", getName: " + bunMetadata.getName());
+			List<Product> products = bu.getProducts();
+			for (Product prod : products) {
+				logger.info("	======> bunMetadata found: " + prod.getName() + 
+						", Id: " + prod.getId() + ", getUuid: " + prod.getUuid()
+						+ ", getName: " + prod.getName());
 			}
-			List<ApplicationMetadata> apps = bu.getApps();
-			for (ApplicationMetadata appnMetadata : apps) {
-				logger.info("	======> appnMetadata found: " + appnMetadata.getName() + ", Id: " + appnMetadata.getId() 
-						+ ", getUuid: " + appnMetadata.getUuid()
-						+ ", getName: " + appnMetadata.getName());
-			}
+			
 
 		}
 		logger.info("================= getAll() ==================END");
 	}
 
-	public void saveBunMetadata(BunMetadata bmeta) {
-		logger.info("Will save BunMetadata = " + bmeta.getName());
+	public void saveProduct(Product prod) {
+		logger.info("Will save Product = " + prod.getName());
 
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
 		EntityTransaction entityTransaction = entityManager.getTransaction();
 		entityTransaction.begin();
-		entityManager.persist(bmeta);
+		entityManager.persist(prod);
 		entityManager.flush();
 		entityTransaction.commit();
 
 	}
 	
-	public BunMetadata updateBunMetadata(BunMetadata bm) {
-		logger.info("================= updateBunMetadata ==================");
+	public Product updateProduct(Product bm) {
+		logger.info("================= updateProduct ==================");
 		logger.info("bmgetId="+bm.getId());
 		logger.info("bm getName= "+bm.getName());
-		logger.info("bm getPackageLocation= "+bm.getPackageLocation());
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
 		EntityTransaction entityTransaction = entityManager.getTransaction();
 
 		entityTransaction.begin();
-		BunMetadata resis = entityManager.merge(bm);
+		Product resis = entityManager.merge(bm);
 		entityTransaction.commit();
 
 		return resis;
 	}
+
+	
+//	public BunMetadata updateBunMetadata(BunMetadata bm) {
+//		logger.info("================= updateBunMetadata ==================");
+//		logger.info("bmgetId="+bm.getId());
+//		logger.info("bm getName= "+bm.getName());
+//		logger.info("bm getPackageLocation= "+bm.getPackageLocation());
+//		EntityManager entityManager = entityManagerFactory.createEntityManager();
+//
+//		EntityTransaction entityTransaction = entityManager.getTransaction();
+//
+//		entityTransaction.begin();
+//		BunMetadata resis = entityManager.merge(bm);
+//		entityTransaction.commit();
+//
+//		return resis;
+//	}
 	
 	@SuppressWarnings("unchecked")
 	public List<BunMetadata> readBunsMetadata(Long categoryid, int firstResult, int maxResults) {
@@ -349,43 +378,8 @@ public class BakerJpaController {
 		q.setMaxResults(maxResults);
 		return q.getResultList();
 	}
-//
-//	public void getAllBunsPrinted() {
-//		logger.info("================= getAllBunsPrinted() ==================START");
-//
-//		EntityManager entityManager = entityManagerFactory.createEntityManager();
-//
-//		List<BunMetadata> lb = entityManager.createQuery("select p from BunMetadata p").getResultList();
-//		for (Iterator iterator = lb.iterator(); iterator.hasNext();) {
-//			BunMetadata bunMetadata = (BunMetadata) iterator.next();
-//			
-//				logger.info("	======> bunMetadata found: " + bunMetadata.getName() + ", Id: " + bunMetadata.getId() + ", getUuid: " + bunMetadata.getUuid()
-//						+ ", getName: " + bunMetadata.getName()
-//						+ ", Owner.name: " + bunMetadata.getOwner().getName() );
-//			
-//
-//		}
-//		logger.info("================= getAllBunsPrinted() ==================END");
-//
-//	}
 
-	public BakerUser readBakerUserByUsername(String username) {
-		EntityManager entityManager = entityManagerFactory.createEntityManager();
-		Query q = entityManager.createQuery("SELECT m FROM BakerUser m WHERE m.username='" + username + "'");
-		return (q.getResultList().size()==0)?null:(BakerUser) q.getSingleResult();
-	}
-	
-	public BakerUser readBakerUserById(int userid) {
-		
-		
-		EntityManager entityManager = entityManagerFactory.createEntityManager();
-		return entityManager.find(BakerUser.class, userid);
-		
-//		Query q = entityManager.createQuery("SELECT m FROM BakerUser m WHERE m.id=" + userid );		
-//		return (q.getResultList().size()==0)?null:(BakerUser) q.getSingleResult();
-		
-	}
-	
+
 	public Product readProductByUUID(String uuid) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
@@ -437,19 +431,41 @@ public class BakerJpaController {
 		entityTransaction.commit();
 	}
 
-//	public void deleteBun(int bunId) {
-//		EntityManager entityManager = entityManagerFactory.createEntityManager();
-//		BunMetadata bun = entityManager.find(BunMetadata.class, bunId);
-//		
-//
-//		EntityTransaction entityTransaction = entityManager.getTransaction();
-//
-//		entityTransaction.begin();
-//
-//		entityManager.remove(bun);
-//
-//		entityTransaction.commit();
-//	}
+	@SuppressWarnings("unchecked")
+	public List<Product> readProducts(Long categoryid, int firstResult, int maxResults) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		Query q;
+		
+		if ((categoryid!=null) && (categoryid>=0))
+			q = entityManager.createQuery("SELECT a FROM Product a WHERE a.category.id="+categoryid+" ORDER BY a.id");
+		else
+			q = entityManager.createQuery("SELECT a FROM Product a ORDER BY a.id");
+
+		q.setFirstResult(firstResult);
+		q.setMaxResults(maxResults);
+		return q.getResultList();
+	}
+
+	
+	public void getAllProductsPrinted() {
+		logger.info("================= getAllProductsPrinted() ==================START");
+
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		List<Product> lb = readProducts(null,0,10000);
+		for (Iterator iterator = lb.iterator(); iterator.hasNext();) {
+			Product prod = (Product) iterator.next();
+			
+				logger.info("	=================> Product found: " + prod.getName() + ", Id: " + prod.getId() + ", getUuid: " + prod.getUuid()
+						+ ", getName: " + prod.getName()
+						+ ", Owner.name: " + prod.getOwner().getName() );
+			
+
+		}
+		logger.info("================= getAllProductsPrinted() ==================END");
+
+	}
+	
 
 	
 	public void saveSubscribedMachine(SubscribedMachine sm) {
@@ -543,30 +559,8 @@ public class BakerJpaController {
 		return q.getResultList();
 	}
 
-	public ApplicationMetadata updateApplicationMetadata(ApplicationMetadata appmeta) {
-		logger.info("================= updateApplicationMetadata ==================");
-		logger.info("appmetagetId="+appmeta.getId());
-		logger.info("appmeta getName= "+appmeta.getName());
-		EntityManager entityManager = entityManagerFactory.createEntityManager();
-
-		EntityTransaction entityTransaction = entityManager.getTransaction();
-
-		entityTransaction.begin();
-		ApplicationMetadata resis = entityManager.merge(appmeta);
-		entityTransaction.commit();
-
-		return resis;
-		
-	}
 
 
-//	public ApplicationMetadata readApplicationMetadataByUUID(String uuid) {
-//		EntityManager entityManager = entityManagerFactory.createEntityManager();
-//
-//		Query q = entityManager.createQuery("SELECT m FROM ApplicationMetadata m WHERE m.uuid='" + uuid + "'");
-//		return (q.getResultList().size()==0)?null:(ApplicationMetadata) q.getSingleResult();
-//	}
-//
 	public List<ApplicationMetadata> readAppsMetadata(Long categoryid, int firstResult, int maxResults) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 		Query q;
@@ -579,26 +573,6 @@ public class BakerJpaController {
 		q.setMaxResults(maxResults);
 		return q.getResultList();
 	}
-//
-//	public ApplicationMetadata readApplicationMetadataByID(int appid) {
-//		EntityManager entityManager = entityManagerFactory.createEntityManager();
-//		ApplicationMetadata u = entityManager.find(ApplicationMetadata.class, appid);
-//		return u;
-//	}
-//
-//	public void deleteApp(int appid) {
-//		EntityManager entityManager = entityManagerFactory.createEntityManager();
-//		ApplicationMetadata bun = entityManager.find(ApplicationMetadata.class, appid);
-//
-//		EntityTransaction entityTransaction = entityManager.getTransaction();
-//
-//		entityTransaction.begin();
-//
-//		entityManager.remove(bun);
-//
-//		entityTransaction.commit();
-//		
-//	}
 
 	public List<Category> readCategories(int firstResult, int maxResults) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -682,40 +656,6 @@ public class BakerJpaController {
 	}
 
 
-	@SuppressWarnings("unchecked")
-	public List<Product> readProducts(Long categoryid, int firstResult, int maxResults) {
-		EntityManager entityManager = entityManagerFactory.createEntityManager();
-		Query q;
-		
-		if ((categoryid!=null) && (categoryid>=0))
-			q = entityManager.createQuery("SELECT a FROM Product a WHERE a.category.id="+categoryid+" ORDER BY a.id");
-		else
-			q = entityManager.createQuery("SELECT a FROM Product a ORDER BY a.id");
-
-		q.setFirstResult(firstResult);
-		q.setMaxResults(maxResults);
-		return q.getResultList();
-	}
-
-	
-	public void getAllProductsPrinted() {
-		logger.info("================= getAllProductsPrinted() ==================START");
-
-		EntityManager entityManager = entityManagerFactory.createEntityManager();
-
-		List<Product> lb = readProducts(null,0,10000);
-		for (Iterator iterator = lb.iterator(); iterator.hasNext();) {
-			Product prod = (Product) iterator.next();
-			
-				logger.info("	=================> Product found: " + prod.getName() + ", Id: " + prod.getId() + ", getUuid: " + prod.getUuid()
-						+ ", getName: " + prod.getName()
-						+ ", Owner.name: " + prod.getOwner().getName() );
-			
-
-		}
-		logger.info("================= getAllProductsPrinted() ==================END");
-
-	}
 	
 	public List<Widget> readWidgetMetadata(Long categoryid, int firstResult, int maxResults) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -730,4 +670,5 @@ public class BakerJpaController {
 		return q.getResultList();
 	}
 
+	
 }

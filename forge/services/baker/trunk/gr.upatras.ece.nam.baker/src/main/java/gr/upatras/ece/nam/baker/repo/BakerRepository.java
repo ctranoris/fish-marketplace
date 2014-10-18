@@ -21,6 +21,7 @@ import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
+import gr.upatras.ece.nam.baker.model.Product;
 import gr.upatras.ece.nam.baker.model.SubscribedMachine;
 import gr.upatras.ece.nam.baker.model.Widget;
 
@@ -59,11 +60,11 @@ public class BakerRepository {
 		return s;
 	}
 	
-	public BunMetadata addBunMetadataToBuns(BunMetadata bm){
-		bakerJpaController.saveBunMetadata(bm);
-		return bm;
-	}
-	
+//	public BunMetadata addBunMetadataToBuns(BunMetadata bm){
+//		bakerJpaController.saveBunMetadata(bm);
+//		return bm;
+//	}
+//	
 	public Collection<BakerUser> getUserValues() {
 
 		List<BakerUser> ls = bakerJpaController.readUsers(0, 100000);
@@ -81,8 +82,13 @@ public class BakerRepository {
 		return bm;
 	}
 	
-	public BunMetadata updateBunInfo(int bunid, BunMetadata bm) {
-		BunMetadata bmr = bakerJpaController.updateBunMetadata(bm);
+//	public BunMetadata updateBunInfo(long l, BunMetadata bm) {
+//		BunMetadata bmr = bakerJpaController.updateBunMetadata(bm);
+//		return bmr;
+//	}
+	
+	public Product updateProductInfo(Product bm) {
+		Product bmr = bakerJpaController.updateProduct(bm);
 		return bmr;
 	}
 
@@ -185,11 +191,11 @@ public class BakerRepository {
 	}
 
 
-	public ApplicationMetadata updateApplicationInfo(int appid, ApplicationMetadata sm) {
-		ApplicationMetadata bmr = bakerJpaController.updateApplicationMetadata(sm);
-		return bmr;
-		
-	}
+//	public ApplicationMetadata updateApplicationInfo(int appid, ApplicationMetadata sm) {
+//		ApplicationMetadata bmr = bakerJpaController.updateApplicationMetadata(sm);
+//		return bmr;
+//		
+//	}
 
 
 	public Object getCategories() {
