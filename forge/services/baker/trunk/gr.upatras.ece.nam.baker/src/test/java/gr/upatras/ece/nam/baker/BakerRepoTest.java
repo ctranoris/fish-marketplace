@@ -162,13 +162,10 @@ public class BakerRepoTest {
 	public void testWriteReadApplications() {
 		
 		Category c = new Category();
-		c.setName("acategory");
-		//bakerJpaControllerTest.saveCategory(c);
-		c.setName("acat");
-		//bakerJpaControllerTest.updateCategory(c);
-		//c = bakerJpaControllerTest.readCategoryByID(c.getId());
-		assertEquals("acat", c.getName());
-		
+		c.setName("acat1");
+		assertEquals("acat1", c.getName());
+		Category c2 = new Category();
+		c2.setName("acat2");
 		
 		BakerUser bu = new BakerUser();
 		bu.setUsername("ausername");
@@ -179,7 +176,8 @@ public class BakerRepoTest {
 		appmeta.setUuid(uuid);
 		appmeta.setLongDescription("longDescription");
 		appmeta.setShortDescription("shortDescription");
-		appmeta.setCategory(c);
+		appmeta.addCategory(c);
+		appmeta.addCategory(c2);
 		bu.addApplication(appmeta);
 
 		bakerJpaControllerTest.saveUser(bu);
@@ -187,14 +185,14 @@ public class BakerRepoTest {
 		// change name and reSave
 		appmeta.setName("NewAppName");
 		bakerJpaControllerTest.updateApplicationMetadata(appmeta);
-		assertEquals("acat", appmeta.getCategory().getName());
+		assertEquals(2, appmeta.getCategories().size() );
 
 		ApplicationMetadata appmeta2 = new ApplicationMetadata();
 		appmeta2.setName("app2");
 		appmeta2.setLongDescription("longDescription2");
 		appmeta2.setShortDescription("shortDescription2");
 		appmeta2.setOwner(bu);
-		appmeta2.setCategory(c);
+		appmeta2.addCategory(c);
 		bu.addApplication(appmeta2);
 
 		bakerJpaControllerTest.updateBakerUser(bu);
@@ -209,7 +207,7 @@ public class BakerRepoTest {
 		assertNotNull(testApp.getOwner());
 		assertEquals("ausername", testApp.getOwner().getUsername());
 		bakerJpaControllerTest.getAllCategoriesPrinted();
-		assertEquals("acat", testApp.getCategory().getName());
+		assertEquals("acat1", testApp.getCategories().get(0).getName());
 
 
 	}
