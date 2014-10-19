@@ -118,12 +118,12 @@ public class BakerRepository {
 	}
 	
 
-	public BunMetadata getBunByID(int bunid) {
-		return (BunMetadata) bakerJpaController.readProductByID(bunid);
+	public Product getProductByID(int bunid) {
+		return (Product) bakerJpaController.readProductByID(bunid);
 	}
 	
-	public BunMetadata getBunByUUID(String uuid) {
-		return (BunMetadata) bakerJpaController.readProductByUUID(uuid);
+	public Product getProductByUUID(String uuid) {
+		return (Product) bakerJpaController.readProductByUUID(uuid);
 	}
 
 
@@ -181,14 +181,14 @@ public class BakerRepository {
 	}
 
 
-	public ApplicationMetadata getApplicationMetadataByID(int appid) {
-		return (ApplicationMetadata) bakerJpaController.readProductByID(appid);
-	}
-
-
-	public ApplicationMetadata getApplicationMetadataByUUID(String uuid) {
-		return (ApplicationMetadata) bakerJpaController.readProductByUUID(uuid);
-	}
+//	public ApplicationMetadata getApplicationMetadataByID(int appid) {
+//		return (ApplicationMetadata) bakerJpaController.readProductByID(appid);
+//	}
+//
+//
+//	public ApplicationMetadata getApplicationMetadataByUUID(String uuid) {
+//		return (ApplicationMetadata) bakerJpaController.readProductByUUID(uuid);
+//	}
 
 
 //	public ApplicationMetadata updateApplicationInfo(int appid, ApplicationMetadata sm) {

@@ -36,6 +36,7 @@ public interface IBakerRepositoryAPI {
 	Response deleteUser(int userid);
 	Response getAllBunsofUser(int userid);
 	Response getAllAppsofUser(int userid);
+	Response getAllWidgetsofUser(int userid);
 
 	//Sessions
 	public Response addUserSession(UserSession userSession);
@@ -54,7 +55,8 @@ public interface IBakerRepositoryAPI {
 	Response getBunMetadataByUUID(String uuid);		
 	Response getBunofUser( int userid, int bunid);
 	Response downloadBunPackage(String uuid, String bunfile);	
-	Response updateBunMetadata(int bid, int userid, String bunname, int bunid, String uuid, String shortDescription, String longDescription, String version,
+	Response updateBunMetadata(int bid, int userid, String bunname, int bunid, String uuid, 
+			String shortDescription, String longDescription, String version,
 			String categories, Attachment image, Attachment bunFile);
 	Response addBunMetadata(int userid, String bunname, String shortDescription, String longDescription, 
 			String version,  String categories ,Attachment image, Attachment bunFile);
@@ -72,9 +74,24 @@ public interface IBakerRepositoryAPI {
 	Response getAppMetadataByID(int appid);
 	Response getAppMetadataByUUID(String uuid);		
 	Response getAppofUser( int userid, int bunid);
-	Response updateAppMetadata(int aid, int userid, String appname, int appid, String uuid, String shortDescription, String longDescription, String version,
+	Response updateAppMetadata(int aid, int userid, String appname, int appid, String uuid, 
+			String shortDescription, String longDescription, String version,
 			String categories, Attachment image);
-	Response addAppMetadata(int userid, String appname, String shortDescription, String longDescription, String version, String categories, Attachment image);
+	Response addAppMetadata(int userid, String appname, String shortDescription, 
+			String longDescription, String version, String categories, Attachment image);
 	void deleteApp(int appid);
+	
+	//Widgets Related API methods
+	Response getWidgets(Long categoryid);
+	Response getWidgetByID(int appid);
+	Response getWidgetUUID(String uuid);		
+	Response getWidgetofUser( int userid, int bunid);
+	Response updateWidget(int aid, int userid, String widgetname, String url, 
+			int appid, String uuid, String shortDescription, String longDescription, String version,
+			String categories, Attachment image, Attachment widgetFile);
+	Response addWidget(int userid, String widgetname, String url, String 
+			shortDescription, String longDescription, String version, String categories, 
+			Attachment image, Attachment widgetFile);
+	void deleteWidget(int appid);
 	
 }
