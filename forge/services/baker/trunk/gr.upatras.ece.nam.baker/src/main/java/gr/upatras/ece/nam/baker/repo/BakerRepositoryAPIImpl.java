@@ -424,7 +424,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 		
 
-		BunMetadata sm = bakerRepositoryRef.getBunByID(bunid);
+		BunMetadata sm = (BunMetadata) bakerRepositoryRef.getProductByID(bunid);
 		sm = (BunMetadata) updateProductMetadata(sm, userid, bunname, uuid, shortDescription, longDescription, version, categories, image, bunFile);
 		
 		
@@ -574,7 +574,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@Produces("application/json")
 	public Response getBunMetadataByID(@PathParam("bunid") int bunid) {
 		logger.info("getBunMetadataByID  bunid=" + bunid);
-		BunMetadata bun = bakerRepositoryRef.getBunByID(bunid);
+		BunMetadata bun = (BunMetadata) bakerRepositoryRef.getProductByID(bunid);
 
 		if (bun != null) {
 			return Response.ok().entity(bun).build();
@@ -625,7 +625,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 			bun.setPackageLocation(endpointUrl + "repo/packages/22cab8b8-668b-4c75-99a9-39b24ed3d8be/examplebunErrInstall.tar.gz");
 		} else {
-			bun = bakerRepositoryRef.getBunByUUID(uuid);
+			bun = (BunMetadata) bakerRepositoryRef.getProductByUUID(uuid);
 		}
 
 		if (bun != null) {
@@ -855,7 +855,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@Produces("application/json")
 	public Response getAppMetadataByID(@PathParam("appid") int appid) {
 		logger.info("getAppMetadataByID  appid=" + appid);
-		ApplicationMetadata app = bakerRepositoryRef.getApplicationMetadataByID(appid);
+		ApplicationMetadata app = (ApplicationMetadata) bakerRepositoryRef.getProductByID(appid);
 
 		if (app != null) {
 			return Response.ok().entity(app).build();
@@ -871,11 +871,11 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@Path("/apps/uuid/{uuid}")
 	@Produces("application/json")
 	public Response getAppMetadataByUUID(@PathParam("uuid") String uuid) {
-		logger.info("Received GET for bun uuid: " + uuid);
+		logger.info("Received GET for app uuid: " + uuid);
 		ApplicationMetadata app = null;
 
 		URI endpointUrl = uri.getBaseUri();
-		app = bakerRepositoryRef.getApplicationMetadataByUUID(uuid);
+		app = (ApplicationMetadata) bakerRepositoryRef.getProductByUUID(uuid);
 
 		if (app != null) {
 			return Response.ok().entity(app).build();
@@ -901,7 +901,6 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		
 		
 
-		String uuid = UUID.randomUUID().toString();
 		ApplicationMetadata sm = new ApplicationMetadata();
 		sm = (ApplicationMetadata) addNewProductData(sm, userid, appname, shortDescription, longDescription, version, categories, image, null);
 
@@ -924,7 +923,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		
 		
 
-		ApplicationMetadata appmeta = bakerRepositoryRef.getApplicationMetadataByID(appid);
+		ApplicationMetadata appmeta = (ApplicationMetadata) bakerRepositoryRef.getProductByID(appid);
 		appmeta = (ApplicationMetadata) updateProductMetadata(appmeta, userid, appname, uuid, shortDescription, longDescription, 
 				version, categories, image, null);
 		
@@ -1025,5 +1024,141 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		List<Widget> w = bakerRepositoryRef.getWidgets(categoryid);
 		return Response.ok().entity(w).build();
 	}
+
+	/////////////WIDGETS related
+
+	@GET
+	@Path("/users/{userid}/widgets")
+	@Produces("application/json")
+	public Response getAllWidgetsofUser(@PathParam("userid") int userid) {
+		logger.info("getAllWidgetsofUser for userid: " + userid);
+		BakerUser u = bakerRepositoryRef.getUserByID(userid);
+
+		if (u != null) {
+			List<Product> prods = u.getProducts();
+			List<Widget> widgets = new ArrayList<Widget>();
+			for (Product p : prods) {
+				if (p instanceof BunMetadata)
+					widgets.add(  (Widget) p );
+			}
+
+			return Response.ok().entity(widgets).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("User with id=" + userid + " not found in baker registry");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+
+
+	@GET
+	@Path("/widgets/{widgetid}")
+	@Produces("application/json")
+
+	public Response getWidgetByID(@PathParam("widgetid") int widgetid) {
+		logger.info("getWidgetByID  widgetid=" + widgetid);
+		Widget w = (Widget) bakerRepositoryRef.getProductByID(widgetid);
+
+		if (w != null) {
+			return Response.ok().entity(w).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("widget with id=" + widgetid + " not found in baker registry");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+
+	@GET
+	@Path("/widgets/uuid/{uuid}")
+	@Produces("application/json")
+	public Response getWidgetUUID(@PathParam("uuid") String uuid) {
+		logger.info("Received GET for Widget uuid: " + uuid);
+		Widget w = null;
+
+		URI endpointUrl = uri.getBaseUri();
+		w = (Widget) bakerRepositoryRef.getProductByUUID(uuid);
+
+		if (w != null) {
+			return Response.ok().entity(w).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("Widget with uuid=" + uuid + " not found in local registry");
+			throw new WebApplicationException(builder.build());
+		}
+
+	}
+	
+	@GET
+	@Path("/users/{userid}/widgets/{widgetid}")
+	@Produces("application/json")
+	public Response getWidgetofUser(@PathParam("userid")int userid, @PathParam("widgetid")int widgetid) {
+		logger.info("getWidgetofUser for userid: " + userid + ", widgetid=" + widgetid);
+		BakerUser u = bakerRepositoryRef.getUserByID(userid);
+
+		if (u != null) {
+			Widget w = (Widget) u.getProductById(widgetid);
+			return Response.ok().entity(w).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("User with id=" + userid + " not found in baker registry");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+
+	@PUT
+	@Path("/widgets/{wid}")
+	@Consumes("multipart/form-data")
+	public Response updateWidget(@PathParam("wid") int wid, 
+			@Multipart(value = "userid", type = "text/plain")int userid, 
+			@Multipart(value = "widgetname", type = "text/plain")String widgetname, 
+			@Multipart(value = "url", type = "text/plain")String url, 
+			@Multipart(value = "widgetid", type = "text/plain") int widgetid, 
+			@Multipart(value = "widgetuuid", type = "text/plain") String uuid, 
+			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription, 
+			@Multipart(value = "longDescription", type = "text/plain") String longDescription, 
+			@Multipart(value = "version", type = "text/plain") String version,
+			@Multipart(value = "categories", type = "text/plain") String categories,
+			@Multipart(value = "uploadedWidgetIcon") Attachment image,
+			@Multipart(value = "uploadedWidgetFile") Attachment bunFile){ 
+		
+		Widget appmeta = (Widget) bakerRepositoryRef.getProductByID(widgetid);
+		appmeta.setURL(url);
+		appmeta = (Widget) updateProductMetadata(appmeta, userid, widgetname, uuid, 
+				shortDescription, longDescription, 
+				version, categories, image, bunFile);
+		
+		return Response.ok().entity(appmeta).build();
+	}
+
+	@POST
+	@Path("/users/{userid}/widgets/")
+	@Consumes("multipart/form-data")
+	public Response addWidget( @PathParam("userid") int userid,
+			@Multipart(value = "widgetname", type = "text/plain")String widgetname, 
+			@Multipart(value = "url", type = "text/plain")String url, 
+			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription, 
+			@Multipart(value = "longDescription", type = "text/plain") String longDescription, 
+			@Multipart(value = "version", type = "text/plain") String version,
+			@Multipart(value = "categories", type = "text/plain") String categories,
+			@Multipart(value = "uploadedWidgetIcon") Attachment image,
+			@Multipart(value = "uploadedWidgetFile") Attachment bunFile){ 
+		
+
+		Widget sm = new Widget();
+		sm.setURL(url);
+		sm = (Widget) addNewProductData(sm, userid, widgetname, shortDescription, longDescription, 
+				version, categories, image, bunFile);
+
+		return Response.ok().entity(sm).build();
+	}
+
+	@DELETE
+	@Path("/widgets/{widgetid}")
+	public void deleteWidget(@PathParam("widgetid") int widgetid) {
+		bakerRepositoryRef.deleteProduct(widgetid);
+		
+	}
+
+	
 
 }

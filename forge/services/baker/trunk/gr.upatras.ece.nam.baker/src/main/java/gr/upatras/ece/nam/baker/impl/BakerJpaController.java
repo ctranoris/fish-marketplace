@@ -662,7 +662,7 @@ public class BakerJpaController {
 		Query q;
 		
 		if ((categoryid!=null) && (categoryid>=0))
-			q = entityManager.createQuery("SELECT a FROM Widget a WHERE a.category.id="+categoryid+" ORDER BY a.id");
+			q = entityManager.createQuery("SELECT a FROM Widget a WHERE a.categories.id="+categoryid+" ORDER BY a.id");
 		else
 			q = entityManager.createQuery("SELECT a FROM Widget a ORDER BY a.id");
 		q.setFirstResult(firstResult);
