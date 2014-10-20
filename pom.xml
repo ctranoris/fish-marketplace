@@ -450,6 +450,7 @@
 				                    	</handler>
 							      	</contextHandler>
 									<contextHandler implementation="org.eclipse.jetty.server.handler.ContextHandler">
+										
 								        <contextPath>/forgestore</contextPath>
 				                    	<resourceBase>/home/vagrant/ws/gr.upatras.ece.nam.forgestoreweb/src</resourceBase>
 				                    	<handler implementation="org.eclipse.jetty.server.handler.ResourceHandler" >

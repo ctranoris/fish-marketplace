@@ -24,6 +24,7 @@ import gr.upatras.ece.nam.baker.model.ApplicationMetadata;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
+import gr.upatras.ece.nam.baker.model.ProductExtensionItem;
 import gr.upatras.ece.nam.baker.model.SubscribedMachine;
 import gr.upatras.ece.nam.baker.util.EncryptionUtil;
 
@@ -178,6 +179,14 @@ public class BakerRepoTest {
 		appmeta.setShortDescription("shortDescription");
 		appmeta.addCategory(c);
 		appmeta.addCategory(c2);
+		ProductExtensionItem item = new ProductExtensionItem();
+		item.setName("param1");
+		item.setValue("value1");
+		appmeta.addExtensionItem(item );
+		ProductExtensionItem item2 = new ProductExtensionItem();
+		item.setName("param2");
+		item.setValue("value2");
+		appmeta.addExtensionItem(item2 );
 		bu.addProduct(appmeta);
 
 		bakerJpaControllerTest.saveUser(bu);
@@ -186,6 +195,7 @@ public class BakerRepoTest {
 		appmeta.setName("NewAppName");
 		bakerJpaControllerTest.updateProduct(appmeta);
 		assertEquals(2, appmeta.getCategories().size() );
+		assertEquals(2, appmeta.getExtensions().size() );
 
 		ApplicationMetadata appmeta2 = new ApplicationMetadata();
 		appmeta2.setName("app2");

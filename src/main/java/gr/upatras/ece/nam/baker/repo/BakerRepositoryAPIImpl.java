@@ -19,6 +19,7 @@ import gr.upatras.ece.nam.baker.model.ApplicationMetadata;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
+import gr.upatras.ece.nam.baker.model.Course;
 import gr.upatras.ece.nam.baker.model.IBakerRepositoryAPI;
 import gr.upatras.ece.nam.baker.model.Product;
 import gr.upatras.ece.nam.baker.model.SubscribedMachine;
@@ -562,12 +563,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		return response.build();
 	}
 
-	@DELETE
-	@Path("/buns/{bunid}")
-	public void deleteBun(@PathParam("bunid") int bunid) {
-		bakerRepositoryRef.deleteProduct(bunid);
-
-	}
+	
 
 	@GET
 	@Path("/buns/{bunid}")
@@ -931,13 +927,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	}
 
 
-	@DELETE
-	@Path("/apps/{appid}")
-	public void deleteApp(@PathParam("appid") int appid) {
-		bakerRepositoryRef.deleteProduct(appid);
-		
-	}
-
+	
 	
 
 	@GET
@@ -1151,6 +1141,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 		return Response.ok().entity(sm).build();
 	}
+	
 
 	@DELETE
 	@Path("/widgets/{widgetid}")
@@ -1159,6 +1150,164 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		
 	}
 
+	@DELETE
+	@Path("/apps/{appid}")
+	public void deleteApp(@PathParam("appid") int appid) {
+		bakerRepositoryRef.deleteProduct(appid);
+		
+	}
 	
+	@DELETE
+	@Path("/buns/{bunid}")
+	public void deleteBun(@PathParam("bunid") int bunid) {
+		bakerRepositoryRef.deleteProduct(bunid);
+	}
+
+	@DELETE
+	@Path("/courses/{courseid}")
+	public void deleteCourse(@PathParam("courseid") int courseid) {
+		bakerRepositoryRef.deleteProduct(courseid);
+	}
+
+	@GET
+	@Path("/courses")
+	@Produces("application/json")
+	public Response getCourses(@QueryParam("categoryid") Long categoryid) {
+		logger.info("getCourses categoryid="+categoryid);
+		List<Course> courses = bakerRepositoryRef.getCourses(categoryid);
+		return Response.ok().entity(courses).build();
+	}
+
+
+	@GET
+	@Path("/courses/{courseid}")
+	@Produces("application/json")
+	public Response getCoursetByID(@PathParam("courseid") int courseid) {
+		logger.info("getCoursetByID  courseid=" + courseid);
+		Course c = (Course) bakerRepositoryRef.getProductByID(courseid);
+
+		if (c != null) {
+			return Response.ok().entity(c).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("Course with id=" + courseid + " not found in baker registry");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+
+
+	@GET
+	@Path("/courses/uuid/{uuid}")
+	@Produces("application/json")
+	public Response getCourseUUID(@PathParam("uuid") String uuid) {
+
+		Course c = (Course) bakerRepositoryRef.getProductByUUID(uuid);
+		if (c != null) {
+			return Response.ok().entity(c).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("Course with uuid=" + uuid + " not found in local registry");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+
+
+
+
+	@PUT
+	@Path("/courses/{cid}")
+	@Consumes("multipart/form-data")
+	public Response updateCourse(
+			@PathParam("cid") int cid, 
+			@Multipart(value = "userid", type = "text/plain") int userid,
+			@Multipart(value = "coursename", type = "text/plain") String coursename, 
+			@Multipart(value = "courseid", type = "text/plain") int bunid,
+			@Multipart(value = "courseuuid", type = "text/plain") String uuid,
+			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription,
+			@Multipart(value = "longDescription", type = "text/plain") String longDescription,
+			@Multipart(value = "version", type = "text/plain") String version, 
+			@Multipart(value = "categories", type = "text/plain") String categories,
+			@Multipart(value = "uploadedCourseIcon") Attachment image,
+			@Multipart(value = "uploadedCourseFile") Attachment courseFile
+			) {
+
+		Course c = (Course) bakerRepositoryRef.getProductByID(bunid);
+		c = (Course) updateProductMetadata(c, userid, coursename, uuid, 
+				shortDescription, longDescription, version, categories, image, courseFile);
+		
+		
+		return Response.ok().entity(c).build();
+	}
+
+	
+
+	@POST
+	@Path("/users/{userid}/courses/")
+	@Consumes("multipart/form-data")
+	public Response addCourse(
+			@PathParam("userid") int userid,
+			@Multipart(value = "coursename", type = "text/plain") String coursename,
+			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription,
+			@Multipart(value = "longDescription", type = "text/plain") String longDescription,
+			@Multipart(value = "version", type = "text/plain") String version,  
+			@Multipart(value = "categories", type = "text/plain") String categories, 
+			@Multipart(value = "uploadedCourseIcon") Attachment image,
+			@Multipart(value = "uploadedCourseFile") Attachment courseFile
+	) {
+		Course c = new Course();
+		c = (Course) addNewProductData(c, userid, 
+				coursename, shortDescription, longDescription, version, 
+				categories, image, courseFile);
+		
+		return Response.ok().entity(c).build();
+	}
+
+
+
+	@GET
+	@Path("/users/{userid}/courses/{courseid}")
+	@Produces("application/json")
+	public Response getCourseofUser(
+			@PathParam("userid") int userid, 
+			@PathParam("courseid") int courseid) {
+		logger.info("getCourseofUser for userid: " + userid + ", courseid=" + courseid);
+		BakerUser u = bakerRepositoryRef.getUserByID(userid);
+
+		if (u != null) {
+			Course course = (Course) u.getProductById(courseid);
+			return Response.ok().entity(course).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("User with id=" + userid + " not found in baker registry");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+	
+	@GET
+	@Path("/users/{userid}/courses")
+	@Produces("application/json")
+	public Response getAllCoursesofUser(@PathParam("userid") int userid) {
+		logger.info("getAllCoursesofUser for userid: " + userid);
+		BakerUser u = bakerRepositoryRef.getUserByID(userid);
+
+		if (u != null) {
+			List<Product> prods = u.getProducts();
+			List<Course> courses = new ArrayList<Course>();
+			for (Product p : prods) {
+				if (p instanceof BunMetadata)
+					courses.add(  (Course) p );
+			}
+
+			return Response.ok().entity(courses).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("User with id=" + userid + " not found in baker registry");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+	
+
+	
+
 
 }
