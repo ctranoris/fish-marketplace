@@ -31,10 +31,12 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.InheritanceType;
 import javax.persistence.DiscriminatorType;
+import javax.persistence.OneToMany;
 
 @Entity(name = "Product")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -74,6 +76,18 @@ public class Product {
 
 	@ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }, fetch = FetchType.LAZY)
 	private List<Category> categories = new ArrayList<Category>();
+
+	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
+	@JoinTable()
+	private List<ProductExtensionItem> extensions = new ArrayList<ProductExtensionItem>();
+	
+	public List<ProductExtensionItem> getExtensions() {
+		return extensions;
+	}
+
+	public void setExtensions(List<ProductExtensionItem> extensions) {
+		this.extensions = extensions;
+	}
 
 	public Product() {
 	}
@@ -192,6 +206,17 @@ public class Product {
 		if (this.categories.contains(category) ){
 			this.categories.remove(category);
 			category.removeProduct(this);
+		}
+	}
+	
+	public void addExtensionItem(ProductExtensionItem i){
+		if (!this.extensions.contains(i))
+			this.extensions.add(i);
+	}
+	
+	public void removeExtensionItem(ProductExtensionItem i){
+		if (this.extensions.contains(i)){
+			this.extensions.remove(i);
 		}
 	}
 

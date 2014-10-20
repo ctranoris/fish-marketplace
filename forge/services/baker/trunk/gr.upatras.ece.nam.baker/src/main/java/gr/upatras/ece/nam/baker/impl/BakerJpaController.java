@@ -19,6 +19,7 @@ import gr.upatras.ece.nam.baker.model.ApplicationMetadata;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
+import gr.upatras.ece.nam.baker.model.Course;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
 import gr.upatras.ece.nam.baker.model.Product;
 import gr.upatras.ece.nam.baker.model.SubscribedMachine;
@@ -665,6 +666,19 @@ public class BakerJpaController {
 			q = entityManager.createQuery("SELECT a FROM Widget a WHERE a.categories.id="+categoryid+" ORDER BY a.id");
 		else
 			q = entityManager.createQuery("SELECT a FROM Widget a ORDER BY a.id");
+		q.setFirstResult(firstResult);
+		q.setMaxResults(maxResults);
+		return q.getResultList();
+	}
+
+	public List<Course> readCoursesMetadata(Long categoryid, int firstResult, int maxResults) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		Query q;
+		
+		if ((categoryid!=null) && (categoryid>=0))
+			q = entityManager.createQuery("SELECT a FROM Course a WHERE a.categories.id="+categoryid+" ORDER BY a.id");
+		else
+			q = entityManager.createQuery("SELECT a FROM Course a ORDER BY a.id");
 		q.setFirstResult(firstResult);
 		q.setMaxResults(maxResults);
 		return q.getResultList();

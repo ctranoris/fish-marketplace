@@ -118,6 +118,15 @@ public class Category {
 		return c;
 	}
 	
+	public int getCoursescount() {
+		int c = 0;
+		for (int i = 0; i < this.products.size(); i++) {
+			if (this.products.get(i) instanceof Course)
+				c++;
+		}
+		return c;
+	}
+	
 	public int getProductsCount() {
 		return products.size();
 	}

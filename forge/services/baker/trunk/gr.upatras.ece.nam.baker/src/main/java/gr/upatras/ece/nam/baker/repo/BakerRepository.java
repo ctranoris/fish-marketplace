@@ -20,6 +20,7 @@ import gr.upatras.ece.nam.baker.model.ApplicationMetadata;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
+import gr.upatras.ece.nam.baker.model.Course;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
 import gr.upatras.ece.nam.baker.model.Product;
 import gr.upatras.ece.nam.baker.model.SubscribedMachine;
@@ -229,6 +230,12 @@ public class BakerRepository {
 
 	public List<Widget> getWidgets(Long categoryid) {
 		List<Widget> ls = bakerJpaController.readWidgetMetadata(categoryid, 0, 100000);		
+		return ls;
+	}
+
+
+	public List<Course> getCourses(Long categoryid) {
+		List<Course> ls = bakerJpaController.readCoursesMetadata(categoryid, 0, 100000);		
 		return ls;
 	}
 
