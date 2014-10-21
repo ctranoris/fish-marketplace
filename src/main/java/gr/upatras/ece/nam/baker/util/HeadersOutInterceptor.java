@@ -40,13 +40,16 @@ public class HeadersOutInterceptor extends AbstractOutDatabindingInterceptor {
 	public void handleMessage(Message outMessage) throws Fault {		
 		
 		Map<String, List<String>> headers = (Map<String, List<String>>) outMessage.get(Message.PROTOCOL_HEADERS);
-		
+
 		if (headers == null) {
 			headers = new TreeMap<String, List<String>>(String.CASE_INSENSITIVE_ORDER);
 			
 			List<String> vl = new ArrayList<String>();
 			vl.add("1.0.0");
-			headers.put("X-Baker-API-Version", vl );			
+			headers.put("X-Baker-API-Version", vl );
+//			vl = new ArrayList<String>();
+//			vl.add("*");
+//			headers.put("Access-Control-Allow-Origin", vl);			
 			outMessage.put(Message.PROTOCOL_HEADERS, headers);
 		}
 		
