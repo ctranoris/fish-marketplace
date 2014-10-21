@@ -32,7 +32,7 @@ import org.apache.commons.collections.ListUtils;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 @Entity(name = "Category")
-@JsonIgnoreProperties(value = {  "products" })
+@JsonIgnoreProperties(value = {  "products" }, ignoreUnknown = true )
 public class Category {
 
 	@Id

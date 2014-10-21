@@ -30,27 +30,54 @@ public class AjaxUserFilter extends UserFilter {
 
 	private static final transient Log logger = LogFactory.getLog(AjaxUserFilter.class.getName());
 	
+	
+	
+	
+	
+	@Override
+	protected boolean isAccessAllowed(ServletRequest arg0, ServletResponse arg1, Object arg2) {
+    	logger.info("=======> AjaxUserFilter: isAccessAllowed <=============");
+		return super.isAccessAllowed(arg0, arg1, arg2);
+	}
+	
     @Override
     protected boolean onAccessDenied(ServletRequest request,
         ServletResponse response) throws Exception {
-    
-    	logger.info("=======> AjaxUserFilter:onAccessDenied <=============");
-    	
+
         HttpServletRequest req = WebUtils.toHttp(request);
+        
+    	logger.info("=======> AjaxUserFilter:onAccessDenied <============= MEethod = "+ req.getMethod());
+    	
+        if (req.getMethod().equals("OPTIONS")){ //useful to pass CORS Options
+        	//usually for most browsers in OPTIONS there is no JSESSION ID cookie,
+        	//therefore there is a problem with the authentication
+        	//still bypassing the OPTIONS here seams not an authorization problem
+        	return true; 
+        }
+        
         String xmlHttpRequest = req.getHeader("X-Requested-With");
-        if ( xmlHttpRequest != null )
+        if ( xmlHttpRequest != null ){
             if ( xmlHttpRequest.equalsIgnoreCase("XMLHttpRequest") )  {
                 HttpServletResponse res = WebUtils.toHttp(response);
                 res.sendError(401);
                 return false;
+            }
+
+        	logger.info("=======> AjaxUserFilter:onAccessDenied xmlHttpRequest  X-Requested-With="+xmlHttpRequest);
         }
         
         
         HttpServletResponse res = WebUtils.toHttp(response);
         res.sendError(401);
+//        xmlHttpRequest = req.getHeader("Origin"); //USED FOR CORS support on 401 error
+//        if ( xmlHttpRequest != null ){
+//            res.addHeader("Access-Control-Allow-Origin", xmlHttpRequest);
+//            res.addHeader("Access-Control-Allow-Credentials", "true");
+//            
+//        	logger.info("=======> AjaxUserFilter:onAccessDenied xmlHttpRequest Origin="+xmlHttpRequest);
+//        	
+//        }
         return false;
-        
-        //return false;
         //return super.onAccessDenied(request, response);
     }
 }  

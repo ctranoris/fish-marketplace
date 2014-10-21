@@ -44,6 +44,7 @@ import javax.activation.DataHandler;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -53,6 +54,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -65,7 +67,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
+import org.apache.cxf.rs.security.cors.CorsHeaderConstants;
 import org.apache.cxf.rs.security.cors.CrossOriginResourceSharing;
+import org.apache.cxf.rs.security.cors.LocalPreflight;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -73,12 +77,21 @@ import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 
 //CORS support
-@CrossOriginResourceSharing(allowAllOrigins = true)
+//@CrossOriginResourceSharing(
+//        allowOrigins = {
+//           "http://83.212.106.218"
+//        },
+//        allowCredentials = true
+//        
+//)
 @Path("/repo")
 public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 	@Context
 	UriInfo uri;
+	
+	@Context
+	HttpHeaders headers;
 
 	@Context
 	MessageContext ws;
@@ -680,7 +693,27 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 	//Sessions related API
 	
-	
+//	@OPTIONS
+//	@Path("/sessions/")
+//	@Produces("application/json")
+//	@Consumes("application/json")
+//	@LocalPreflight
+//	public Response addUserSessionOption(){
+//		
+//
+//		logger.info("Received OPTIONS  addUserSessionOption ");
+//		String origin = headers.getRequestHeader("Origin").get(0);
+//        if (origin != null) {
+//            return Response.ok()
+//                           .header(CorsHeaderConstants.HEADER_AC_ALLOW_METHODS, "GET POST DELETE PUT HEAD OPTIONS")
+//                           .header(CorsHeaderConstants.HEADER_AC_ALLOW_CREDENTIALS, "true")
+//                           .header(CorsHeaderConstants.HEADER_AC_ALLOW_HEADERS, "Origin, X-Requested-With, Content-Type, Accept")
+//                           .header(CorsHeaderConstants.HEADER_AC_ALLOW_ORIGIN, origin)
+//                           .build();
+//        } else {
+//            return Response.ok().build();
+//        }
+//	}
 
 	
 	@POST
@@ -725,6 +758,23 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		return Response.status(Status.UNAUTHORIZED).build();
 	}
 
+	@GET
+	@Path("/sessions/logout")
+	@Produces("application/json")
+	public Response logoutUser() {
+
+		logger.info("Received logoutUser " );
+		
+		if (securityContext!=null){
+			if (securityContext.getUserPrincipal()!=null)
+				logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().toString()+"<");
+		
+			SecurityUtils.getSubject().logout();
+		}
+		
+		return Response.ok().build();
+	}
+		
 	
 	//THIS IS NOT USED
 	@GET
