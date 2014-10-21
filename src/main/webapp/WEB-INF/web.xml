@@ -51,7 +51,7 @@
 		<filter-class>org.eclipse.jetty.servlets.CrossOriginFilter</filter-class>
 		<init-param>
 			<param-name>allowedOrigins</param-name>
-			<param-value>http://83.212.106.218</param-value>
+			<param-value>*</param-value>
 		</init-param>
 		<init-param>
 			<param-name>chainPreflight</param-name>
