@@ -26,10 +26,23 @@
 		<class>gr.upatras.ece.nam.baker.model.ApplicationMetadata</class>
 		<class>gr.upatras.ece.nam.baker.model.Widget</class>
 		<class>gr.upatras.ece.nam.baker.model.Course</class>
+		<class>gr.upatras.ece.nam.baker.model.FIREAdapter</class>
 		
 
 
 		<properties>
+			<property name="openjpa.ConnectionDriverName" value="com.mysql.jdbc.Driver" />
+			<property name="openjpa.ConnectionURL"
+				value="jdbc:mysql://localhost/bakerdb" />
+			<property name="openjpa.ConnectionUserName" value="bakerdbuser" />
+			<property name="openjpa.ConnectionPassword" value="b@k3rp@zz" />
+			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema" />
+			<property name="openjpa.Log" value="none" />
+
+		</properties>
+
+
+		<!-- properties>
 			<property name="openjpa.ConnectionDriverName" value="org.h2.Driver" />
 			<property name="openjpa.ConnectionURL"
 				value="jdbc:h2:~/.baker/db/bakerdb;CIPHER=AES;AUTO_SERVER=TRUE" />
@@ -37,8 +50,8 @@
 			<property name="openjpa.ConnectionPassword" value="filepwd bakerdb" />
 			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema" />
 			<property name="openjpa.jdbc.Schema" value="PUBLIC" />
-			<property name="openjpa.Log" value="DefaultLevel=WARN, Tool=INFO" />
-		</properties>
+			<property name="openjpa.Log" value="none" />
+		</properties -->
 
 	</persistence-unit>
 
@@ -57,10 +70,22 @@
 		<class>gr.upatras.ece.nam.baker.model.Product</class>
 		<class>gr.upatras.ece.nam.baker.model.ProductExtensionItem</class>
 		<class>gr.upatras.ece.nam.baker.model.Course</class>
+		<class>gr.upatras.ece.nam.baker.model.FIREAdapter</class>
 
 
 
 		<properties>
+			<property name="openjpa.ConnectionDriverName" value="com.mysql.jdbc.Driver" />
+			<property name="openjpa.ConnectionURL"
+				value="jdbc:mysql://localhost/bakerdb_test" />
+			<property name="openjpa.ConnectionUserName" value="root" />
+			<property name="openjpa.ConnectionPassword" value="rootpwdlocal" />
+			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema" />
+			<property name="openjpa.Log" value="DefaultLevel=INFO, Runtime=INFO, Tool=INFO, SQL=Trace" />
+
+		</properties>
+
+		<!-- properties>
 			<property name="openjpa.ConnectionDriverName" value="org.h2.Driver" />
 			<property name="openjpa.ConnectionURL"
 				value="jdbc:h2:~/.baker/db/bakerdb_test;CIPHER=AES;AUTO_SERVER=TRUE" />
@@ -68,9 +93,10 @@
 			<property name="openjpa.ConnectionPassword" value="filepwd bakerdb_testuserpwd" />
 			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema" />
 			<property name="openjpa.jdbc.Schema" value="PUBLIC" />
+			<property name="openjpa.Log" value="DefaultLevel=INFO, Runtime=INFO, Tool=INFO, SQL=Trace" />
 
-		</properties>
-
+		</properties -->
+		
 	</persistence-unit>
 
 </persistence>

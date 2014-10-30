@@ -20,6 +20,7 @@ import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
 import gr.upatras.ece.nam.baker.model.Course;
+import gr.upatras.ece.nam.baker.model.FIREAdapter;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
 import gr.upatras.ece.nam.baker.model.Product;
 import gr.upatras.ece.nam.baker.model.SubscribedMachine;
@@ -47,7 +48,6 @@ import org.apache.commons.logging.LogFactory;
 public class BakerJpaController {
 	private static final transient Log logger = LogFactory.getLog(BakerJpaController.class.getName());
 
-	// @PersistenceContext(unitName = "bakerdb").
 
 	@PersistenceUnit
 	private EntityManagerFactory entityManagerFactory;
@@ -379,6 +379,20 @@ public class BakerJpaController {
 		q.setMaxResults(maxResults);
 		return q.getResultList();
 	}
+	
+	public List<FIREAdapter> readFIREAdaptersMetadata(Long categoryid, int firstResult, int maxResults) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		Query q;
+		
+		if ((categoryid!=null) && (categoryid>=0))
+			q = entityManager.createQuery("SELECT a FROM FIREAdapter a WHERE a.categories.id="+categoryid+" ORDER BY a.id");
+		else
+			q = entityManager.createQuery("SELECT a FROM FIREAdapter a ORDER BY a.id");
+
+		q.setFirstResult(firstResult);
+		q.setMaxResults(maxResults);
+		return q.getResultList();
+	}
 
 
 	public Product readProductByUUID(String uuid) {
@@ -683,6 +697,8 @@ public class BakerJpaController {
 		q.setMaxResults(maxResults);
 		return q.getResultList();
 	}
+
+	
 
 	
 }

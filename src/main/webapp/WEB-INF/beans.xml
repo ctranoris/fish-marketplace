@@ -134,6 +134,7 @@
                 /services/api/repo/apps/** = anon, rest
                 /services/api/repo/widgets/** = anon, rest
                 /services/api/repo/courses/** = anon, rest
+                /services/api/repo/fireadapters/** = anon, rest
                 /services/api/** = userfilter, rest
                 /admin/logout = logout
                 /admin/viewUsers.html = authc, roles[ROLE_BOSS]         
@@ -150,7 +151,7 @@
 	<bean name="bakerJpaControllerRef" class="gr.upatras.ece.nam.baker.impl.BakerJpaController">
 	</bean>
 
-
+<!-- 
 	<bean id="data_source_h2"
 		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" value="org.h2.Driver" />
@@ -159,7 +160,7 @@
 		<property name="username" value="bro4xipidb" />
 		<property name="password" value="filepwd bro4xipidb" />
 	</bean>
-
+ -->
 
 
 
@@ -169,18 +170,29 @@
 		<property name="jpaVendorAdapter" ref="jpaAdapter" />
 	</bean>
 
-	<!-- H2 -->
+	<!-- MySQL -->
+	<bean id="jpaAdapter" class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
+		<property name="databasePlatform" value="org.apache.openjpa.jdbc.sql.MySQLDictionary" />
+		<property name="showSql" value="false" />
+		<property name="database" value="MYSQL" />
+		<property name="generateDdl" value="true" />
+	</bean>
+	
+	<!-- H2 
 	<bean id="jpaAdapter" class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
 		<property name="databasePlatform" value="org.apache.openjpa.jdbc.sql.H2Dictionary" />
-		<property name="showSql" value="true" />
+		<property name="showSql" value="false" />
 		<property name="database" value="H2" />
 		<property name="generateDdl" value="true" />
 	</bean>
-
-
+	-->	
+	
+<!-- 
 	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
 		<property name="entityManagerFactory" ref="entityManagerFactory" />
-		<property name="dataSource" ref="data_source_h2" />
+		< property name="dataSource" ref="data_source_h2" / >
 	</bean>
+-->
+
 
 </beans>

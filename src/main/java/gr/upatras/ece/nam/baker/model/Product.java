@@ -61,7 +61,7 @@ public class Product {
 	private String shortDescription = null;
 
 	@Basic()
-	@Column(name = "LONGDESCRIPTION", length = 1024)
+	@Column(name = "LONGDESCRIPTION", columnDefinition = "LONGTEXT")
 	private String longDescription = null;
 	@Basic()
 	private String version = null;
@@ -81,6 +81,22 @@ public class Product {
 	@JoinTable()
 	private List<ProductExtensionItem> extensions = new ArrayList<ProductExtensionItem>();
 	
+	
+	@Basic() 
+	@Column(name = "SCREENSPATH", columnDefinition = "LONGTEXT")		
+	private String screenshots= null; //comma separated file paths
+
+	
+	
+	
+	public String getScreenshots() {
+		return screenshots;
+	}
+
+	public void setScreenshots(String screenshots) {
+		this.screenshots = screenshots;
+	}
+
 	public List<ProductExtensionItem> getExtensions() {
 		return extensions;
 	}

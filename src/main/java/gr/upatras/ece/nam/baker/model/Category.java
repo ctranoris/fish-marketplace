@@ -127,6 +127,15 @@ public class Category {
 		return c;
 	}
 	
+	public int getFIREAdapterscount() {
+		int c = 0;
+		for (int i = 0; i < this.products.size(); i++) {
+			if (this.products.get(i) instanceof FIREAdapter)
+				c++;
+		}
+		return c;
+	}
+	
 	public int getProductsCount() {
 		return products.size();
 	}

@@ -42,8 +42,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:contextTest.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = false)
-@Transactional
+//@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = false)
+//@Transactional
 public class BakerRepoTest {
 
 	@Autowired
