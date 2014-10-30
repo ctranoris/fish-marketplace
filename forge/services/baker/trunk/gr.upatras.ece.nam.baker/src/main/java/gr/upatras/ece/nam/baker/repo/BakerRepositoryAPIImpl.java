@@ -20,6 +20,7 @@ import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
 import gr.upatras.ece.nam.baker.model.Course;
+import gr.upatras.ece.nam.baker.model.FIREAdapter;
 import gr.upatras.ece.nam.baker.model.IBakerRepositoryAPI;
 import gr.upatras.ece.nam.baker.model.Product;
 import gr.upatras.ece.nam.baker.model.SubscribedMachine;
@@ -67,6 +68,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
+import org.apache.cxf.jaxrs.utils.multipart.AttachmentUtils;
 import org.apache.cxf.rs.security.cors.CorsHeaderConstants;
 import org.apache.cxf.rs.security.cors.CrossOriginResourceSharing;
 import org.apache.cxf.rs.security.cors.LocalPreflight;
@@ -338,20 +340,25 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 	@POST
 	@Path("/users/{userid}/buns/")
-	@Consumes("multipart/form-data")
-	public Response addBunMetadata(@PathParam("userid") int userid,
-			@Multipart(value = "bunname", type = "text/plain") String bunname,
-			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription,
-			@Multipart(value = "longDescription", type = "text/plain") String longDescription,
-			@Multipart(value = "version", type = "text/plain") String version,  
-			@Multipart(value = "categories", type = "text/plain") String categories, 
-			@Multipart(value = "uploadedBunIcon") Attachment image,
-			@Multipart(value = "uploadedBunFile") Attachment bunFile) {
+	@Consumes("multipart/form-data")	
+	public Response addBunMetadata( @PathParam("userid") int userid, List<Attachment> ats){
 
 
-		
+
 		BunMetadata sm = new BunMetadata();
-		sm = (BunMetadata) addNewProductData(sm, userid, bunname, shortDescription, longDescription, version, categories, image, bunFile);
+		sm = (BunMetadata) addNewProductData(sm, userid, 
+				getAttachmentStringValue("prodname", ats), 
+				getAttachmentStringValue("shortDescription", ats), 
+				getAttachmentStringValue("longDescription", ats), 
+				getAttachmentStringValue("version", ats), 
+				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
+				getAttachmentByName("prodIcon", ats), 
+				getAttachmentByName("prodFile", ats), 
+				getListOfAttachmentsByName("screenshots", ats));
+		
+//		BunMetadata sm = new BunMetadata();
+//		sm = (BunMetadata) addNewProductData(sm, userid, bunname, shortDescription, longDescription, version,
+//				categories, image, bunFile, null);
 
 		
 		return Response.ok().entity(sm).build();
@@ -359,29 +366,29 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	}
 
 	
-	private Product addNewProductData(Product sm, int userid, String prodName, String shortDescription, String longDescription, String version,
-			String categories, Attachment image, Attachment bunFile) {
+	private Product addNewProductData(Product prod, int userid, String prodName, String shortDescription, String longDescription, String version,
+			String categories, Attachment image, Attachment bunFile, List<Attachment> screenshots) {
 		String uuid = UUID.randomUUID().toString();
-		String imageFileNamePosted = getFileName(image.getHeaders());
+		
+		
 		
 		logger.info("bunname = " + prodName);
 		logger.info("version = " + version);
 		logger.info("shortDescription = " + shortDescription);
 		logger.info("longDescription = " + longDescription);
-		logger.info("image = " + imageFileNamePosted);
 		
-		sm.setUuid(uuid);
-		sm.setName(prodName);
-		sm.setShortDescription(shortDescription);
-		sm.setLongDescription(longDescription);
-		sm.setVersion(version);
-		sm.setDateCreated(new Date());
-		sm.setDateUpdated(new Date());
+		prod.setUuid(uuid);
+		prod.setName(prodName);
+		prod.setShortDescription(shortDescription);
+		prod.setLongDescription(longDescription);
+		prod.setVersion(version);
+		prod.setDateCreated(new Date());
+		prod.setDateUpdated(new Date());
 		
 		String[] catIDs = categories.split(",");
 		for (String catid : catIDs) {
 			Category category = bakerRepositoryRef.getCategoryByID( Integer.valueOf(catid) );		
-			sm.addCategory(category);
+			prod.addCategory(category);
 		}
 
 		URI endpointUrl = uri.getBaseUri();
@@ -390,12 +397,16 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		try {
 			Files.createDirectories(Paths.get(tempDir));
 
-			if (!imageFileNamePosted.equals("")) {
-				String imgfile = saveFile(image, tempDir + imageFileNamePosted);
-				logger.info("imgfile saved to = " + imgfile);
-				sm.setIconsrc(endpointUrl + "repo/images/" + uuid + File.separator + imageFileNamePosted);
-			}
 
+			if (image!=null){
+				String imageFileNamePosted = getFileName(image.getHeaders());
+				logger.info("image = " + imageFileNamePosted);
+				if (!imageFileNamePosted.equals("")) {
+					String imgfile = saveFile(image, tempDir + imageFileNamePosted);
+					logger.info("imgfile saved to = " + imgfile);
+					prod.setIconsrc(endpointUrl + "repo/images/" + uuid + File.separator + imageFileNamePosted);
+				}
+			}
 			
 
 			if (bunFile!=null){
@@ -404,9 +415,31 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 				if (!bunFileNamePosted.equals("")) {
 					String bunfilepath = saveFile(bunFile, tempDir + bunFileNamePosted);
 					logger.info("bunfilepath saved to = " + bunfilepath);
-					sm.setPackageLocation(endpointUrl + "repo/packages/" + uuid + File.separator + bunFileNamePosted);
+					prod.setPackageLocation(endpointUrl + "repo/packages/" + uuid + File.separator + bunFileNamePosted);
 				}
 			}
+			
+			
+			List<Attachment> ss = screenshots;
+			String screenshotsFilenames="";
+			int i=1;
+			for (Attachment shot : ss) {
+				String shotFileNamePosted = getFileName(shot.getHeaders());
+				logger.info("Found screenshot image shotFileNamePosted = " + shotFileNamePosted);
+				logger.info("shotFileNamePosted = " + shotFileNamePosted);
+				if (!shotFileNamePosted.equals("")) {
+					shotFileNamePosted = "shot"+i+"_"+shotFileNamePosted;
+					String shotfilepath = saveFile(shot, tempDir + shotFileNamePosted);
+					logger.info("shotfilepath saved to = " + shotfilepath);
+					shotfilepath = endpointUrl + "repo/images/" + uuid + File.separator + shotFileNamePosted;
+					screenshotsFilenames += shotfilepath+","; 
+					i++;
+				}
+			}
+			if (screenshotsFilenames.length()>0)
+				screenshotsFilenames = screenshotsFilenames.substring(0, screenshotsFilenames.length()-1);
+			
+			prod.setScreenshots(screenshotsFilenames);
 			
 			
 
@@ -416,31 +449,31 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 		// Save now bun for User
 		BakerUser bunOwner = bakerRepositoryRef.getUserByID(userid);
-		bunOwner.addProduct(sm);
+		bunOwner.addProduct(prod);
 		bakerRepositoryRef.updateUserInfo(userid, bunOwner);
-		return sm;
+		return prod;
 	}
 
 	@PUT
 	@Path("/buns/{bid}")
 	@Consumes("multipart/form-data")
-	public Response updateBunMetadata(@PathParam("bid") int bid, 
-			@Multipart(value = "userid", type = "text/plain") int userid,
-			@Multipart(value = "bunname", type = "text/plain") String bunname, 
-			@Multipart(value = "bunid", type = "text/plain") int bunid,
-			@Multipart(value = "bunuuid", type = "text/plain") String uuid,
-			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription,
-			@Multipart(value = "longDescription", type = "text/plain") String longDescription,
-			@Multipart(value = "version", type = "text/plain") String version, 
-			@Multipart(value = "categories", type = "text/plain") String categories,
-			@Multipart(value = "uploadedBunIcon") Attachment image,
-			@Multipart(value = "uploadedBunFile") Attachment bunFile) {
+	public Response updateBunMetadata(@PathParam("bid") int bid,  List<Attachment> ats){
 
 		
 
-		BunMetadata sm = (BunMetadata) bakerRepositoryRef.getProductByID(bunid);
-		sm = (BunMetadata) updateProductMetadata(sm, userid, bunname, uuid, shortDescription, longDescription, version, categories, image, bunFile);
-		
+		BunMetadata sm = (BunMetadata) bakerRepositoryRef.getProductByID(bid);
+		sm = (BunMetadata) updateProductMetadata(
+				sm, 
+				getAttachmentStringValue("userid", ats),  
+				getAttachmentStringValue("prodname", ats),
+				getAttachmentStringValue("uuid", ats), 
+				getAttachmentStringValue("shortDescription", ats), 
+				getAttachmentStringValue("longDescription", ats), 
+				getAttachmentStringValue("version", ats), 
+				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
+				getAttachmentByName("prodIcon", ats), 
+				getAttachmentByName("prodFile", ats), 
+				getListOfAttachmentsByName("screenshots", ats));
 		
 		return Response.ok().entity(sm).build();
 
@@ -448,40 +481,39 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 	// Buns related API
 
-	private Product updateProductMetadata(Product sm, int userid, String bunname, String uuid, String shortDescription, String longDescription,
-			String version, String categories, Attachment image, Attachment bunFile) {
-		String imageFileNamePosted = getFileName(image.getHeaders());
+	private Product updateProductMetadata(Product prod, String userid, String prodname, String uuid, String shortDescription, String longDescription,
+			String version, String categories, Attachment image, Attachment prodFile, List<Attachment> screenshots) {
+		
 		
 		logger.info("userid = " + userid);
-		logger.info("bunname = " + bunname);
-		logger.info("bunid = " + sm.getId());
+		logger.info("bunname = " + prodname);
+		logger.info("bunid = " + prod.getId());
 		
 		logger.info("bunuuid = " + uuid);
 		logger.info("version = " + version);
 		logger.info("shortDescription = " + shortDescription);
 		logger.info("longDescription = " + longDescription);
-		logger.info("image = " + imageFileNamePosted);
 
 		// Save now bun for User
-		BakerUser bunOwner = bakerRepositoryRef.getUserByID(userid);
-		sm.setShortDescription(shortDescription);
-		sm.setLongDescription(longDescription);
-		sm.setVersion(version);
-		sm.setName(bunname);
-		sm.setOwner(bunOwner);
-		sm.setDateUpdated(new Date());
+		BakerUser bunOwner = bakerRepositoryRef.getUserByID( Integer.parseInt(userid) );
+		prod.setShortDescription(shortDescription);
+		prod.setLongDescription(longDescription);
+		prod.setVersion(version);
+		prod.setName(prodname);
+		prod.setOwner(bunOwner);
+		prod.setDateUpdated(new Date());
 
 		
 		//first remove the bun from the previous category
-		List<Category> cats = sm.getCategories();
+		List<Category> cats = prod.getCategories();
 		List<Category> catsToUpdate = new ArrayList<Category>();
 		for (Category category : cats) {
 			catsToUpdate.add(category);
 		}		
 		
 		for (Category c : catsToUpdate) {
-			c.removeProduct(sm);
-			sm.removeCategory(c);
+			c.removeProduct(prod);
+			prod.removeCategory(c);
 			bakerRepositoryRef.updateCategoryInfo( c );
 		}
 		
@@ -489,7 +521,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		for (String catid : catIDs) {
 			//and now add the new one
 			Category category = bakerRepositoryRef.getCategoryByID(Integer.valueOf(catid));
-			sm.addCategory(category);
+			prod.addCategory(category);
 		}
 
 
@@ -498,34 +530,61 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		String tempDir = METADATADIR + uuid + File.separator;
 		try {
 			Files.createDirectories(Paths.get(tempDir));
-
-			if (!imageFileNamePosted.equals("unknown")) {
-				String imgfile = saveFile(image, tempDir + imageFileNamePosted);
-				logger.info("imgfile saved to = " + imgfile);
-				sm.setIconsrc(endpointUrl + "repo/images/" + uuid + File.separator + imageFileNamePosted);
-			}
-
-			if (bunFile!=null){
-				String bunFileNamePosted = getFileName(bunFile.getHeaders());
-				logger.info("bunFile = " + bunFileNamePosted);
-				if (!bunFileNamePosted.equals("unknown")) {
-					String bunfilepath = saveFile(bunFile, tempDir + bunFileNamePosted);
-					logger.info("bunfilepath saved to = " + bunfilepath);
-					sm.setPackageLocation(endpointUrl + "repo/packages/" + uuid + File.separator + bunFileNamePosted);
+			
+			if (image!=null){
+				String imageFileNamePosted = getFileName(image.getHeaders());
+				logger.info("image = " + imageFileNamePosted);
+				if (!imageFileNamePosted.equals("unknown")) {
+					String imgfile = saveFile(image, tempDir + imageFileNamePosted);
+					logger.info("imgfile saved to = " + imgfile);
+					prod.setIconsrc(endpointUrl + "repo/images/" + uuid + File.separator + imageFileNamePosted);
 				}
 			}
+
+			if (prodFile!=null){
+				String bunFileNamePosted = getFileName(prodFile.getHeaders());
+				logger.info("bunFile = " + bunFileNamePosted);
+				if (!bunFileNamePosted.equals("unknown")) {
+					String bunfilepath = saveFile(prodFile, tempDir + bunFileNamePosted);
+					logger.info("bunfilepath saved to = " + bunfilepath);
+					prod.setPackageLocation(endpointUrl + "repo/packages/" + uuid + File.separator + bunFileNamePosted);
+				}
+			}
+			
+			
+			List<Attachment> ss = screenshots;
+			String screenshotsFilenames="";
+			int i=1;
+			for (Attachment shot : ss) {
+				String shotFileNamePosted = getFileName(shot.getHeaders());
+				logger.info("Found screenshot image shotFileNamePosted = " + shotFileNamePosted);
+				logger.info("shotFileNamePosted = " + shotFileNamePosted);
+				if (!shotFileNamePosted.equals("")) {
+					shotFileNamePosted = "shot"+i+"_"+shotFileNamePosted;
+					String shotfilepath = saveFile(shot, tempDir + shotFileNamePosted);
+					logger.info("shotfilepath saved to = " + shotfilepath);
+					shotfilepath = endpointUrl + "repo/images/" + uuid + File.separator + shotFileNamePosted;
+					screenshotsFilenames += shotfilepath+","; 
+					i++;
+				}
+			}
+			if (screenshotsFilenames.length()>0)
+				screenshotsFilenames = screenshotsFilenames.substring(0, screenshotsFilenames.length()-1);
+			
+			prod.setScreenshots(screenshotsFilenames);
+			
 
 		} catch (IOException e) {
 			
 			e.printStackTrace();
 		}
 
-		bakerRepositoryRef.updateProductInfo(sm);
+		bakerRepositoryRef.updateProductInfo(prod);
 
-		if (bunOwner.getProductById(sm.getId()) == null)
-			bunOwner.addProduct(sm);
-		bakerRepositoryRef.updateUserInfo(userid, bunOwner);
-		return sm;
+		if (bunOwner.getProductById(prod.getId()) == null)
+			bunOwner.addProduct(prod);
+		bakerRepositoryRef.updateUserInfo(Integer.parseInt(userid), bunOwner);
+		return prod;
 	}
 
 	@GET
@@ -647,42 +706,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 	}
 
-	private String saveFile(Attachment att, String filePath) {
-		DataHandler handler = att.getDataHandler();
-		try {
-			InputStream stream = handler.getInputStream();
-			MultivaluedMap map = att.getHeaders();
-			File f = new File(filePath);
-			OutputStream out = new FileOutputStream(f);
-
-			int read = 0;
-			byte[] bytes = new byte[1024];
-			while ((read = stream.read(bytes)) != -1) {
-				out.write(bytes, 0, read);
-			}
-			stream.close();
-			out.flush();
-			out.close();
-			return f.getAbsolutePath();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	private String getFileName(MultivaluedMap<String, String> header) {
-		String[] contentDisposition = header.getFirst("Content-Disposition").split(";");
-		for (String filename : contentDisposition) {
-			if ((filename.trim().startsWith("filename"))) {
-				String[] name = filename.split("=");
-				String exactFileName = name[1].trim().replaceAll("\"", "");
-				return exactFileName;
-			}
-		}
-		return "unknown";
-	}
-
+	
 	public BakerRepository getBakerRepositoryRef() {
 		return bakerRepositoryRef;
 	}
@@ -937,41 +961,58 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@POST
 	@Path("/users/{userid}/apps/")
 	@Consumes("multipart/form-data")
-	public Response addAppMetadata(@PathParam("userid") int userid, 
-			@Multipart(value = "appname", type = "text/plain") String appname, 
-			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription, 
-			@Multipart(value = "longDescription", type = "text/plain") String longDescription, 
-			@Multipart(value = "version", type = "text/plain") String version, 
-			@Multipart(value = "categories", type = "text/plain") String categories, 
-			@Multipart(value = "uploadedAppIcon") Attachment image) {
-		
-		
+	public Response addAppMetadata(@PathParam("userid") int userid, List<Attachment> ats){
 
 		ApplicationMetadata sm = new ApplicationMetadata();
-		sm = (ApplicationMetadata) addNewProductData(sm, userid, appname, shortDescription, longDescription, version, categories, image, null);
+		sm = (ApplicationMetadata) addNewProductData(sm, userid, 
+				getAttachmentStringValue("prodname", ats), 
+				getAttachmentStringValue("shortDescription", ats), 
+				getAttachmentStringValue("longDescription", ats), 
+				getAttachmentStringValue("version", ats), 
+				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
+				getAttachmentByName("prodIcon", ats), 
+				getAttachmentByName("prodFile", ats), 
+				getListOfAttachmentsByName("screenshots", ats));
 
 		return Response.ok().entity(sm).build();
+
 	}
+	
+	
+
 	
 	@PUT
 	@Path("/apps/{aid}")
 	@Consumes("multipart/form-data")
-	public Response updateAppMetadata(@PathParam("aid") int aid, 
-			@Multipart(value = "userid", type = "text/plain")int userid, 
-			@Multipart(value = "appname", type = "text/plain")String appname, 
-			@Multipart(value = "appid", type = "text/plain") int appid, 
-			@Multipart(value = "appuuid", type = "text/plain") String uuid, 
-			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription, 
-			@Multipart(value = "longDescription", type = "text/plain") String longDescription, 
-			@Multipart(value = "version", type = "text/plain") String version,
-			@Multipart(value = "categories", type = "text/plain") String categories,
-			@Multipart(value = "uploadedAppIcon") Attachment image){
+	public Response updateAppMetadata(@PathParam("aid") int aid, List<Attachment> ats){
+//			@Multipart(value = "userid", type = "text/plain")int userid, 
+//			@Multipart(value = "appname", type = "text/plain")String appname, 
+//			@Multipart(value = "appid", type = "text/plain") int appid, 
+//			@Multipart(value = "appuuid", type = "text/plain") String uuid, 
+//			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription, 
+//			@Multipart(value = "longDescription", type = "text/plain") String longDescription, 
+//			@Multipart(value = "version", type = "text/plain") String version,
+//			@Multipart(value = "categories", type = "text/plain") String categories,
+//			@Multipart(value = "prodIcon") Attachment image){
 		
 		
 
-		ApplicationMetadata appmeta = (ApplicationMetadata) bakerRepositoryRef.getProductByID(appid);
-		appmeta = (ApplicationMetadata) updateProductMetadata(appmeta, userid, appname, uuid, shortDescription, longDescription, 
-				version, categories, image, null);
+		ApplicationMetadata appmeta = (ApplicationMetadata) bakerRepositoryRef.getProductByID(aid);
+		
+		
+		
+		appmeta = (ApplicationMetadata) updateProductMetadata(
+				appmeta, 
+				getAttachmentStringValue("userid", ats),  
+				getAttachmentStringValue("prodname", ats),
+				getAttachmentStringValue("uuid", ats), 
+				getAttachmentStringValue("shortDescription", ats), 
+				getAttachmentStringValue("longDescription", ats), 
+				getAttachmentStringValue("version", ats), 
+				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
+				getAttachmentByName("prodIcon", ats), 
+				getAttachmentByName("prodFile", ats), 
+				getListOfAttachmentsByName("screenshots", ats));
 		
 		return Response.ok().entity(appmeta).build();
 	}
@@ -1148,24 +1189,24 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@PUT
 	@Path("/widgets/{wid}")
 	@Consumes("multipart/form-data")
-	public Response updateWidget(@PathParam("wid") int wid, 
-			@Multipart(value = "userid", type = "text/plain")int userid, 
-			@Multipart(value = "widgetname", type = "text/plain")String widgetname, 
-			@Multipart(value = "url", type = "text/plain")String url, 
-			@Multipart(value = "widgetid", type = "text/plain") int widgetid, 
-			@Multipart(value = "widgetuuid", type = "text/plain") String uuid, 
-			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription, 
-			@Multipart(value = "longDescription", type = "text/plain") String longDescription, 
-			@Multipart(value = "version", type = "text/plain") String version,
-			@Multipart(value = "categories", type = "text/plain") String categories,
-			@Multipart(value = "uploadedWidgetIcon") Attachment image,
-			@Multipart(value = "uploadedWidgetFile") Attachment bunFile){ 
+	public Response updateWidget(@PathParam("wid") int wid, List<Attachment> ats){
 		
-		Widget appmeta = (Widget) bakerRepositoryRef.getProductByID(widgetid);
-		appmeta.setURL(url);
-		appmeta = (Widget) updateProductMetadata(appmeta, userid, widgetname, uuid, 
-				shortDescription, longDescription, 
-				version, categories, image, bunFile);
+		Widget appmeta = (Widget) bakerRepositoryRef.getProductByID(wid);
+		appmeta.setURL(getAttachmentStringValue("url", ats));
+		
+		appmeta = (Widget) updateProductMetadata(
+				appmeta, 
+				getAttachmentStringValue("userid", ats),  
+				getAttachmentStringValue("prodname", ats),
+				getAttachmentStringValue("uuid", ats), 
+				getAttachmentStringValue("shortDescription", ats), 
+				getAttachmentStringValue("longDescription", ats), 
+				getAttachmentStringValue("version", ats), 
+				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
+				getAttachmentByName("prodIcon", ats), 
+				getAttachmentByName("prodFile", ats), 
+				getListOfAttachmentsByName("screenshots", ats));
+		
 		
 		return Response.ok().entity(appmeta).build();
 	}
@@ -1173,21 +1214,20 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@POST
 	@Path("/users/{userid}/widgets/")
 	@Consumes("multipart/form-data")
-	public Response addWidget( @PathParam("userid") int userid,
-			@Multipart(value = "widgetname", type = "text/plain")String widgetname, 
-			@Multipart(value = "url", type = "text/plain")String url, 
-			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription, 
-			@Multipart(value = "longDescription", type = "text/plain") String longDescription, 
-			@Multipart(value = "version", type = "text/plain") String version,
-			@Multipart(value = "categories", type = "text/plain") String categories,
-			@Multipart(value = "uploadedWidgetIcon") Attachment image,
-			@Multipart(value = "uploadedWidgetFile") Attachment bunFile){ 
+	public Response addWidget( @PathParam("userid") int userid, List<Attachment> ats){
 		
 
 		Widget sm = new Widget();
-		sm.setURL(url);
-		sm = (Widget) addNewProductData(sm, userid, widgetname, shortDescription, longDescription, 
-				version, categories, image, bunFile);
+		sm.setURL(  getAttachmentStringValue("url", ats) );
+		sm = (Widget) addNewProductData(sm, userid, 
+				getAttachmentStringValue("prodname", ats), 
+				getAttachmentStringValue("shortDescription", ats), 
+				getAttachmentStringValue("longDescription", ats), 
+				getAttachmentStringValue("version", ats), 
+				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
+				getAttachmentByName("prodIcon", ats), 
+				getAttachmentByName("prodFile", ats), 
+				getListOfAttachmentsByName("screenshots", ats));
 
 		return Response.ok().entity(sm).build();
 	}
@@ -1269,22 +1309,22 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@Consumes("multipart/form-data")
 	public Response updateCourse(
 			@PathParam("cid") int cid, 
-			@Multipart(value = "userid", type = "text/plain") int userid,
-			@Multipart(value = "coursename", type = "text/plain") String coursename, 
-			@Multipart(value = "courseid", type = "text/plain") int bunid,
-			@Multipart(value = "courseuuid", type = "text/plain") String uuid,
-			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription,
-			@Multipart(value = "longDescription", type = "text/plain") String longDescription,
-			@Multipart(value = "version", type = "text/plain") String version, 
-			@Multipart(value = "categories", type = "text/plain") String categories,
-			@Multipart(value = "uploadedCourseIcon") Attachment image,
-			@Multipart(value = "uploadedCourseFile") Attachment courseFile
-			) {
+			List<Attachment> ats){
 
-		Course c = (Course) bakerRepositoryRef.getProductByID(bunid);
-		c = (Course) updateProductMetadata(c, userid, coursename, uuid, 
-				shortDescription, longDescription, version, categories, image, courseFile);
+		Course c = (Course) bakerRepositoryRef.getProductByID(cid);
 		
+		c = (Course) updateProductMetadata(
+				c, 
+				getAttachmentStringValue("userid", ats),  
+				getAttachmentStringValue("prodname", ats),
+				getAttachmentStringValue("uuid", ats), 
+				getAttachmentStringValue("shortDescription", ats), 
+				getAttachmentStringValue("longDescription", ats), 
+				getAttachmentStringValue("version", ats), 
+				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
+				getAttachmentByName("prodIcon", ats), 
+				getAttachmentByName("prodFile", ats), 
+				getListOfAttachmentsByName("screenshots", ats));
 		
 		return Response.ok().entity(c).build();
 	}
@@ -1294,20 +1334,17 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@POST
 	@Path("/users/{userid}/courses/")
 	@Consumes("multipart/form-data")
-	public Response addCourse(
-			@PathParam("userid") int userid,
-			@Multipart(value = "coursename", type = "text/plain") String coursename,
-			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription,
-			@Multipart(value = "longDescription", type = "text/plain") String longDescription,
-			@Multipart(value = "version", type = "text/plain") String version,  
-			@Multipart(value = "categories", type = "text/plain") String categories, 
-			@Multipart(value = "uploadedCourseIcon") Attachment image,
-			@Multipart(value = "uploadedCourseFile") Attachment courseFile
-	) {
+	public Response addCourse(@PathParam("userid") int userid, List<Attachment> ats){
 		Course c = new Course();
 		c = (Course) addNewProductData(c, userid, 
-				coursename, shortDescription, longDescription, version, 
-				categories, image, courseFile);
+				getAttachmentStringValue("prodname", ats), 
+				getAttachmentStringValue("shortDescription", ats), 
+				getAttachmentStringValue("longDescription", ats), 
+				getAttachmentStringValue("version", ats), 
+				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
+				getAttachmentByName("prodIcon", ats), 
+				getAttachmentByName("prodFile", ats), 
+				getListOfAttachmentsByName("screenshots", ats));
 		
 		return Response.ok().entity(c).build();
 	}
@@ -1357,7 +1394,202 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	}
 	
 
+	// Attachment utils ///////////////////////
+	private String saveFile(Attachment att, String filePath) {
+		DataHandler handler = att.getDataHandler();
+		try {
+			InputStream stream = handler.getInputStream();
+			MultivaluedMap map = att.getHeaders();
+			File f = new File(filePath);
+			OutputStream out = new FileOutputStream(f);
+
+			int read = 0;
+			byte[] bytes = new byte[1024];
+			while ((read = stream.read(bytes)) != -1) {
+				out.write(bytes, 0, read);
+			}
+			stream.close();
+			out.flush();
+			out.close();
+			return f.getAbsolutePath();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private String getFileName(MultivaluedMap<String, String> header) {
+		String[] contentDisposition = header.getFirst("Content-Disposition").split(";");
+		for (String filename : contentDisposition) {
+			if ((filename.trim().startsWith("filename"))) {
+				String[] name = filename.split("=");
+				String exactFileName = name[1].trim().replaceAll("\"", "");
+				return exactFileName;
+			}
+		}
+		return "unknown";
+	}
 	
+	public String getAttachmentStringValue(String name, List<Attachment> attachments){
+		
+		Attachment att = getAttachmentByName(name, attachments);
+		if (att!=null){
+			return att.getObject(String.class);
+		}
+		return null;
+	}
+	
+	public Attachment getAttachmentByName(String name, List<Attachment> attachments){
+		
+		for (Attachment attachment : attachments) {			
+			if (getAttachmentName(attachment.getHeaders()).equals(name) )
+					return attachment;			
+		}
+		
+		return null;
+	}
+	
+	private List<Attachment> getListOfAttachmentsByName(String name, List<Attachment> attachments) {
+		
+		List<Attachment> la = new ArrayList<Attachment>();
+		for (Attachment attachment : attachments) {			
+			if (getAttachmentName(attachment.getHeaders()).equals(name) )
+					la.add(attachment);			
+		}
+		return la;
+	}
+
+
+	private String getAttachmentName(MultivaluedMap<String, String> header) {
+		String[] contentDisposition = header.getFirst("Content-Disposition").split(";");
+		for (String filename : contentDisposition) {
+			if ((filename.trim().startsWith("name"))) {
+				String[] name = filename.split("=");
+				String exactFileName = name[1].trim().replaceAll("\"", "");
+				return exactFileName;
+			}
+		}
+		return null;
+	}
+
+	@GET
+	@Path("/fireadapters")
+	@Produces("application/json")
+	public Response getFIREAdapters(@QueryParam("categoryid") Long categoryid) {
+		logger.info("getFIREAdapters categoryid="+categoryid);
+
+		List<FIREAdapter> adapters = bakerRepositoryRef.getFIREAdapters(categoryid);
+		return Response.ok().entity(adapters).build();
+	}
+
+
+	@GET
+	@Path("/fireadapters/{faid}")
+	@Produces("application/json")
+	public Response getFIREAdapterByID( @PathParam("faid") int faid) {
+		logger.info("getFIREAdapterByID  faid=" + faid);
+		FIREAdapter bun = (FIREAdapter) bakerRepositoryRef.getProductByID(faid);
+
+		if (bun != null) {
+			return Response.ok().entity(bun).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("FIREAdapter with id=" + faid + " not found in baker registry");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+
+
+	@GET
+	@Path("/fireadapters/uuid/{uuid}")
+	@Produces("application/json")
+	public Response getFIREAdapterByUUID(@PathParam("uuid") String uuid) {
+		logger.info("Received GET for FIREAdapter uuid: " + uuid);
+		FIREAdapter adapter = null;
+		adapter = (FIREAdapter) bakerRepositoryRef.getProductByUUID(uuid);
+		
+		if (adapter != null) {
+			return Response.ok().entity(adapter).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("Installed FIREAdapter with uuid=" + uuid + " not found in local registry");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+
+
+
+	@GET
+	@Path("/users/{userid}/fireadapters/{faid}")
+	@Produces("application/json")
+	public Response getFIREAdapterofUser(@PathParam("userid") int userid, @PathParam("faid") int faid) {
+		logger.info("getFIREAdapterofUser for userid: " + userid + ", faid=" + faid);
+		BakerUser u = bakerRepositoryRef.getUserByID(userid);
+
+		if (u != null) {
+			FIREAdapter adapter = (FIREAdapter) u.getProductById(faid);
+			return Response.ok().entity(adapter).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("User with id=" + userid + " not found in baker registry");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+	
+
+
+	@PUT
+	@Path("/fireadapters/{faid}")
+	@Consumes("multipart/form-data")
+	public Response updateFIREAdapter(@PathParam("faid") int faid,  List<Attachment> ats){
+
+		
+
+		FIREAdapter sm = (FIREAdapter) bakerRepositoryRef.getProductByID(faid);
+		sm = (FIREAdapter) updateProductMetadata(
+				sm, 
+				getAttachmentStringValue("userid", ats),  
+				getAttachmentStringValue("prodname", ats),
+				getAttachmentStringValue("uuid", ats), 
+				getAttachmentStringValue("shortDescription", ats), 
+				getAttachmentStringValue("longDescription", ats), 
+				getAttachmentStringValue("version", ats), 
+				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
+				getAttachmentByName("prodIcon", ats), 
+				getAttachmentByName("prodFile", ats), 
+				getListOfAttachmentsByName("screenshots", ats));
+		
+		return Response.ok().entity(sm).build();
+
+	}
+
+	@POST
+	@Path("/users/{userid}/fireadapters/")
+	@Consumes("multipart/form-data")	
+	public Response addFIREAdapter( @PathParam("userid") int userid, List<Attachment> ats){
+		
+		FIREAdapter sm = new FIREAdapter();
+		sm = (FIREAdapter) addNewProductData(sm, userid, 
+				getAttachmentStringValue("prodname", ats), 
+				getAttachmentStringValue("shortDescription", ats), 
+				getAttachmentStringValue("longDescription", ats), 
+				getAttachmentStringValue("version", ats), 
+				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
+				getAttachmentByName("prodIcon", ats), 
+				getAttachmentByName("prodFile", ats), 
+				getListOfAttachmentsByName("screenshots", ats));
+		
+		return Response.ok().entity(sm).build();
+
+	}
+
+	@DELETE
+	@Path("/fireadapters/{faid}")
+	public void deleteFIREAdapter( @PathParam("faid") int faid) {
+		bakerRepositoryRef.deleteProduct(faid);
+	}
+
 
 
 }

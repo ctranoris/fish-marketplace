@@ -15,6 +15,8 @@
 
 package gr.upatras.ece.nam.baker.model;
 
+import java.util.List;
+
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
@@ -56,11 +58,8 @@ public interface IBakerRepositoryAPI {
 	Response getBunMetadataByUUID(String uuid);		
 	Response getBunofUser( int userid, int bunid);
 	Response downloadBunPackage(String uuid, String bunfile);	
-	Response updateBunMetadata(int bid, int userid, String bunname, int bunid, String uuid, 
-			String shortDescription, String longDescription, String version,
-			String categories, Attachment image, Attachment bunFile);
-	Response addBunMetadata(int userid, String bunname, String shortDescription, String longDescription, 
-			String version,  String categories ,Attachment image, Attachment bunFile);
+	Response updateBunMetadata(int bid, List<Attachment> attachements);
+	Response addBunMetadata(int userid,  List<Attachment> attachements);
 	void deleteBun( int bunid);
 	
 	//Subscribed machines
@@ -75,11 +74,8 @@ public interface IBakerRepositoryAPI {
 	Response getAppMetadataByID(int appid);
 	Response getAppMetadataByUUID(String uuid);		
 	Response getAppofUser( int userid, int appid);
-	Response updateAppMetadata(int aid, int userid, String appname, int appid, String uuid, 
-			String shortDescription, String longDescription, String version,
-			String categories, Attachment image);
-	Response addAppMetadata(int userid, String appname, String shortDescription, 
-			String longDescription, String version, String categories, Attachment image);
+	Response updateAppMetadata(int aid, List<Attachment> attachements);
+	Response addAppMetadata(int userid,  List<Attachment> attachements);
 	void deleteApp(int appid);
 	
 	//Widgets Related API methods
@@ -87,12 +83,8 @@ public interface IBakerRepositoryAPI {
 	Response getWidgetByID(int appid);
 	Response getWidgetUUID(String uuid);		
 	Response getWidgetofUser( int userid, int widgetid);
-	Response updateWidget(int aid, int userid, String widgetname, String url, 
-			int appid, String uuid, String shortDescription, String longDescription, String version,
-			String categories, Attachment image, Attachment widgetFile);
-	Response addWidget(int userid, String widgetname, String url, String 
-			shortDescription, String longDescription, String version, String categories, 
-			Attachment image, Attachment widgetFile);
+	Response updateWidget(int aid,  List<Attachment> attachements);
+	Response addWidget(int userid,  List<Attachment> attachements);
 	void deleteWidget(int appid);
 	
 	//courses Related API methods
@@ -100,13 +92,17 @@ public interface IBakerRepositoryAPI {
 	Response getCoursetByID(int courseid);
 	Response getCourseUUID(String uuid);		
 	Response getCourseofUser( int userid, int courseid);
-	Response updateCourse(int cid, int userid, String coursename,  
-			int courseid, String uuid, String shortDescription, String longDescription, String version,
-			String categories, Attachment image, Attachment courseFile);
-	Response addCourse(int userid, String coursename, String 
-			shortDescription, String longDescription, String version, String categories, 
-			Attachment image, Attachment courseFile);
+	Response updateCourse(int cid,  List<Attachment> attachements);
+	Response addCourse(int userid,  List<Attachment> attachements);
 	void deleteCourse(int courseid);
 	
+	//FIREAdapters related API methods
+	Response getFIREAdapters(Long categoryid);
+	Response getFIREAdapterByID(int faid);
+	Response getFIREAdapterByUUID(String uuid);		
+	Response getFIREAdapterofUser( int userid, int faid);	
+	Response updateFIREAdapter(int faid, List<Attachment> attachements);
+	Response addFIREAdapter(int userid,  List<Attachment> attachements);
+	void deleteFIREAdapter( int faid);
 	
 }
