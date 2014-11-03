@@ -64,6 +64,11 @@
 			<version>${cxf.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-rs-security-oauth2</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-core-asl</artifactId>
 			<version>${jackson.version}</version>
@@ -439,39 +444,42 @@
 									<port>13000</port>
 								</httpConnector>
 								<scanIntervalSeconds>4</scanIntervalSeconds>
-								 
+
 								<webApp>
 									<contextPath>/baker</contextPath>
 								</webApp>
 								<contextHandlers>
-									<contextHandler implementation="org.eclipse.jetty.server.handler.ContextHandler">
-								        <contextPath>/static</contextPath>
-				                    	<resourceBase>/home/vagrant/.baker/metadata/</resourceBase>
-				                    	<handler implementation="org.eclipse.jetty.server.handler.ResourceHandler" >
-					                    	<cacheControl>no-cache</cacheControl>
-					                    	<directoriesListed>true</directoriesListed>
-				                    	</handler>
-							      	</contextHandler>
-									<contextHandler implementation="org.eclipse.jetty.server.handler.ContextHandler">
-								        <contextPath>/mp</contextPath>
-				                    	<resourceBase>/home/vagrant/ws/gr.upatras.ece.nam.marketplaceweb/src</resourceBase>
-				                    	<handler implementation="org.eclipse.jetty.server.handler.ResourceHandler" >
-					                    	<cacheControl>no-cache</cacheControl>
-					                    	<directoriesListed>true</directoriesListed>
-				                    	</handler>
-							      	</contextHandler>
-									<contextHandler implementation="org.eclipse.jetty.server.handler.ContextHandler">
-										
-								        <contextPath>/forgestore</contextPath>
-				                    	<resourceBase>/home/vagrant/ws/gr.upatras.ece.nam.forgestoreweb/src</resourceBase>
-				                    	<handler implementation="org.eclipse.jetty.server.handler.ResourceHandler" >
-					                    	<cacheControl>no-cache</cacheControl>
-					                    	<directoriesListed>true</directoriesListed>
-				                    	</handler>
-							      	</contextHandler>
+									<contextHandler
+										implementation="org.eclipse.jetty.server.handler.ContextHandler">
+										<contextPath>/static</contextPath>
+										<resourceBase>/home/vagrant/.baker/metadata/</resourceBase>
+										<handler implementation="org.eclipse.jetty.server.handler.ResourceHandler">
+											<cacheControl>no-cache</cacheControl>
+											<directoriesListed>true</directoriesListed>
+										</handler>
+									</contextHandler>
+									<contextHandler
+										implementation="org.eclipse.jetty.server.handler.ContextHandler">
+										<contextPath>/mp</contextPath>
+										<resourceBase>/home/vagrant/ws/gr.upatras.ece.nam.marketplaceweb/src</resourceBase>
+										<handler implementation="org.eclipse.jetty.server.handler.ResourceHandler">
+											<cacheControl>no-cache</cacheControl>
+											<directoriesListed>true</directoriesListed>
+										</handler>
+									</contextHandler>
+									<contextHandler
+										implementation="org.eclipse.jetty.server.handler.ContextHandler">
+
+										<contextPath>/forgestore</contextPath>
+										<resourceBase>/home/vagrant/ws/gr.upatras.ece.nam.forgestoreweb/src</resourceBase>
+										<handler implementation="org.eclipse.jetty.server.handler.ResourceHandler">
+											<cacheControl>no-cache</cacheControl>
+											<directoriesListed>true</directoriesListed>
+										</handler>
+									</contextHandler>
 								</contextHandlers>
-							
-								 
+
+
 							</configuration>
 							<executions>
 								<execution>

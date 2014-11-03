@@ -30,6 +30,9 @@
 
 			<bean class="gr.upatras.ece.nam.baker.repo.BakerRepositoryAPIImpl" >
 				<property name="bakerRepositoryRef" ref="bakerRepositoryBean" />
+				<property name="oAuthClientManagerRef" ref="oAuthClientManagerBean" />
+				<!-- property name="fiwareService" ref="fiwareServiceClient"  -->
+
 			</bean>
 
 			<bean class="gr.upatras.ece.nam.baker.impl.BakerClientAPIImpl">
@@ -37,18 +40,16 @@
 			</bean>
 		</jaxrs:serviceBeans>
 		<jaxrs:providers>
-			<bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" />			
+			<bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" />
 			<!-- bean class="org.apache.cxf.rs.security.cors.CrossOriginResourceSharingFilter"/ -->
 		</jaxrs:providers>
-		
+
 		<jaxrs:inInterceptors>
-			<!-- <ref bean="basicAuthValidator"/>  -->
+			<!-- <ref bean="basicAuthValidator"/> -->
 		</jaxrs:inInterceptors>
-		
+
 
 	</jaxrs:server>
- 
-	<!--  HEADERS OUT INTERCEPTOR  -->
 
 	<bean id="headersOutInterceptor" class="gr.upatras.ece.nam.baker.util.HeadersOutInterceptor" />
 
@@ -130,6 +131,7 @@
                 /services/api/repo/packages/** = anon, rest
                 /services/api/repo/images/** = anon, rest
                 /services/api/repo/sessions/** = anon, rest
+                /services/api/repo/oauth2/** = anon, rest
                 /services/api/repo/categories/** = anon, rest
                 /services/api/repo/apps/** = anon, rest
                 /services/api/repo/widgets/** = anon, rest
@@ -177,22 +179,46 @@
 		<property name="database" value="MYSQL" />
 		<property name="generateDdl" value="true" />
 	</bean>
-	
-	<!-- H2 
-	<bean id="jpaAdapter" class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
-		<property name="databasePlatform" value="org.apache.openjpa.jdbc.sql.H2Dictionary" />
-		<property name="showSql" value="false" />
-		<property name="database" value="H2" />
-		<property name="generateDdl" value="true" />
+
+	<!-- H2 <bean id="jpaAdapter" class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter"> 
+		<property name="databasePlatform" value="org.apache.openjpa.jdbc.sql.H2Dictionary" 
+		/> <property name="showSql" value="false" /> <property name="database" value="H2" 
+		/> <property name="generateDdl" value="true" /> </bean> -->
+
+	<!-- <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager"> 
+		<property name="entityManagerFactory" ref="entityManagerFactory" /> < property 
+		name="dataSource" ref="data_source_h2" / > </bean> -->
+
+
+	<!-- OAUTH2 related beans -->
+
+
+
+	<!-- WebClient which baker uses to access fiware users' info -->
+	<bean id="fiwareServiceClient" class="org.apache.cxf.jaxrs.client.WebClient"
+		factory-method="create">
+		<constructor-arg type="java.lang.String"
+			value="http://account.lab.fi-ware.org/user" />
 	</bean>
-	-->	
-	
-<!-- 
-	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-		<property name="entityManagerFactory" ref="entityManagerFactory" />
-		< property name="dataSource" ref="data_source_h2" / >
+
+
+
+	<bean id="atServiceClientFactory" class="org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean">
+		<property name="address" value="https://account.lab.fi-ware.org/oauth2/token" />
+		<property name="headers">
+			<map>
+				<entry key="Accept" value="application/x-www-form-urlencoded" />
+			</map>
+		</property>
 	</bean>
--->
+	<bean id="atServiceClient" factory-bean="atServiceClientFactory"
+		factory-method="createWebClient" />
+
+	<bean id="oAuthClientManagerBean" class="gr.upatras.ece.nam.baker.repo.OAuthClientManager">
+		<property name="authorizationURI"
+			value="http://account.lab.fi-ware.org/oauth2/authorize" />
+		<property name="accessTokenService" ref="atServiceClient" />
+	</bean>
 
 
 </beans>

@@ -65,6 +65,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
@@ -72,6 +74,8 @@ import org.apache.cxf.jaxrs.utils.multipart.AttachmentUtils;
 import org.apache.cxf.rs.security.cors.CorsHeaderConstants;
 import org.apache.cxf.rs.security.cors.CrossOriginResourceSharing;
 import org.apache.cxf.rs.security.cors.LocalPreflight;
+import org.apache.cxf.rs.security.oauth2.common.ClientAccessToken;
+import org.apache.cxf.rs.security.oauth2.grants.code.AuthorizationCodeGrant;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -106,8 +110,11 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	private static final String METADATADIR = System.getProperty("user.home") + File.separator + ".baker/metadata/";
 
 	private BakerRepository bakerRepositoryRef;
+	private OAuthClientManager oAuthClientManagerRef;
+	private WebClient fiwareService;
 
 	// BakerUser related API
+
 
 	@GET
 	@Path("/users/")
@@ -714,6 +721,14 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	public void setBakerRepositoryRef(BakerRepository bakerRepositoryRef) {
 		this.bakerRepositoryRef = bakerRepositoryRef;
 	}
+	
+	public void setoAuthClientManagerRef(OAuthClientManager oAuthClientManagerRef) {
+		this.oAuthClientManagerRef = oAuthClientManagerRef;
+	}
+
+	public void setFiwareService(WebClient fiwareService) {
+		this.fiwareService = fiwareService;
+	}
 
 	//Sessions related API
 	
@@ -798,7 +813,99 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		
 		return Response.ok().build();
 	}
+	
+	
+	@POST
+	@Path("/oauth2/")
+	@Consumes("multipart/form-data")
+	public Response getoauth2Sessions( List<Attachment> ats) {
+
+		String oath2serverurl = getAttachmentStringValue("oath2serverurl", ats);
+		logger.info("Received GET oath2serverurl: " +oath2serverurl);
+		String oath2requestkey = getAttachmentStringValue("oath2requestkey", ats);
+		logger.info("Received GET oath2requestkey: " +oath2requestkey);
 		
+//		if (securityContext!=null){
+//			if (securityContext.getUserPrincipal()!=null)
+//				logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().toString()+"<");
+//		
+//		}
+//
+//		Subject currentUser = SecurityUtils.getSubject();
+//		if ((currentUser !=null) && (currentUser.getPrincipal() !=null)){
+//				
+//				return Response.ok().build();
+//		}
+		
+		
+		return Response.seeOther( 				 
+						oAuthClientManagerRef.getAuthorizationServiceURI(
+								getCallbackURI() , oath2requestkey) 
+								).build();
+	}	
+		
+
+	@GET
+	@Path("/oauth2/login")
+	@Produces("application/json")
+	public Response oauth2login(@QueryParam("code") String code) {
+
+		logger.info("Received GET code: "+code );
+		
+		AuthorizationCodeGrant codeGrant = new AuthorizationCodeGrant(code, getCallbackURI());
+		logger.info("Requesting OAuth server to replace an authorized request token with an access token");
+		ClientAccessToken accessToken = oAuthClientManagerRef.getAccessToken(codeGrant);
+		if (accessToken == null) {
+			String msg = "NO_OAUTH_ACCESS_TOKEN, Problem replacing your authorization key for OAuth access token,  please report to baker admin";
+			logger.info(msg);
+		    return Response.status(Status.UNAUTHORIZED).entity(msg).build();
+		}
+		
+		try {
+			String authHeader = oAuthClientManagerRef.createAuthorizationHeader(accessToken);
+			logger.info("authHeader = "+authHeader);
+			logger.info("accessToken = "+accessToken.toString());
+			logger.info("accessToken getTokenType= "+ accessToken.getTokenType() );
+			logger.info("accessToken getTokenKey= "+ accessToken.getTokenKey() );
+			logger.info("accessToken getRefreshToken= "+ accessToken.getRefreshToken() );
+			logger.info("accessToken getExpiresIn= "+ accessToken.getExpiresIn() );
+			
+			fiwareService = WebClient.create("https://account.lab.fi-ware.org/user");
+			fiwareService.replaceHeader("Authorization", authHeader);
+			fiwareService.replaceQueryParam("auth_token", accessToken.getTokenKey());
+			
+			Response r = fiwareService.get();
+			InputStream i = (InputStream)r.getEntity(); 
+			String s = IOUtils.toString(i);
+	        logger.info("=== FIWARE USER response: "+ s );
+	        
+	        fiwareService = WebClient.create("https://account.lab.fi-ware.org/users/ctranoris.json");
+			fiwareService.replaceHeader("Authorization", authHeader);
+			fiwareService.replaceQueryParam("auth_token", accessToken.getTokenKey());
+			
+			r = fiwareService.get();
+			InputStream i2 = (InputStream)r.getEntity(); 
+			String s2 = IOUtils.toString(i2);
+	        logger.info("=== FIWARE USER response: "+ s2 );
+	        
+	        return Response.ok(s+"<br>"+s2).build();
+	        
+		} catch (RuntimeException ex) {
+			return Response.status(Status.UNAUTHORIZED).entity("USER Access problem").build();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return Response.ok().build();
+		
+	}	
+	
+	
+	private URI getCallbackURI() {
+		return URI.create(uri.getBaseUri()+"repo/oauth2/login");
+	}
+	
 	
 	//THIS IS NOT USED
 	@GET
@@ -1442,8 +1549,9 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	
 	public Attachment getAttachmentByName(String name, List<Attachment> attachments){
 		
-		for (Attachment attachment : attachments) {			
-			if (getAttachmentName(attachment.getHeaders()).equals(name) )
+		for (Attachment attachment : attachments) {	
+			String s = getAttachmentName(attachment.getHeaders());
+			if ((s!=null) && (s.equals(name)) )
 					return attachment;			
 		}
 		
@@ -1462,12 +1570,15 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 
 	private String getAttachmentName(MultivaluedMap<String, String> header) {
-		String[] contentDisposition = header.getFirst("Content-Disposition").split(";");
-		for (String filename : contentDisposition) {
-			if ((filename.trim().startsWith("name"))) {
-				String[] name = filename.split("=");
-				String exactFileName = name[1].trim().replaceAll("\"", "");
-				return exactFileName;
+		
+		if (header.getFirst("Content-Disposition")!=null){
+			String[] contentDisposition = header.getFirst("Content-Disposition").split(";");
+			for (String filename : contentDisposition) {
+				if ((filename.trim().startsWith("name"))) {
+					String[] name = filename.split("=");
+					String exactFileName = name[1].trim().replaceAll("\"", "");
+					return exactFileName;
+				}
 			}
 		}
 		return null;
