@@ -22,7 +22,8 @@
 			<para>checkout the code from </para>
 			<informalexample>
 				<programlisting language="bash">
-		svn://nam.ece.upatras.gr/nam/forge/widgets/ssh2web/trunk/gr.upatras.nam.ece.ssh2webkeybox
+		svn://nam.ece.upatras.gr/nam/forge/services/baker/trunk/gr.upatras.ece.nam.baker
+		svn://nam.ece.upatras.gr/nam/forge/services/baker/trunk/gr.upatras.ece.nam.marketplaceweb
 				
 				</programlisting>
 			</informalexample>
@@ -31,7 +32,7 @@
 		<listitem>
 			<para>Open your browser and type: </para>
 			<programlisting language="bash">
-						http://127.0.0.1:8080/ssh2web102/login.action
+						http://127.0.0.1:13000/mp/
 				
 				</programlisting>
 				
