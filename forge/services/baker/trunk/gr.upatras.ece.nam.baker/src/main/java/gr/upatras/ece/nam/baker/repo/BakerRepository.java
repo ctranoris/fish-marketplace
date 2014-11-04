@@ -115,7 +115,7 @@ public class BakerRepository {
 		return bakerJpaController.readBakerUserById(userid);
 	}
 
-	public BakerUser getUserByName(String un) {
+	public BakerUser getUserByUsername(String un) {
 		return bakerJpaController.readBakerUserByUsername(un);
 	}
 	

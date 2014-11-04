@@ -59,7 +59,7 @@ public class ShiroUTAuthorizingRealm extends AuthorizingRealm {
 
 		SimpleAuthorizationInfo ai = new SimpleAuthorizationInfo();
 
-		BakerUser bu = bakerRepositoryRef.getUserByName( arg0.toString() );
+		BakerUser bu = bakerRepositoryRef.getUserByUsername( arg0.toString() );
 		if (bu!=null){
 
 			String r = bu.getRole();
@@ -85,7 +85,7 @@ public class ShiroUTAuthorizingRealm extends AuthorizingRealm {
 		//logger.info("tokengetPrincipal at=" + token.getPrincipal());
 		
 		
-		BakerUser bu = bakerRepositoryRef.getUserByName(token.getUsername());
+		BakerUser bu = bakerRepositoryRef.getUserByUsername(token.getUsername());
 		if (bu == null ){
 			throw new AuthenticationException("Sorry! No login for you.");			
 		}

@@ -21,7 +21,9 @@ import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
 import gr.upatras.ece.nam.baker.model.Course;
 import gr.upatras.ece.nam.baker.model.FIREAdapter;
+import gr.upatras.ece.nam.baker.model.FIWAREUser;
 import gr.upatras.ece.nam.baker.model.IBakerRepositoryAPI;
+import gr.upatras.ece.nam.baker.model.InstalledBun;
 import gr.upatras.ece.nam.baker.model.Product;
 import gr.upatras.ece.nam.baker.model.SubscribedMachine;
 import gr.upatras.ece.nam.baker.model.UserSession;
@@ -81,6 +83,8 @@ import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.map.MappingJsonFactory;
 
 //CORS support
 //@CrossOriginResourceSharing(
@@ -111,7 +115,6 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 	private BakerRepository bakerRepositoryRef;
 	private OAuthClientManager oAuthClientManagerRef;
-	private WebClient fiwareService;
 
 	// BakerUser related API
 
@@ -726,10 +729,6 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		this.oAuthClientManagerRef = oAuthClientManagerRef;
 	}
 
-	public void setFiwareService(WebClient fiwareService) {
-		this.fiwareService = fiwareService;
-	}
-
 	//Sessions related API
 	
 //	@OPTIONS
@@ -762,7 +761,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	public Response addUserSession(UserSession userSession) {
 
 		logger.info("Received POST addUserSession usergetUsername: " + userSession.getUsername());
-		logger.info("DANGER, REMOVE Received POST addUserSession password: " + userSession.getPassword());
+		//logger.info("DANGER, REMOVE Received POST addUserSession password: " + userSession.getPassword());
 		
 		if (securityContext!=null){
 			if (securityContext.getUserPrincipal()!=null)
@@ -776,7 +775,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			AuthenticationToken token =	new UsernamePasswordToken(  userSession.getUsername(), userSession.getPassword());
 			try {
 				currentUser.login(token);
-				BakerUser bakerUser = bakerRepositoryRef.getUserByName( userSession.getUsername() );
+				BakerUser bakerUser = bakerRepositoryRef.getUserByUsername( userSession.getUsername() );
 				userSession.setBakerUser(bakerUser );				
 				userSession.setPassword("");;//so not tosend in response
 				
@@ -815,14 +814,13 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	}
 	
 	
-	@POST
+	@GET
 	@Path("/oauth2/")
-	@Consumes("multipart/form-data")
-	public Response getoauth2Sessions( List<Attachment> ats) {
+	@Produces("application/json")
+	public Response oauth2Sessions( @QueryParam("oath2serverurl") String oath2serverurl, @QueryParam("oath2requestkey") String oath2requestkey) {
 
-		String oath2serverurl = getAttachmentStringValue("oath2serverurl", ats);
+		
 		logger.info("Received GET oath2serverurl: " +oath2serverurl);
-		String oath2requestkey = getAttachmentStringValue("oath2requestkey", ats);
 		logger.info("Received GET oath2requestkey: " +oath2requestkey);
 		
 //		if (securityContext!=null){
@@ -870,25 +868,75 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			logger.info("accessToken getRefreshToken= "+ accessToken.getRefreshToken() );
 			logger.info("accessToken getExpiresIn= "+ accessToken.getExpiresIn() );
 			
-			fiwareService = WebClient.create("https://account.lab.fi-ware.org/user");
+			WebClient fiwareService = WebClient.create("https://account.lab.fi-ware.org/user");
 			fiwareService.replaceHeader("Authorization", authHeader);
 			fiwareService.replaceQueryParam("auth_token", accessToken.getTokenKey());
 			
-			Response r = fiwareService.get();
-			InputStream i = (InputStream)r.getEntity(); 
-			String s = IOUtils.toString(i);
-	        logger.info("=== FIWARE USER response: "+ s );
+			Response r = fiwareService.accept("application/json").type("application/json").get();
+			//InputStream i = (InputStream)r.getEntity(); 
+			//String s = IOUtils.toString(i);
+	        //logger.info("=== FIWARE USER response: "+ s );
+			MappingJsonFactory factory = new MappingJsonFactory();
+			JsonParser parser = factory.createJsonParser((InputStream) r.getEntity());
+			FIWAREUser fu = parser.readValueAs(FIWAREUser.class);
+			
+			logger.info("=== FIWARE USER response: "+ fu.toString() );
 	        
-	        fiwareService = WebClient.create("https://account.lab.fi-ware.org/users/ctranoris.json");
+			
+	        fiwareService = WebClient.create("https://account.lab.fi-ware.org/users/"+fu.getNickName()+".json");
 			fiwareService.replaceHeader("Authorization", authHeader);
 			fiwareService.replaceQueryParam("auth_token", accessToken.getTokenKey());
 			
 			r = fiwareService.get();
 			InputStream i2 = (InputStream)r.getEntity(); 
 			String s2 = IOUtils.toString(i2);
-	        logger.info("=== FIWARE USER response: "+ s2 );
+	        logger.info("=== FIWARE USER users response: "+ s2 );
 	        
-	        return Response.ok(s+"<br>"+s2).build();
+	        
+	        
+	        //check if user exists in Baker database
+	        BakerUser u = bakerRepositoryRef.getUserByUsername(fu.getNickName());
+	        String roamPassword = UUID.randomUUID().toString();
+	        if (u == null){
+	        	u= new BakerUser();
+	        	u.setEmail(fu.getEmail());
+	        	u.setUsername(fu.getNickName());;
+	        	u.setName(fu.getDisplayName());
+	        	u.setOrganization("FI-WARE");
+	        	u.setRole("SERVICE_PLATFORM_PROVIDER");
+	        	u.setPassword(roamPassword);	        	
+	        	bakerRepositoryRef.addBakerUserToUsers(u);
+	        }else{
+	        	u.setEmail(fu.getEmail());
+	        	u.setName(fu.getDisplayName());
+	        	u.setPassword(roamPassword);	  
+	        	u.setOrganization("FI-WARE");
+	        	u = bakerRepositoryRef.updateUserInfo(u.getId(), u);
+	        }
+	        
+			UserSession userSession = new UserSession();
+			userSession.setBakerUser(u );				
+			userSession.setPassword(roamPassword );//so not tosend in response
+			userSession.setUsername(u.getUsername());	
+	        
+	        Subject currentUser = SecurityUtils.getSubject();
+			if (currentUser !=null){
+				AuthenticationToken token =	new UsernamePasswordToken(  userSession.getUsername(), userSession.getPassword());
+				try {
+					currentUser.login(token); 			
+					
+					}
+					catch (AuthenticationException ae) {
+						
+						return Response.status(Status.UNAUTHORIZED).build();
+					} 			
+			}
+			
+	        
+	        
+	        return Response.ok(userSession).build();
+	        
+	        
 	        
 		} catch (RuntimeException ex) {
 			return Response.status(Status.UNAUTHORIZED).entity("USER Access problem").build();
