@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package gr.upatras.ece.nam.baker.repo;
+package gr.upatras.ece.nam.baker.fiware;
 
-import gr.upatras.ece.nam.baker.util.OAuthClientUtils;
-import gr.upatras.ece.nam.baker.util.OAuthClientUtils.Consumer;
 
 import java.net.URI;
 import java.util.List;
@@ -30,6 +28,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
+import org.apache.cxf.rs.security.oauth2.client.OAuthClientUtils;
+import org.apache.cxf.rs.security.oauth2.client.OAuthClientUtils.Consumer;
 import org.apache.cxf.rs.security.oauth2.common.ClientAccessToken;
 import org.apache.cxf.rs.security.oauth2.grants.code.AuthorizationCodeGrant;
 import org.apache.cxf.rs.security.oauth2.provider.OAuthServiceException;
@@ -39,9 +39,15 @@ public class OAuthClientManager {
 
 	private static final transient Log logger = LogFactory.getLog(OAuthClientManager.class.getName());
 
-	private static final String DEFAULT_CLIENT_ID = "1328";
-	private static final String DEFAULT_CLIENT_SECRET = "017bf9efbd5cedb0556d7e3fde2dc977650b2cefa235b8eb06bf094cc6ba26b6ab31ebd7af74f28e0ef368ae992acada34eb19401fa914cf676b45932ff68670";
+//	private static final String DEFAULT_CLIENT_ID = "1334";
+//	private static final String DEFAULT_CLIENT_SECRET = "ba167ecff73cf999e250413aae19b682cec475c310c12ad4e1c7689b358b1d793caaa3c5a34d38544b0317a3902438efb7204dd71c7c4c6ff790a4ff529af450";
 
+	//THESE ARE USED FOR TESTING INTERNAL WITH LOCALHOST
+	private static final String DEFAULT_CLIENT_ID = "1352";
+	private static final String DEFAULT_CLIENT_SECRET = "6e664fe26ce6573b91def132d82af7141fe039d255d50fdd742aac8dd2e94f1459132e694521f2769ea211e981594c410274b072d4fc32b0d0c028880d91a8c6";
+
+	
+	
 	private WebClient accessTokenService;
 	private String authorizationServiceURI;
 	private Consumer consumer = new Consumer(DEFAULT_CLIENT_ID, DEFAULT_CLIENT_SECRET);

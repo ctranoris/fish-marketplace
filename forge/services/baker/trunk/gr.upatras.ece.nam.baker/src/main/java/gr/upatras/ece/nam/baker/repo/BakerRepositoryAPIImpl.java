@@ -15,13 +15,15 @@
 
 package gr.upatras.ece.nam.baker.repo;
 
+import gr.upatras.ece.nam.baker.fiware.FIWARECloudAccess;
+import gr.upatras.ece.nam.baker.fiware.FIWAREUser;
+import gr.upatras.ece.nam.baker.fiware.OAuthClientManager;
 import gr.upatras.ece.nam.baker.model.ApplicationMetadata;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
 import gr.upatras.ece.nam.baker.model.Course;
 import gr.upatras.ece.nam.baker.model.FIREAdapter;
-import gr.upatras.ece.nam.baker.model.FIWAREUser;
 import gr.upatras.ece.nam.baker.model.IBakerRepositoryAPI;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
 import gr.upatras.ece.nam.baker.model.Product;
@@ -41,6 +43,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.UUID;
 
 import javax.activation.DataHandler;
@@ -85,6 +88,8 @@ import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.MappingJsonFactory;
+import org.codehaus.jackson.map.ObjectMapper;
+
 
 //CORS support
 //@CrossOriginResourceSharing(
@@ -116,6 +121,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	private BakerRepository bakerRepositoryRef;
 	private OAuthClientManager oAuthClientManagerRef;
 
+	public static final String KEYSTONE_AUTH_URL = "http://cloud.lab.fi-ware.org:4730/v2.0";
 	// BakerUser related API
 
 
@@ -845,7 +851,8 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 	@GET
 	@Path("/oauth2/login")
-	@Produces("application/json")
+	@Produces("text/html")
+//	@Produces("application/json")
 	public Response oauth2login(@QueryParam("code") String code) {
 
 		logger.info("Received GET code: "+code );
@@ -892,6 +899,12 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			String s2 = IOUtils.toString(i2);
 	        logger.info("=== FIWARE USER users response: "+ s2 );
 	        
+
+	        logger.info("=== Trying cloud ========" );
+	        FIWARECloudAccess ca = new FIWARECloudAccess();
+	        ca.showKeystone(accessToken.getTokenKey() );
+	        logger.info("=== END Trying cloud ========" );	       
+	       
 	        
 	        
 	        //check if user exists in Baker database
@@ -934,11 +947,36 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			
 	        
 	        
-	        return Response.ok(userSession).build();
+
+			userSession.setPassword("" );//trick so not tosend in response
+	        ObjectMapper mapper = new ObjectMapper();
+	        
+	        //see https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage
+	        String comScript = "<script type='text/javascript'>function receiveMessage(event){"+ 
+	        "event.source.postMessage('"+mapper.writeValueAsString(userSession)+"', event.origin);"+
+	        "}"+
+	        "window.addEventListener('message', receiveMessage, false);"+
+	        "</script>";
 	        
 	        
+	       
+			return Response.ok(
+					"<html><body><p>Succesful Login</p>"+comScript+"</body></html>"
+					
+					
+					).build();
+			
+			
+			
+//			return Response.ok(userSession).header(CorsHeaderConstants.HEADER_AC_ALLOW_ORIGIN, "http://127.0.0.1:13000").
+//					header(CorsHeaderConstants.HEADER_AC_ALLOW_METHODS, "GET").
+//					header(CorsHeaderConstants.HEADER_AC_ALLOW_CREDENTIALS, "true").					
+//					build();
+			
+			
 	        
 		} catch (RuntimeException ex) {
+			ex.printStackTrace();
 			return Response.status(Status.UNAUTHORIZED).entity("USER Access problem").build();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

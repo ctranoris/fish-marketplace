@@ -10,7 +10,7 @@
 	<description>Baker is a simple CXF JAX-RS webapp service using spring configuration</description>
 
 	<properties>
-		<jackson.version>1.8.6</jackson.version>
+		<jackson.version>1.9.4</jackson.version>
 		<maven-license-plugin.version>1.2.5</maven-license-plugin.version>
 		<cxf.version>3.0.0</cxf.version>
 
@@ -43,6 +43,7 @@
 
 		<shiro.version>1.2.3</shiro.version>
 		<jetty.version>9.2.1.v20140609</jetty.version>
+		<comwooreanova.version>3.2.1</comwooreanova.version>
 	</properties>
 
 
@@ -176,6 +177,35 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.33</version>
 		</dependency>
+		
+		<!-- FI-WARE cloud access related -->
+		<dependency>
+			<groupId>com.woorea</groupId>
+			<artifactId>nova-client</artifactId>
+			<version>${comwooreanova.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.woorea</groupId>
+			<artifactId>nova-model</artifactId>
+			<version>${comwooreanova.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.woorea</groupId>
+			<artifactId>keystone-model</artifactId>
+			<version>${comwooreanova.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.woorea</groupId>
+			<artifactId>keystone-client</artifactId>
+			<version>${comwooreanova.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.woorea</groupId>
+			<artifactId>jersey2-connector</artifactId>
+			<version>${comwooreanova.version}</version>
+		</dependency>
+		
+		
 	</dependencies>
 
 
