@@ -15,12 +15,15 @@
 
 package gr.upatras.ece.nam.baker.model;
 
+import gr.upatras.ece.nam.baker.fiware.FIWAREUser;
+
 public class UserSession {
 
 
 	private String username = null;
 	private String password = null;
 	private BakerUser bakerUser = null;
+	private FIWAREUser FIWAREUser = null;
 	
 	
 	
@@ -44,5 +47,11 @@ public class UserSession {
 	}
 	public void setBakerUser(BakerUser bakerUser) {
 		this.bakerUser = bakerUser;
+	}
+	public FIWAREUser getFIWAREUser() {
+		return FIWAREUser;
+	}
+	public void setFIWAREUser(FIWAREUser fIWAREUser) {
+		FIWAREUser = fIWAREUser;
 	}
 }

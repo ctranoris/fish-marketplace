@@ -95,5 +95,6 @@ public class OAuthClientManager {
 	public void setAuthorizationURI(String uri) {
 		this.authorizationServiceURI = uri;
 	}
+	
 
 }

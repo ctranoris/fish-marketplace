@@ -137,6 +137,7 @@
                 /services/api/repo/widgets/** = anon, rest
                 /services/api/repo/courses/** = anon, rest
                 /services/api/repo/fireadapters/** = anon, rest
+                /services/api/repo/fiware/** = authc, rest
                 /services/api/** = userfilter, rest
                 /admin/logout = logout
                 /admin/viewUsers.html = authc, roles[ROLE_BOSS]         
@@ -214,7 +215,7 @@
 	<bean id="atServiceClient" factory-bean="atServiceClientFactory"
 		factory-method="createWebClient" />
 
-	<bean id="oAuthClientManagerBean" class="gr.upatras.ece.nam.baker.repo.OAuthClientManager">
+	<bean id="oAuthClientManagerBean" class="gr.upatras.ece.nam.baker.fiware.OAuthClientManager">
 		<property name="authorizationURI"
 			value="http://account.lab.fi-ware.org/oauth2/authorize" />
 		<property name="accessTokenService" ref="atServiceClient" />

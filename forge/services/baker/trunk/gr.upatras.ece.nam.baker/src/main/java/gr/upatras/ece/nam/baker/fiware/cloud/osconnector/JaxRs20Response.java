@@ -24,16 +24,19 @@ public class JaxRs20Response implements OpenStackResponse {
 					response.getStatusInfo().getStatusCode());
 		}
 
-		//System.out.println("=======> response  Content-Type = "+ response.getHeaders().get("Content-Type"));
-		//System.out.println("=======> response getLocation = "+ response.getLocation() );
+		System.out.println("=======> response  Content-Type = "+ response.getHeaders().get("Content-Type"));
+		System.out.println("=======> response getLocation = "+ response.getLocation() );
 		
 		if ((response.getHeaders().get("Content-Type")!=null)){ //THESE are to fix a bug from fi-ware, for /tenants responds with text/html instead of application/json
 			String t = response.getHeaders().get("Content-Type").toString();
 			if (t.contains("text/html")){
+				System.out.println("=======> response  Content-Type = ADD NEW HEADER");
 				response.getHeaders().remove("Content-Type");
-				response.getHeaders().add("Content-Type", "application/json");
+				response.getHeaders().addFirst("Content-Type", "application/json");
 			}
 		}
+		
+		System.out.println("=======> response  Content-Type = "+response.getHeaders().get("Content-Type").toString());
 		
 		return response.readEntity(returnType);
 	}
