@@ -37,7 +37,9 @@ public class AjaxUserFilter extends UserFilter {
 	@Override
 	protected boolean isAccessAllowed(ServletRequest arg0, ServletResponse arg1, Object arg2) {
     	logger.info("=======> AjaxUserFilter: isAccessAllowed <=============");
-		return super.isAccessAllowed(arg0, arg1, arg2);
+    	Boolean b = super.isAccessAllowed(arg0, arg1, arg2);
+    	logger.info("=======> AjaxUserFilter: isAccessAllowed = "+b);
+		return b;
 	}
 	
     @Override

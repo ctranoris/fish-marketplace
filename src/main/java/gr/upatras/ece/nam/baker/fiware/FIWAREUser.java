@@ -26,6 +26,11 @@ public class FIWAREUser {
 	private String email;
 	private String app_id;
 	private String app_slug;
+	private String xOAuth2Token;
+	private String cloudToken;
+	private String tenantName;
+	private String tenantId;
+	
 	private ArrayList<String> roles;
 	public String getId() {
 		return id;
@@ -74,6 +79,30 @@ public class FIWAREUser {
 	}
 	public void setRoles(ArrayList<String> roles) {
 		this.roles = roles;
+	}
+	public String getxOAuth2Token() {
+		return xOAuth2Token;
+	}
+	public void setxOAuth2Token(String xOAuth2Token) {
+		this.xOAuth2Token = xOAuth2Token;
+	}
+	public String getCloudToken() {
+		return cloudToken;
+	}
+	public void setCloudToken(String cloudToken) {
+		this.cloudToken = cloudToken;
+	}
+	public String getTenantName() {
+		return tenantName;
+	}
+	public void setTenantName(String tenantName) {
+		this.tenantName = tenantName;
+	}
+	public String getTenantId() {
+		return tenantId;
+	}
+	public void setTenantId(String tenantId) {
+		this.tenantId = tenantId;
 	}
 			
 

@@ -2,6 +2,7 @@ package gr.upatras.ece.nam.baker.fiware;
 
 import gr.upatras.ece.nam.baker.fiware.cloud.osconnector.JaxRs20Connector;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -13,6 +14,7 @@ import com.woorea.openstack.keystone.api.TokensResource.Authenticate;
 import com.woorea.openstack.keystone.model.Access;
 import com.woorea.openstack.keystone.model.Access.Service;
 import com.woorea.openstack.keystone.model.Access.Service.Endpoint;
+import com.woorea.openstack.keystone.model.Tenant;
 import com.woorea.openstack.keystone.model.Tenants;
 import com.woorea.openstack.keystone.utils.KeystoneUtils;
 import com.woorea.openstack.nova.Nova;
@@ -22,11 +24,124 @@ import com.woorea.openstack.nova.model.Servers;
 public class FIWARECloudAccess {
 
 	private static final transient Log logger = LogFactory.getLog(FIWARECloudAccess.class.getName());
+	
+	private static String KEYSTONE_AUTHURL = "http://cloud.lab.fi-ware.org:4731/v2.0";
+	
+	
+	public static JaxRs20Connector getConnector(){
+		return new JaxRs20Connector();
+	}
+	
+	/**
+	 * @param xAuthToken as given from OAUTH2 authentication session
+	 * @return
+	 */
+	public static Keystone getKeystoneClient(String xAuthToken){
+		JaxRs20Connector connector = new JaxRs20Connector();
+		Keystone keysclient = new Keystone( KEYSTONE_AUTHURL , connector);
+		keysclient.token(xAuthToken);
+		return keysclient;
+	}
+	
+	public static Tenant getFirstTenant(String xAuthToken){
+		Keystone keysclient = getKeystoneClient(xAuthToken);
+		Tenants tenants = keysclient.tenants().list().execute();
+		logger.info("keystone.tenants().list()= " + tenants.getList().size());
+		logger.info(keysclient.tenants().list().execute());
+		String tenantName = tenants.getList().get(0).getId();
+		logger.info("keystone tenantName= " + tenantName);
+		if (tenants.getList().size()>0)
+			return tenants.getList().get(0);
+		else
+			return null;
+	}
+	
+	/**
+	 * @param xAuthToken as given from OAUTH2 authentication session
+	 * @return an Access model used for other actions
+	 */
+	public static Access getAccessModel(String xAuthToken){
+
+		Tenant t = getFirstTenant(xAuthToken);
+		return getAccessModel(t, xAuthToken);
+	}
+	
+	/**
+	 * @param xAuthToken as given from OAUTH2 authentication session
+	 * @return an Access model used for other actions
+	 */
+	public static Access getAccessModel(Tenant t, String xAuthToken){
+		
+
+		Keystone keysclient = getKeystoneClient(xAuthToken);		
+		Access a = keysclient.tokens().authenticate().withToken(xAuthToken).withTenantName(t.getId()).execute();
+		return a;
+	}
+	
+	/**
+	 * @param xAuthToken as given from OAUTH2 authentication session
+	 * @return
+	 */
+	public static String getFIWARENOVACloudAccessToken(String xAuthToken){
+		
+		Access a = getAccessModel(xAuthToken);		
+		return a.getToken().getId();
+		
+	}
+	
+	/**
+	 * @param xAuthToken as given from OAUTH2 authentication session
+	 * @return
+	 */
+	public static List<Service> getServiceCatalog(String xAuthToken){
+		Access a = getAccessModel(xAuthToken);		
+		List<Service> scatalog = a.getServiceCatalog();	
+		return scatalog;
+	}
+	
+	
+	/**
+	 * @param xAuthToken as given from OAUTH2 authentication session
+	 * @return
+	 */
+	public static List<Endpoint> getServiceCatalogEndpointsOnlyCompute(String xAuthToken){
+		List<Service> scatalog = getServiceCatalog(xAuthToken);		
+		ArrayList<Endpoint> result = new ArrayList<Endpoint>();
+		for (Service service : scatalog) {
+			List<Endpoint> endpoints = service.getEndpoints();
+			for (Endpoint endpoint : endpoints) {
+				if ( service.getType().equals("compute") )  
+					result.add(endpoint);
+			}
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * @param endPointPublicURL compute service public URL for selected region
+	 * @param cloudAccessToken token as given from the keystone services
+	 * @return
+	 */
+	public static ArrayList<Server> getServers(String endPointPublicURL, String cloudAccessToken){
+		Nova novaClient = new Nova(endPointPublicURL , getConnector());
+		novaClient.token( cloudAccessToken );
+		// novaClient.enableLogging(Logger.getLogger("nova"), 100 * 1024);
+		Servers servers = novaClient.servers().list(true).execute();
+		ArrayList<Server> result = new ArrayList<Server>(); 		
+		for (Server server : servers) {
+			result.add(server);
+		}
+		
+		
+		return result;
+	}
+	
 
 	public void showKeystone(String token) {
 
 		JaxRs20Connector connector = new JaxRs20Connector();
-		Keystone keysclient = new Keystone("http://cloud.lab.fi-ware.org:4731/v2.0", connector);
+		Keystone keysclient = new Keystone( KEYSTONE_AUTHURL , connector);
 		// Keystone keysclient = new Keystone( "https://cloud.lab.fiware.org/keystone/v2.0/");
 
 		keysclient.token(token);
@@ -47,8 +162,11 @@ public class FIWARECloudAccess {
 
 		Access a = keysclient.tokens().authenticate().withToken(token).withTenantName(tenantName).execute();
 		// logger.info("keystone  Access= "+ a.toString() );
-
+		
 		List<Service> scatalog = a.getServiceCatalog();
+		
+		//KeystoneUtils.findEndpointURL(scatalog, "nova", "Spain", "public");
+		
 		String spainPublicURL = "";
 		for (Service service : scatalog) {
 			List<Endpoint> endpoints = service.getEndpoints();

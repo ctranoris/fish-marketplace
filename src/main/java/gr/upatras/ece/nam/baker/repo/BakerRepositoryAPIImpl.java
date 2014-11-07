@@ -17,6 +17,7 @@ package gr.upatras.ece.nam.baker.repo;
 
 import gr.upatras.ece.nam.baker.fiware.FIWARECloudAccess;
 import gr.upatras.ece.nam.baker.fiware.FIWAREUser;
+import gr.upatras.ece.nam.baker.fiware.FIWAREUtils;
 import gr.upatras.ece.nam.baker.fiware.OAuthClientManager;
 import gr.upatras.ece.nam.baker.model.ApplicationMetadata;
 import gr.upatras.ece.nam.baker.model.BakerUser;
@@ -89,6 +90,13 @@ import org.apache.shiro.subject.Subject;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.MappingJsonFactory;
 import org.codehaus.jackson.map.ObjectMapper;
+
+import com.woorea.openstack.keystone.model.Access;
+import com.woorea.openstack.keystone.model.Access.Service.Endpoint;
+import com.woorea.openstack.keystone.model.Tenant;
+import com.woorea.openstack.keystone.model.Access.Service;
+import com.woorea.openstack.nova.model.Server;
+import com.woorea.openstack.nova.model.Servers;
 
 
 //CORS support
@@ -820,177 +828,6 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	}
 	
 	
-	@GET
-	@Path("/oauth2/")
-	@Produces("application/json")
-	public Response oauth2Sessions( @QueryParam("oath2serverurl") String oath2serverurl, @QueryParam("oath2requestkey") String oath2requestkey) {
-
-		
-		logger.info("Received GET oath2serverurl: " +oath2serverurl);
-		logger.info("Received GET oath2requestkey: " +oath2requestkey);
-		
-//		if (securityContext!=null){
-//			if (securityContext.getUserPrincipal()!=null)
-//				logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().toString()+"<");
-//		
-//		}
-//
-//		Subject currentUser = SecurityUtils.getSubject();
-//		if ((currentUser !=null) && (currentUser.getPrincipal() !=null)){
-//				
-//				return Response.ok().build();
-//		}
-		
-		
-		return Response.seeOther( 				 
-						oAuthClientManagerRef.getAuthorizationServiceURI(
-								getCallbackURI() , oath2requestkey) 
-								).build();
-	}	
-		
-
-	@GET
-	@Path("/oauth2/login")
-	@Produces("text/html")
-//	@Produces("application/json")
-	public Response oauth2login(@QueryParam("code") String code) {
-
-		logger.info("Received GET code: "+code );
-		
-		AuthorizationCodeGrant codeGrant = new AuthorizationCodeGrant(code, getCallbackURI());
-		logger.info("Requesting OAuth server to replace an authorized request token with an access token");
-		ClientAccessToken accessToken = oAuthClientManagerRef.getAccessToken(codeGrant);
-		if (accessToken == null) {
-			String msg = "NO_OAUTH_ACCESS_TOKEN, Problem replacing your authorization key for OAuth access token,  please report to baker admin";
-			logger.info(msg);
-		    return Response.status(Status.UNAUTHORIZED).entity(msg).build();
-		}
-		
-		try {
-			String authHeader = oAuthClientManagerRef.createAuthorizationHeader(accessToken);
-			logger.info("authHeader = "+authHeader);
-			logger.info("accessToken = "+accessToken.toString());
-			logger.info("accessToken getTokenType= "+ accessToken.getTokenType() );
-			logger.info("accessToken getTokenKey= "+ accessToken.getTokenKey() );
-			logger.info("accessToken getRefreshToken= "+ accessToken.getRefreshToken() );
-			logger.info("accessToken getExpiresIn= "+ accessToken.getExpiresIn() );
-			
-			WebClient fiwareService = WebClient.create("https://account.lab.fi-ware.org/user");
-			fiwareService.replaceHeader("Authorization", authHeader);
-			fiwareService.replaceQueryParam("auth_token", accessToken.getTokenKey());
-			
-			Response r = fiwareService.accept("application/json").type("application/json").get();
-			//InputStream i = (InputStream)r.getEntity(); 
-			//String s = IOUtils.toString(i);
-	        //logger.info("=== FIWARE USER response: "+ s );
-			MappingJsonFactory factory = new MappingJsonFactory();
-			JsonParser parser = factory.createJsonParser((InputStream) r.getEntity());
-			FIWAREUser fu = parser.readValueAs(FIWAREUser.class);
-			
-			logger.info("=== FIWARE USER response: "+ fu.toString() );
-	        
-			
-	        fiwareService = WebClient.create("https://account.lab.fi-ware.org/users/"+fu.getNickName()+".json");
-			fiwareService.replaceHeader("Authorization", authHeader);
-			fiwareService.replaceQueryParam("auth_token", accessToken.getTokenKey());
-			
-			r = fiwareService.get();
-			InputStream i2 = (InputStream)r.getEntity(); 
-			String s2 = IOUtils.toString(i2);
-	        logger.info("=== FIWARE USER users response: "+ s2 );
-	        
-
-	        logger.info("=== Trying cloud ========" );
-	        FIWARECloudAccess ca = new FIWARECloudAccess();
-	        ca.showKeystone(accessToken.getTokenKey() );
-	        logger.info("=== END Trying cloud ========" );	       
-	       
-	        
-	        
-	        //check if user exists in Baker database
-	        BakerUser u = bakerRepositoryRef.getUserByUsername(fu.getNickName());
-	        String roamPassword = UUID.randomUUID().toString();
-	        if (u == null){
-	        	u= new BakerUser();
-	        	u.setEmail(fu.getEmail());
-	        	u.setUsername(fu.getNickName());;
-	        	u.setName(fu.getDisplayName());
-	        	u.setOrganization("FI-WARE");
-	        	u.setRole("SERVICE_PLATFORM_PROVIDER");
-	        	u.setPassword(roamPassword);	        	
-	        	bakerRepositoryRef.addBakerUserToUsers(u);
-	        }else{
-	        	u.setEmail(fu.getEmail());
-	        	u.setName(fu.getDisplayName());
-	        	u.setPassword(roamPassword);	  
-	        	u.setOrganization("FI-WARE");
-	        	u = bakerRepositoryRef.updateUserInfo(u.getId(), u);
-	        }
-	        
-			UserSession userSession = new UserSession();
-			userSession.setBakerUser(u );				
-			userSession.setPassword(roamPassword );//so not tosend in response
-			userSession.setUsername(u.getUsername());	
-	        
-	        Subject currentUser = SecurityUtils.getSubject();
-			if (currentUser !=null){
-				AuthenticationToken token =	new UsernamePasswordToken(  userSession.getUsername(), userSession.getPassword());
-				try {
-					currentUser.login(token); 			
-					
-					}
-					catch (AuthenticationException ae) {
-						
-						return Response.status(Status.UNAUTHORIZED).build();
-					} 			
-			}
-			
-	        
-	        
-
-			userSession.setPassword("" );//trick so not tosend in response
-	        ObjectMapper mapper = new ObjectMapper();
-	        
-	        //see https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage
-	        String comScript = "<script type='text/javascript'>function receiveMessage(event){"+ 
-	        "event.source.postMessage('"+mapper.writeValueAsString(userSession)+"', event.origin);"+
-	        "}"+
-	        "window.addEventListener('message', receiveMessage, false);"+
-	        "</script>";
-	        
-	        
-	       
-			return Response.ok(
-					"<html><body><p>Succesful Login</p>"+comScript+"</body></html>"
-					
-					
-					).build();
-			
-			
-			
-//			return Response.ok(userSession).header(CorsHeaderConstants.HEADER_AC_ALLOW_ORIGIN, "http://127.0.0.1:13000").
-//					header(CorsHeaderConstants.HEADER_AC_ALLOW_METHODS, "GET").
-//					header(CorsHeaderConstants.HEADER_AC_ALLOW_CREDENTIALS, "true").					
-//					build();
-			
-			
-	        
-		} catch (RuntimeException ex) {
-			ex.printStackTrace();
-			return Response.status(Status.UNAUTHORIZED).entity("USER Access problem").build();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return Response.ok().build();
-		
-	}	
-	
-	
-	private URI getCallbackURI() {
-		return URI.create(uri.getBaseUri()+"repo/oauth2/login");
-	}
 	
 	
 	//THIS IS NOT USED
@@ -1787,6 +1624,166 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		bakerRepositoryRef.deleteProduct(faid);
 	}
 
+	/***************************************** OAUTH2 FIWARE Related API *********************************************/
 
+	@GET
+	@Path("/oauth2/")
+	@Produces("application/json")
+	public Response oauth2Sessions( @QueryParam("oath2serverurl") String oath2serverurl, @QueryParam("oath2requestkey") String oath2requestkey) {
+
+		//the params
+		logger.info("Received GET oath2serverurl: " +oath2serverurl);
+		logger.info("Received GET oath2requestkey: " +oath2requestkey);
+		
+		
+		return Response.seeOther( 				 
+						oAuthClientManagerRef.getAuthorizationServiceURI(
+								getCallbackURI() , oath2requestkey) 
+								).build();
+	}	
+		
+
+	@GET
+	@Path("/oauth2/login")
+	@Produces("text/html")
+//	@Produces("application/json")
+	public Response oauth2login(@QueryParam("code") String code) {
+
+		//This one is the callback URL, which is called by the FIWARE OAUTH2 service
+		logger.info("Received authorized request token code: "+code +". Preparing AuthorizationCodeGrant header.");
+		
+		AuthorizationCodeGrant codeGrant = new AuthorizationCodeGrant(code, getCallbackURI());
+		logger.info("Requesting OAuth server accessTokenService to replace an authorized request token with an access token");
+		ClientAccessToken accessToken = oAuthClientManagerRef.getAccessToken(codeGrant);
+		if (accessToken == null) {
+			String msg = "NO_OAUTH_ACCESS_TOKEN, Problem replacing your authorization key for OAuth access token,  please report to baker admin";
+			logger.info(msg);
+		    return Response.status(Status.UNAUTHORIZED).entity(msg).build();
+		}
+		
+		try {
+			logger.info("OAUTH2 accessTokenService accessToken = "+accessToken.toString());
+			String authHeader = oAuthClientManagerRef.createAuthorizationHeader(accessToken);
+			logger.info("OAUTH2 accessTokenService authHeader = "+authHeader);
+			logger.info("accessToken getTokenType= "+ accessToken.getTokenType() );
+			logger.info("accessToken getTokenKey= "+ accessToken.getTokenKey() );
+			logger.info("accessToken getRefreshToken= "+ accessToken.getRefreshToken() );
+			logger.info("accessToken getExpiresIn= "+ accessToken.getExpiresIn() );
+			
+
+			Tenant t = FIWARECloudAccess.getFirstTenant(accessToken.getTokenKey() );
+			FIWAREUser fu = FIWAREUtils.getFIWAREUser(authHeader, accessToken);	      
+			fu.setxOAuth2Token( accessToken.getTokenKey() );
+			fu.setTenantName( t.getName() );
+			fu.setTenantId( t.getId() );
+			fu.setCloudToken(FIWARECloudAccess.getAccessModel(t, accessToken.getTokenKey()).getToken().getId()  );
+	        
+	        //check if user exists in Baker database
+	        BakerUser u = bakerRepositoryRef.getUserByUsername(fu.getNickName());
+	        String roamPassword = UUID.randomUUID().toString(); //creating a temporary session password, to login
+	        if (u == null){
+	        	u= new BakerUser(); //create as new user
+	        	u.setEmail(fu.getEmail());
+	        	u.setUsername(fu.getNickName());;
+	        	u.setName(fu.getDisplayName());
+	        	u.setOrganization("FI-WARE");
+	        	u.setRole("SERVICE_PLATFORM_PROVIDER");
+	        	u.setPassword(roamPassword);	        	
+	        	bakerRepositoryRef.addBakerUserToUsers(u);
+	        }else{
+	        	u.setEmail(fu.getEmail());
+	        	u.setName(fu.getDisplayName());
+	        	u.setPassword(roamPassword);	  
+	        	u.setOrganization("FI-WARE");
+	        	u = bakerRepositoryRef.updateUserInfo(u.getId(), u);
+	        }
+	        
+			UserSession userSession = new UserSession();
+			userSession.setBakerUser(u );				
+			userSession.setPassword( roamPassword );
+			userSession.setUsername(u.getUsername());	
+			userSession.setFIWAREUser(fu);
+	        
+	        Subject currentUser = SecurityUtils.getSubject();
+			if (currentUser !=null){
+				AuthenticationToken token =	new UsernamePasswordToken(  userSession.getUsername(), userSession.getPassword());
+				try {
+					currentUser.login(token); 			
+					
+					}
+					catch (AuthenticationException ae) {
+						
+						return Response.status(Status.UNAUTHORIZED).build();
+					} 			
+			}
+			
+	        
+	        
+
+			userSession.setPassword("" );//trick so not to send in response
+	        ObjectMapper mapper = new ObjectMapper();
+	        
+	        //see https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage
+	        //there are CORS issues so to do this trich the popup window communicates with the parent window ia this script
+	        String comScript = "<script type='text/javascript'>function receiveMessage(event){"+ 
+	        "event.source.postMessage('"+mapper.writeValueAsString(userSession)+"', event.origin);"+
+	        "}"+
+	        "window.addEventListener('message', receiveMessage, false);"+
+	        "</script>";
+	        
+	        
+	       
+			return Response.ok(
+					"<html><body><p>Succesful Login</p>"+comScript+"</body></html>"
+					
+					
+					).
+					build();
+			
+			
+			
+	        
+		} catch (RuntimeException ex) {
+			ex.printStackTrace();
+			return Response.status(Status.UNAUTHORIZED).entity("USER Access problem").build();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return Response.ok().build();
+		
+	}	
+	
+	
+	private URI getCallbackURI() {
+		return URI.create(uri.getBaseUri()+"repo/oauth2/login");
+	}
+	
+	
+	@GET
+	@Path("/fiware/computeendpoints")
+	@Produces("application/json")
+	public Response getFIWAREServiceCatalogComputeEndpoints(@QueryParam("xauthtoken") String xauthtoken) {
+	
+		List<Endpoint> scatalog = FIWARECloudAccess.getServiceCatalogEndpointsOnlyCompute(xauthtoken);
+				
+		return Response.ok(scatalog).build();
+	}
+	
+	@GET
+	@Path("/fiware/servers")
+	@Produces("application/json")
+	public Response getFIWAREServiceComputeServers(
+			@QueryParam("endPointPublicURL") String endPointPublicURL,
+			@QueryParam("cloudAccessToken") String cloudAccessToken) {
+	
+		ArrayList<Server> servers = FIWARECloudAccess.getServers(endPointPublicURL, cloudAccessToken);
+		
+		
+		
+		return Response.ok(servers).build();
+	}
+	
 
 }
