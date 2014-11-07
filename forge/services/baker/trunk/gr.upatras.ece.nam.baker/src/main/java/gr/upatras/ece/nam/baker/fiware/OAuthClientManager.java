@@ -39,12 +39,12 @@ public class OAuthClientManager {
 
 	private static final transient Log logger = LogFactory.getLog(OAuthClientManager.class.getName());
 
-//	private static final String DEFAULT_CLIENT_ID = "1334";
-//	private static final String DEFAULT_CLIENT_SECRET = "ba167ecff73cf999e250413aae19b682cec475c310c12ad4e1c7689b358b1d793caaa3c5a34d38544b0317a3902438efb7204dd71c7c4c6ff790a4ff529af450";
+	private static final String DEFAULT_CLIENT_ID = "1334";
+	private static final String DEFAULT_CLIENT_SECRET = "ba167ecff73cf999e250413aae19b682cec475c310c12ad4e1c7689b358b1d793caaa3c5a34d38544b0317a3902438efb7204dd71c7c4c6ff790a4ff529af450";
 
 	//THESE ARE USED FOR TESTING INTERNAL WITH LOCALHOST
-	private static final String DEFAULT_CLIENT_ID = "1352";
-	private static final String DEFAULT_CLIENT_SECRET = "6e664fe26ce6573b91def132d82af7141fe039d255d50fdd742aac8dd2e94f1459132e694521f2769ea211e981594c410274b072d4fc32b0d0c028880d91a8c6";
+//	private static final String DEFAULT_CLIENT_ID = "1352";
+//	private static final String DEFAULT_CLIENT_SECRET = "6e664fe26ce6573b91def132d82af7141fe039d255d50fdd742aac8dd2e94f1459132e694521f2769ea211e981594c410274b072d4fc32b0d0c028880d91a8c6";
 
 	
 	
