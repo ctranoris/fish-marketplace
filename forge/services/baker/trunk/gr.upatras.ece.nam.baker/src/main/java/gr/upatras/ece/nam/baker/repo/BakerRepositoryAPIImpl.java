@@ -20,6 +20,7 @@ import gr.upatras.ece.nam.baker.fiware.FIWAREUser;
 import gr.upatras.ece.nam.baker.fiware.FIWAREUtils;
 import gr.upatras.ece.nam.baker.fiware.OAuthClientManager;
 import gr.upatras.ece.nam.baker.model.ApplicationMetadata;
+import gr.upatras.ece.nam.baker.model.BakerProperty;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
@@ -31,6 +32,7 @@ import gr.upatras.ece.nam.baker.model.Product;
 import gr.upatras.ece.nam.baker.model.SubscribedMachine;
 import gr.upatras.ece.nam.baker.model.UserSession;
 import gr.upatras.ece.nam.baker.model.Widget;
+import gr.upatras.ece.nam.baker.util.EmailUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -197,6 +199,14 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		return response.build();
 	}
 
+	
+	
+	
+	/*************** Users API *************************/
+	
+	
+	
+	
 	@GET
 	@Path("/users/{userid}")
 	@Produces("application/json")
@@ -224,22 +234,70 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@Consumes("application/json")
 	public Response addUser(BakerUser user) {
 
-		logger.info("Received POST for usergetName: " + user.getName());
 		logger.info("Received POST for usergetUsername: " + user.getUsername());
 		// logger.info("Received POST for usergetPassword: " + user.getPassword());
 		// logger.info("Received POST for usergetOrganization: " + user.getOrganization());
 
-		BakerUser u = bakerRepositoryRef.addBakerUserToUsers(user);
+		if ( (user.getUsername()==null)||(user.getUsername().equals("")||(user.getEmail()==null) ||(user.getEmail().equals("")) ) ){
+			ResponseBuilder builder = Response.status(Status.BAD_REQUEST );
+			builder.entity("New user with username=" + user.getUsername() + " cannot be registered");
+			logger.info("New user with username=" + user.getUsername() + " cannot be registered BAD_REQUEST.");
+			throw new WebApplicationException(builder.build());
+		}
+		
+
+		BakerUser u= bakerRepositoryRef.getUserByUsername(user.getUsername());
+		if (u!=null){
+			return Response.status(Status.BAD_REQUEST ).entity("Username exists").build();
+		}
+		
+		u= bakerRepositoryRef.getUserByEmail(user.getEmail());
+		if (u!=null){
+			return Response.status(Status.BAD_REQUEST ).entity("Email exists").build();
+		}
+				
+		u = bakerRepositoryRef.addBakerUserToUsers(user);
 
 		if (u != null) {
 			return Response.ok().entity(u).build();
 		} else {
 			ResponseBuilder builder = Response.status(Status.INTERNAL_SERVER_ERROR);
 			builder.entity("Requested user with username=" + user.getUsername() + " cannot be installed");
-			throw new WebApplicationException(builder.build());
+			return builder.build();
 		}
 	}
+	
+	@POST
+	@Path("/register/")
+	@Produces("application/json")
+	@Consumes("multipart/form-data")
+	public Response addNewRegisterUser(List<Attachment> ats) {
 
+		BakerUser user = new BakerUser();
+		user.setName( getAttachmentStringValue("name", ats) );
+		user.setUsername( getAttachmentStringValue("username", ats) );
+		user.setPassword( getAttachmentStringValue("userpassword", ats) );
+		user.setOrganization( getAttachmentStringValue("userorganization", ats) +
+				"^^"+
+				getAttachmentStringValue("randomregid", ats));
+		user.setEmail( getAttachmentStringValue("useremail", ats) );
+		user.setActive(false);//in any case the user should be not active
+		user.setRole("ROLE_DEVELOPER"); //otherwise in post he can choose ROLE_BOSS, and the immediately register :-)
+		
+		String msg= getAttachmentStringValue("emailmessage", ats);
+		logger.info("Received register for usergetUsername: " + user.getUsername());
+		
+		Response r = addUser(user);
+		
+		if (r.getStatusInfo().getStatusCode() ==  Status.OK.getStatusCode() ){
+			logger.info("Email message: " + msg);
+			EmailUtil.SendRegistrationActivationEmail(user.getEmail() , msg);
+		}
+			
+		return r;
+	}
+
+	
 	@PUT
 	@Path("/users/{userid}")
 	@Produces("application/json")
@@ -478,6 +536,10 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		return prod;
 	}
 
+	
+	/******************* Buns API ***********************/
+	
+	
 	@PUT
 	@Path("/buns/{bid}")
 	@Consumes("multipart/form-data")
@@ -1785,5 +1847,46 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		return Response.ok(servers).build();
 	}
 	
+	@GET
+	@Path("/properties/")
+	@Produces("application/json")
+	public Response getProperties() {
+		return Response.ok().entity(bakerRepositoryRef.getProperties()).build();
+	}
+	
+	@PUT
+	@Path("/properties/{propid}")
+	@Produces("application/json")
+	@Consumes("application/json")
+	public Response updateProperty(@PathParam("catid")int propid, BakerProperty p) {
+		BakerProperty previousProperty = bakerRepositoryRef.getPropertyByID(propid);		
+
+		BakerProperty u = bakerRepositoryRef.updateProperty(p);
+
+		if (u != null) {
+			return Response.ok().entity(u).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.INTERNAL_SERVER_ERROR);
+			builder.entity("Requested BakerProperty with name=" + p.getName()+" cannot be updated");
+			throw new WebApplicationException(builder.build());
+		}
+
+		
+	}
+	
+	@GET
+	@Path("/properties/{propid}")
+	@Produces("application/json")
+	public Response getPropertyById(@PathParam("propid") int propid) {
+		BakerProperty sm = bakerRepositoryRef.getPropertyByID(propid);
+
+		if (sm != null) {
+			return Response.ok().entity(sm).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("BakerProperty " + propid + " not found in baker registry");
+			throw new WebApplicationException(builder.build());
+		}
+	}
 
 }

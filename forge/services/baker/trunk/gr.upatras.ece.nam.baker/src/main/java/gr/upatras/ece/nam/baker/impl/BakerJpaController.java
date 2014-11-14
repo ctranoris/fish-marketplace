@@ -16,6 +16,7 @@
 package gr.upatras.ece.nam.baker.impl;
 
 import gr.upatras.ece.nam.baker.model.ApplicationMetadata;
+import gr.upatras.ece.nam.baker.model.BakerProperty;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
@@ -54,7 +55,7 @@ public class BakerJpaController {
 
 
 	public void initData() {
-		BakerUser admin = readBakerUserByUsername("admin");
+		BakerUser admin = readBakerUserById(1);
 		logger.info("======================== admin  = " + admin);
 		
 		if (admin==null){
@@ -64,13 +65,33 @@ public class BakerJpaController {
 			bu.setPassword("changeme");
 			bu.setEmail("");
 			bu.setOrganization("");
-			bu.setRole("ROLE_BOSS");			
+			bu.setRole("ROLE_BOSS");
+			bu.setActive(true);
 			saveUser(bu);
 			
 			Category c = new Category();
 			c.setName("None");
 			saveCategory(c);
+			
+
+			BakerProperty p = new BakerProperty();
+			p.setName("adminEmail");
+			p.setValue("info@example.org");
+			saveProperty(p);
+			p = new BakerProperty();
+			p.setName("activationEmailSubject");
+			p.setValue("Activation Email Subject");
+			saveProperty(p);
+			p = new BakerProperty("mailhost", "example.org");
+			saveProperty(p);
+			p = new BakerProperty("mailuser", "exampleusername");
+			saveProperty(p);
+			p = new BakerProperty("mailpassword", "pass");
+			saveProperty(p);
+			
+			
 		}
+		
 		
 	}
 
@@ -253,6 +274,14 @@ public class BakerJpaController {
 		Query q = entityManager.createQuery("SELECT m FROM BakerUser m WHERE m.username='" + username + "'");
 		return (q.getResultList().size()==0)?null:(BakerUser) q.getSingleResult();
 	}
+	
+
+	public BakerUser readBakerUserByEmail(String email) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		Query q = entityManager.createQuery("SELECT m FROM BakerUser m WHERE m.email='" + email + "'");
+		return (q.getResultList().size()==0)?null:(BakerUser) q.getSingleResult();
+	}
+
 	
 	public BakerUser readBakerUserById(int userid) {
 		
@@ -696,6 +725,71 @@ public class BakerJpaController {
 		q.setFirstResult(firstResult);
 		q.setMaxResults(maxResults);
 		return q.getResultList();
+	}
+	
+	
+
+	public void saveProperty(BakerProperty p) {
+		logger.info("Will BakerProperty = " + p.getName());
+
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		EntityTransaction entityTransaction = entityManager.getTransaction();
+		entityTransaction.begin();
+
+		entityManager.persist(p);
+		entityManager.flush();
+		entityTransaction.commit();
+		
+	}
+
+	public void deleteProperty(int propid) {
+
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		BakerProperty c = entityManager.find(BakerProperty.class, propid);
+
+		EntityTransaction entityTransaction = entityManager.getTransaction();
+		entityTransaction.begin();
+		entityManager.remove(c);
+		entityTransaction.commit();
+		
+	}
+
+	public BakerProperty updateProperty(BakerProperty p) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		EntityTransaction entityTransaction = entityManager.getTransaction();
+
+		entityTransaction.begin();
+		BakerProperty  bp = entityManager.merge(p);
+		entityTransaction.commit();
+
+		return bp;
+	}
+
+	public List<BakerProperty> readProperties(int firstResult, int maxResults) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		Query q = entityManager.createQuery("SELECT m FROM BakerProperty m  ORDER BY m.id");
+		q.setFirstResult(firstResult);
+		q.setMaxResults(maxResults);
+		return q.getResultList();
+
+	}
+
+	public BakerProperty readPropertyByName(String name) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		Query q = entityManager.createQuery("SELECT m FROM BakerProperty m WHERE m.name='" + name + "'");
+		return (q.getResultList().size()==0)?null:(BakerProperty) q.getSingleResult();
+
+	}
+
+	public BakerProperty readPropertyByID(int propid) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		BakerProperty u = entityManager.find(BakerProperty.class, propid);
+		return u;
+
 	}
 
 	

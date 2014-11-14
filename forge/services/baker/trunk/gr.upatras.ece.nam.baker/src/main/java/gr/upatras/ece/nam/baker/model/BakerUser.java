@@ -63,6 +63,8 @@ public class BakerUser {
 	private String password = null;
 	@Basic()
 	private String role = null;
+	@Basic()	
+	private Boolean active = false;
 
 	/**
 	 * 
@@ -222,6 +224,14 @@ public class BakerUser {
 
 	public void setRole(String role) {
 		this.role = role;
+	}
+
+	public Boolean getActive() {
+		return active;
+	}
+
+	public void setActive(Boolean active) {
+		this.active = active;
 	}
 	
 //	public void addApplication(ApplicationMetadata app) {

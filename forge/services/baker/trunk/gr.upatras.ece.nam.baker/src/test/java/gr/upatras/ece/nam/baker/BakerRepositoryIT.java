@@ -86,6 +86,7 @@ public class BakerRepositoryIT {
 		bu.setOrganization("ANORGANIZATION");
 		bu.setPasswordUnencrypted("APASS");
 		bu.setUsername("AUSERNAME");
+		bu.setEmail("ANEMAIL");
 
 		// add a user...
 		BakerUser retBU = addUser(bu);
