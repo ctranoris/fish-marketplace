@@ -211,8 +211,13 @@
 			<version>2.6</version>
 		</dependency>
 		<!-- END FI-WARE cloud access related -->
-		
-		
+
+
+		<dependency>
+			<groupId>com.sun.mail</groupId>
+			<artifactId>javax.mail</artifactId>
+			<version>1.5.2</version>
+		</dependency>
 	</dependencies>
 
 
@@ -476,7 +481,7 @@
 							<configuration>
 								<!-- Uncomment this to run it with jetty:run and secure port 8443 
 									<jettyXml>${basedir}/src/test/resources/jetty.xml,${basedir}/src/test/resources/jetty-ssl.xml,${basedir}/src/test/resources/jetty-https.xml</jettyXml> -->
-
+	
 								<httpConnector>
 									<port>13000</port>
 								</httpConnector>
@@ -515,7 +520,6 @@
 										</handler>
 									</contextHandler>
 								</contextHandlers>
-
 
 							</configuration>
 							<executions>

@@ -27,6 +27,7 @@
 		<class>gr.upatras.ece.nam.baker.model.Widget</class>
 		<class>gr.upatras.ece.nam.baker.model.Course</class>
 		<class>gr.upatras.ece.nam.baker.model.FIREAdapter</class>
+		<class>gr.upatras.ece.nam.baker.model.BakerProperty</class>
 		
 
 
@@ -71,6 +72,7 @@
 		<class>gr.upatras.ece.nam.baker.model.ProductExtensionItem</class>
 		<class>gr.upatras.ece.nam.baker.model.Course</class>
 		<class>gr.upatras.ece.nam.baker.model.FIREAdapter</class>
+		<class>gr.upatras.ece.nam.baker.model.BakerProperty</class>
 
 
 

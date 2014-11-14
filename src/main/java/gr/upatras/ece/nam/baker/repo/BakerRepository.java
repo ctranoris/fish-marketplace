@@ -17,6 +17,7 @@ package gr.upatras.ece.nam.baker.repo;
 
 import gr.upatras.ece.nam.baker.impl.BakerJpaController;
 import gr.upatras.ece.nam.baker.model.ApplicationMetadata;
+import gr.upatras.ece.nam.baker.model.BakerProperty;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
@@ -42,7 +43,7 @@ import org.apache.commons.logging.LogFactory;
 public class BakerRepository {
 
 	private static final transient Log logger = LogFactory.getLog(BakerRepository.class.getName());
-	private BakerJpaController bakerJpaController;
+	private static BakerJpaController bakerJpaController;
 	
 	
 	
@@ -118,6 +119,12 @@ public class BakerRepository {
 	public BakerUser getUserByUsername(String un) {
 		return bakerJpaController.readBakerUserByUsername(un);
 	}
+	
+
+	public BakerUser getUserByEmail(String email) {
+		return bakerJpaController.readBakerUserByEmail(email);
+		}
+
 	
 
 	public Product getProductByID(int bunid) {
@@ -246,8 +253,36 @@ public class BakerRepository {
 		return ls;
 	}
 
+	
+	
+	public BakerProperty addproperty(BakerProperty p) {
+		bakerJpaController.saveProperty(p);
+		return p;
+	}
 
+	public void deleteProperty(int propid) {
+		bakerJpaController.deleteProperty(propid);
+		
+	}
 	
+
+	public BakerProperty updateProperty(BakerProperty p) {
+		BakerProperty bp = bakerJpaController.updateProperty(p);
+		return bp;
+	}
+
+	public Object getProperties() {
+
+		List<BakerProperty> ls = bakerJpaController.readProperties(0, 100000);
+		return ls;	
+	}
 	
-	
+	public static BakerProperty getPropertyByName(String name) {
+		return bakerJpaController.readPropertyByName(name);
+	}
+
+
+	public BakerProperty getPropertyByID(int propid) {
+		return bakerJpaController.readPropertyByID(propid);
+	}
 }
