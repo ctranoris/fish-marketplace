@@ -47,11 +47,11 @@ public class EmailUtil {
 		// Session session = Session.getDefaultInstance(props, null);
 
 		props.setProperty("mail.transport.protocol", "smtp");
-		if (!BakerRepository.getPropertyByName("mailhost").getValue().isEmpty())
+		if ((BakerRepository.getPropertyByName("mailhost").getValue()!=null)&&(!BakerRepository.getPropertyByName("mailhost").getValue().isEmpty()))
 			props.setProperty("mail.host", BakerRepository.getPropertyByName("mailhost").getValue());
-		if (!BakerRepository.getPropertyByName("mailuser").getValue().isEmpty())
+		if ((BakerRepository.getPropertyByName("mailuser").getValue()!=null)&&(!BakerRepository.getPropertyByName("mailuser").getValue().isEmpty()))
 			props.setProperty("mail.user", BakerRepository.getPropertyByName("mailuser").getValue());
-		if (!BakerRepository.getPropertyByName("mailpassword").getValue().isEmpty())
+		if ((BakerRepository.getPropertyByName("mailpassword").getValue()!=null)&&(!BakerRepository.getPropertyByName("mailpassword").getValue().isEmpty()))
 			props.setProperty("mail.password", BakerRepository.getPropertyByName("mailpassword").getValue());
 
 		String adminemail = BakerRepository.getPropertyByName("adminEmail").getValue();
