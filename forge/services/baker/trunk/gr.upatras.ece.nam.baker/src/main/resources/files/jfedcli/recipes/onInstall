@@ -1,0 +1,8 @@
+#!/bin/bash
+
+rm -r "/opt/forgebox/thirdparty/jfedcli"
+mkdir -p "/opt/forgebox/thirdparty/jfedcli"
+cd "/opt/forgebox/thirdparty/jfedcli"
+wget http://jfed.iminds.be/releases/r2178/jar/jfed_cli.tar.gz 
+tar -zxvf jfed_cli.tar.gz 
+ls -la

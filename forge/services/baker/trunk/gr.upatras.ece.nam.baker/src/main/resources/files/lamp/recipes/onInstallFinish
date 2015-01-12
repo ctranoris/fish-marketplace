@@ -1,0 +1,25 @@
+#!/bin/bash
+
+
+# Variables
+APPENV=local
+DBHOST=localhost
+DBNAME=dbname
+DBUSER=dbuser
+DBPASSWD=123456
+
+echo -e "\n--- Setting up our MySQL user and db ---\n"
+mysql -uroot -p$DBPASSWD -e "CREATE DATABASE $DBNAME"
+mysql -uroot -p$DBPASSWD -e "grant all privileges on $DBNAME.* to '$DBUSER'@'localhost' identified by '$DBPASSWD'"
+
+
+echo -e "\n--- Enabling mod-rewrite ---\n"
+a2enmod rewrite > /dev/null 2>&1
+
+echo -e "\n--- Allowing Apache override to all ---\n"
+sed -i "s/AllowOverride None/AllowOverride All/g" /etc/apache2/apache2.conf
+
+EOF
+
+echo -e "\n--- Restarting Apache ---\n"
+service apache2 restart > /dev/null 2>&1

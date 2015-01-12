@@ -20,12 +20,9 @@ import gr.upatras.ece.nam.baker.model.BakerProperty;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
-import gr.upatras.ece.nam.baker.model.Course;
-import gr.upatras.ece.nam.baker.model.FIREAdapter;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
 import gr.upatras.ece.nam.baker.model.Product;
 import gr.upatras.ece.nam.baker.model.SubscribedMachine;
-import gr.upatras.ece.nam.baker.model.Widget;
 
 import java.util.Iterator;
 import java.util.List;
@@ -409,20 +406,6 @@ public class BakerJpaController {
 		return q.getResultList();
 	}
 	
-	public List<FIREAdapter> readFIREAdaptersMetadata(Long categoryid, int firstResult, int maxResults) {
-		EntityManager entityManager = entityManagerFactory.createEntityManager();
-		Query q;
-		
-		if ((categoryid!=null) && (categoryid>=0))
-			q = entityManager.createQuery("SELECT a FROM FIREAdapter a WHERE a.categories.id="+categoryid+" ORDER BY a.id");
-		else
-			q = entityManager.createQuery("SELECT a FROM FIREAdapter a ORDER BY a.id");
-
-		q.setFirstResult(firstResult);
-		q.setMaxResults(maxResults);
-		return q.getResultList();
-	}
-
 
 	public Product readProductByUUID(String uuid) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -701,31 +684,6 @@ public class BakerJpaController {
 
 
 	
-	public List<Widget> readWidgetMetadata(Long categoryid, int firstResult, int maxResults) {
-		EntityManager entityManager = entityManagerFactory.createEntityManager();
-		Query q;
-		
-		if ((categoryid!=null) && (categoryid>=0))
-			q = entityManager.createQuery("SELECT a FROM Widget a WHERE a.categories.id="+categoryid+" ORDER BY a.id");
-		else
-			q = entityManager.createQuery("SELECT a FROM Widget a ORDER BY a.id");
-		q.setFirstResult(firstResult);
-		q.setMaxResults(maxResults);
-		return q.getResultList();
-	}
-
-	public List<Course> readCoursesMetadata(Long categoryid, int firstResult, int maxResults) {
-		EntityManager entityManager = entityManagerFactory.createEntityManager();
-		Query q;
-		
-		if ((categoryid!=null) && (categoryid>=0))
-			q = entityManager.createQuery("SELECT a FROM Course a WHERE a.categories.id="+categoryid+" ORDER BY a.id");
-		else
-			q = entityManager.createQuery("SELECT a FROM Course a ORDER BY a.id");
-		q.setFirstResult(firstResult);
-		q.setMaxResults(maxResults);
-		return q.getResultList();
-	}
 	
 	
 

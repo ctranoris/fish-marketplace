@@ -226,14 +226,31 @@ public class Product {
 	}
 	
 	public void addExtensionItem(ProductExtensionItem i){
-		if (!this.extensions.contains(i))
-			this.extensions.add(i);
+		if (!this.extensions.contains(i)){
+			if (findProductExtensionItemByName(i.getName())==null )
+				this.extensions.add(i);
+		}
 	}
 	
 	public void removeExtensionItem(ProductExtensionItem i){
 		if (this.extensions.contains(i)){
 			this.extensions.remove(i);
 		}
+	}
+	
+	public void addExtensionItem(String name, String value){
+		ProductExtensionItem i = new ProductExtensionItem();
+		i.setName(name);
+		i.setValue(value);
+		this.addExtensionItem(i);
+	}
+	
+	public ProductExtensionItem findProductExtensionItemByName(String name){
+		for (ProductExtensionItem p : this.extensions) {
+			if (p.getName().equals(name))
+				return p;
+		}
+		return null;
 	}
 
 }

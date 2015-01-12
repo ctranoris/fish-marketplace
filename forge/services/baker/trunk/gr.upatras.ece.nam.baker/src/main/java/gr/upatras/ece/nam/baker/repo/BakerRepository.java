@@ -21,12 +21,9 @@ import gr.upatras.ece.nam.baker.model.BakerProperty;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
-import gr.upatras.ece.nam.baker.model.Course;
-import gr.upatras.ece.nam.baker.model.FIREAdapter;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
 import gr.upatras.ece.nam.baker.model.Product;
 import gr.upatras.ece.nam.baker.model.SubscribedMachine;
-import gr.upatras.ece.nam.baker.model.Widget;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -236,24 +233,6 @@ public class BakerRepository {
 	}
 
 
-	public List<Widget> getWidgets(Long categoryid) {
-		List<Widget> ls = bakerJpaController.readWidgetMetadata(categoryid, 0, 100000);		
-		return ls;
-	}
-
-
-	public List<Course> getCourses(Long categoryid) {
-		List<Course> ls = bakerJpaController.readCoursesMetadata(categoryid, 0, 100000);		
-		return ls;
-	}
-
-
-	public List<FIREAdapter> getFIREAdapters(Long categoryid) {
-		List<FIREAdapter> ls = bakerJpaController.readFIREAdaptersMetadata(categoryid,0, 100000);
-		return ls;
-	}
-
-	
 	
 	public BakerProperty addproperty(BakerProperty p) {
 		bakerJpaController.saveProperty(p);

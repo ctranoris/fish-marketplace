@@ -232,6 +232,67 @@ public class BakerClientAPIImpl implements IBakerClientAPI {
 			throw new WebApplicationException(builder.build());
 		}
 	}
+	
+	
+	
+	/****************FIREAdapters configure*/
+	
+	@GET
+	@Path("/fireadapters/")
+	@Produces("application/json")
+	public Response getInstalledFIREAdapters() {
+
+		return getInstalledBuns();
+
+	}
+	
+	@GET
+	@Path("/fireadapters/{uuid}")
+	@Produces("application/json")
+	public Response getInstalledFIREAdapterInfoByUUID(@PathParam("uuid") String uuid) {
+		return getInstalledBunInfoByUUID(uuid);
+	}
+
+	
+
+	@POST
+	@Path("/fireadapters/")
+	@Produces("application/json")
+	public Response installfireadapter(InstalledBun reqInstallBun) {
+		return installBun(reqInstallBun);
+	}
+	
+	
+
+	@DELETE
+	@Path("/fireadapters/{uuid}")
+	@Produces("application/json")
+	public Response uninstallFireadapter(@PathParam("uuid") String uuid) {
+		
+		return uninstallBun(uuid);
+	}
+
+	@PUT
+	@Path("/fireadapters/{uuid}/stop")
+	@Produces("application/json")
+	public Response stopfireadapter(@PathParam("uuid") String uuid) {
+		return stopBun(uuid);
+	}
+
+	@PUT
+	@Path("/fireadapters/{uuid}/start")
+	@Produces("application/json")
+	public Response startFireadapter(@PathParam("uuid") String uuid) {
+		return startBun(uuid);
+	
+	}
+
+	@PUT
+	@Path("/fireadapters/{uuid}/reconfigure")
+	@Produces("application/json")
+	public Response reConfigureFireadapter(String uuid) {
+		return reConfigureBun(uuid);
+	}
 
 
 }
