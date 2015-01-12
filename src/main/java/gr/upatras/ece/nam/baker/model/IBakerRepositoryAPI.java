@@ -38,8 +38,6 @@ public interface IBakerRepositoryAPI {
 	Response deleteUser(int userid);
 	Response getAllBunsofUser(int userid);
 	Response getAllAppsofUser(int userid);
-	Response getAllWidgetsofUser(int userid);
-	Response getAllCoursesofUser(int userid);
 
 	//Sessions
 	public Response addUserSession(UserSession userSession);
@@ -78,31 +76,5 @@ public interface IBakerRepositoryAPI {
 	Response addAppMetadata(int userid,  List<Attachment> attachements);
 	void deleteApp(int appid);
 	
-	//Widgets Related API methods
-	Response getWidgets(Long categoryid);
-	Response getWidgetByID(int appid);
-	Response getWidgetUUID(String uuid);		
-	Response getWidgetofUser( int userid, int widgetid);
-	Response updateWidget(int aid,  List<Attachment> attachements);
-	Response addWidget(int userid,  List<Attachment> attachements);
-	void deleteWidget(int appid);
-	
-	//courses Related API methods
-	Response getCourses(Long categoryid);
-	Response getCoursetByID(int courseid);
-	Response getCourseUUID(String uuid);		
-	Response getCourseofUser( int userid, int courseid);
-	Response updateCourse(int cid,  List<Attachment> attachements);
-	Response addCourse(int userid,  List<Attachment> attachements);
-	void deleteCourse(int courseid);
-	
-	//FIREAdapters related API methods
-	Response getFIREAdapters(Long categoryid);
-	Response getFIREAdapterByID(int faid);
-	Response getFIREAdapterByUUID(String uuid);		
-	Response getFIREAdapterofUser( int userid, int faid);	
-	Response updateFIREAdapter(int faid, List<Attachment> attachements);
-	Response addFIREAdapter(int userid,  List<Attachment> attachements);
-	void deleteFIREAdapter( int faid);
 	
 }

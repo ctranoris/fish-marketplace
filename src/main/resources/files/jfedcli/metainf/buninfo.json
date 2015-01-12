@@ -1,0 +1,18 @@
+{
+    "owner": {
+        "organization": "University of Patras",
+        "name": "Christos Tranoris",
+        "email": "tranoris@ece.upatras.gr",
+    },
+    "name": "jFed CLI",
+    "shortDescription": "The jFed experimenter CLI is used to create slivers easily from the command line",
+    "longDescription": "The jFed experimenter CLI is used to create slivers easily from the command line. The tool takes a command as first argument, and several options depending on the command. See more at: http://doc.ilabt.iminds.be/jfed-documentation/cli.html",
+    "version": r2178",
+    "categories": [{
+        "name": "Experimentation"      
+    }, {
+        "name": "Future Internet"
+    }, {
+        "name": "Networking"
+    }]
+}

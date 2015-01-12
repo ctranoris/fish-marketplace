@@ -24,14 +24,11 @@ import gr.upatras.ece.nam.baker.model.BakerProperty;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
-import gr.upatras.ece.nam.baker.model.Course;
-import gr.upatras.ece.nam.baker.model.FIREAdapter;
 import gr.upatras.ece.nam.baker.model.IBakerRepositoryAPI;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
 import gr.upatras.ece.nam.baker.model.Product;
 import gr.upatras.ece.nam.baker.model.SubscribedMachine;
 import gr.upatras.ece.nam.baker.model.UserSession;
-import gr.upatras.ece.nam.baker.model.Widget;
 import gr.upatras.ece.nam.baker.util.EmailUtil;
 
 import java.io.File;
@@ -434,6 +431,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 				getAttachmentStringValue("longDescription", ats), 
 				getAttachmentStringValue("version", ats), 
 				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
+				getAttachmentStringValue("extensions", ats), //extensions are comma separated param=value
 				getAttachmentByName("prodIcon", ats), 
 				getAttachmentByName("prodFile", ats), 
 				getListOfAttachmentsByName("screenshots", ats));
@@ -448,8 +446,9 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	}
 
 	
-	private Product addNewProductData(Product prod, int userid, String prodName, String shortDescription, String longDescription, String version,
-			String categories, Attachment image, Attachment bunFile, List<Attachment> screenshots) {
+	private Product addNewProductData(Product prod, int userid, String prodName, 
+			String shortDescription, String longDescription, String version,
+			String categories, String extensions, Attachment image, Attachment bunFile, List<Attachment> screenshots) {
 		String uuid = UUID.randomUUID().toString();
 		
 		
@@ -467,12 +466,20 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		prod.setDateCreated(new Date());
 		prod.setDateUpdated(new Date());
 		
+		
 		String[] catIDs = categories.split(",");
 		for (String catid : catIDs) {
 			Category category = bakerRepositoryRef.getCategoryByID( Integer.valueOf(catid) );		
 			prod.addCategory(category);
 		}
 
+		
+		String[] exts = extensions.split(",");
+		for (String extparmval : exts) {
+			String[] i = extparmval.split("=");
+			prod.addExtensionItem(i[0], i[1]);
+		}
+		
 		URI endpointUrl = uri.getBaseUri();
 
 		String tempDir = METADATADIR + uuid + File.separator;
@@ -557,6 +564,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 				getAttachmentStringValue("longDescription", ats), 
 				getAttachmentStringValue("version", ats), 
 				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
+				getAttachmentStringValue("extensions", ats), //extensions are comma separated param=value
 				getAttachmentByName("prodIcon", ats), 
 				getAttachmentByName("prodFile", ats), 
 				getListOfAttachmentsByName("screenshots", ats));
@@ -568,7 +576,8 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	// Buns related API
 
 	private Product updateProductMetadata(Product prod, String userid, String prodname, String uuid, String shortDescription, String longDescription,
-			String version, String categories, Attachment image, Attachment prodFile, List<Attachment> screenshots) {
+			String version, String categories, String extensions, 
+			Attachment image, Attachment prodFile, List<Attachment> screenshots) {
 		
 		
 		logger.info("userid = " + userid);
@@ -610,6 +619,12 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			prod.addCategory(category);
 		}
 
+		prod.getExtensions().clear();
+		String[] exts = extensions.split(",");
+		for (String extparmval : exts) {
+			String[] i = extparmval.split("=");
+			prod.addExtensionItem(i[0], i[1]);
+		}
 
 		URI endpointUrl = uri.getBaseUri();
 
@@ -1062,6 +1077,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 				getAttachmentStringValue("longDescription", ats), 
 				getAttachmentStringValue("version", ats), 
 				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
+				getAttachmentStringValue("extensions", ats), //extensions are comma separated param=value
 				getAttachmentByName("prodIcon", ats), 
 				getAttachmentByName("prodFile", ats), 
 				getListOfAttachmentsByName("screenshots", ats));
@@ -1102,6 +1118,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 				getAttachmentStringValue("longDescription", ats), 
 				getAttachmentStringValue("version", ats), 
 				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
+				getAttachmentStringValue("extensions", ats), //extensions are comma separated param=value
 				getAttachmentByName("prodIcon", ats), 
 				getAttachmentByName("prodFile", ats), 
 				getListOfAttachmentsByName("screenshots", ats));
@@ -1187,150 +1204,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		}
 	}
 
-	//Widgets related API
-
-	@GET
-	@Path("/widgets")
-	@Produces("application/json")
-	public Response getWidgets(@QueryParam("categoryid") Long categoryid) {
-		logger.info("getWidgets categoryid="+categoryid);
-		List<Widget> w = bakerRepositoryRef.getWidgets(categoryid);
-		return Response.ok().entity(w).build();
-	}
-
-	/////////////WIDGETS related
-
-	@GET
-	@Path("/users/{userid}/widgets")
-	@Produces("application/json")
-	public Response getAllWidgetsofUser(@PathParam("userid") int userid) {
-		logger.info("getAllWidgetsofUser for userid: " + userid);
-		BakerUser u = bakerRepositoryRef.getUserByID(userid);
-
-		if (u != null) {
-			List<Product> prods = u.getProducts();
-			List<Widget> widgets = new ArrayList<Widget>();
-			for (Product p : prods) {
-				if (p instanceof BunMetadata)
-					widgets.add(  (Widget) p );
-			}
-
-			return Response.ok().entity(widgets).build();
-		} else {
-			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
-			builder.entity("User with id=" + userid + " not found in baker registry");
-			throw new WebApplicationException(builder.build());
-		}
-	}
-
-
-	@GET
-	@Path("/widgets/{widgetid}")
-	@Produces("application/json")
-
-	public Response getWidgetByID(@PathParam("widgetid") int widgetid) {
-		logger.info("getWidgetByID  widgetid=" + widgetid);
-		Widget w = (Widget) bakerRepositoryRef.getProductByID(widgetid);
-
-		if (w != null) {
-			return Response.ok().entity(w).build();
-		} else {
-			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
-			builder.entity("widget with id=" + widgetid + " not found in baker registry");
-			throw new WebApplicationException(builder.build());
-		}
-	}
-
-	@GET
-	@Path("/widgets/uuid/{uuid}")
-	@Produces("application/json")
-	public Response getWidgetUUID(@PathParam("uuid") String uuid) {
-		logger.info("Received GET for Widget uuid: " + uuid);
-		Widget w = null;
-
-		URI endpointUrl = uri.getBaseUri();
-		w = (Widget) bakerRepositoryRef.getProductByUUID(uuid);
-
-		if (w != null) {
-			return Response.ok().entity(w).build();
-		} else {
-			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
-			builder.entity("Widget with uuid=" + uuid + " not found in local registry");
-			throw new WebApplicationException(builder.build());
-		}
-
-	}
 	
-	@GET
-	@Path("/users/{userid}/widgets/{widgetid}")
-	@Produces("application/json")
-	public Response getWidgetofUser(@PathParam("userid")int userid, @PathParam("widgetid")int widgetid) {
-		logger.info("getWidgetofUser for userid: " + userid + ", widgetid=" + widgetid);
-		BakerUser u = bakerRepositoryRef.getUserByID(userid);
-
-		if (u != null) {
-			Widget w = (Widget) u.getProductById(widgetid);
-			return Response.ok().entity(w).build();
-		} else {
-			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
-			builder.entity("User with id=" + userid + " not found in baker registry");
-			throw new WebApplicationException(builder.build());
-		}
-	}
-
-	@PUT
-	@Path("/widgets/{wid}")
-	@Consumes("multipart/form-data")
-	public Response updateWidget(@PathParam("wid") int wid, List<Attachment> ats){
-		
-		Widget appmeta = (Widget) bakerRepositoryRef.getProductByID(wid);
-		appmeta.setURL(getAttachmentStringValue("url", ats));
-		
-		appmeta = (Widget) updateProductMetadata(
-				appmeta, 
-				getAttachmentStringValue("userid", ats),  
-				getAttachmentStringValue("prodname", ats),
-				getAttachmentStringValue("uuid", ats), 
-				getAttachmentStringValue("shortDescription", ats), 
-				getAttachmentStringValue("longDescription", ats), 
-				getAttachmentStringValue("version", ats), 
-				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
-				getAttachmentByName("prodIcon", ats), 
-				getAttachmentByName("prodFile", ats), 
-				getListOfAttachmentsByName("screenshots", ats));
-		
-		
-		return Response.ok().entity(appmeta).build();
-	}
-
-	@POST
-	@Path("/users/{userid}/widgets/")
-	@Consumes("multipart/form-data")
-	public Response addWidget( @PathParam("userid") int userid, List<Attachment> ats){
-		
-
-		Widget sm = new Widget();
-		sm.setURL(  getAttachmentStringValue("url", ats) );
-		sm = (Widget) addNewProductData(sm, userid, 
-				getAttachmentStringValue("prodname", ats), 
-				getAttachmentStringValue("shortDescription", ats), 
-				getAttachmentStringValue("longDescription", ats), 
-				getAttachmentStringValue("version", ats), 
-				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
-				getAttachmentByName("prodIcon", ats), 
-				getAttachmentByName("prodFile", ats), 
-				getListOfAttachmentsByName("screenshots", ats));
-
-		return Response.ok().entity(sm).build();
-	}
-	
-
-	@DELETE
-	@Path("/widgets/{widgetid}")
-	public void deleteWidget(@PathParam("widgetid") int widgetid) {
-		bakerRepositoryRef.deleteProduct(widgetid);
-		
-	}
 
 	@DELETE
 	@Path("/apps/{appid}")
@@ -1351,139 +1225,6 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		bakerRepositoryRef.deleteProduct(courseid);
 	}
 
-	@GET
-	@Path("/courses")
-	@Produces("application/json")
-	public Response getCourses(@QueryParam("categoryid") Long categoryid) {
-		logger.info("getCourses categoryid="+categoryid);
-		List<Course> courses = bakerRepositoryRef.getCourses(categoryid);
-		return Response.ok().entity(courses).build();
-	}
-
-
-	@GET
-	@Path("/courses/{courseid}")
-	@Produces("application/json")
-	public Response getCoursetByID(@PathParam("courseid") int courseid) {
-		logger.info("getCoursetByID  courseid=" + courseid);
-		Course c = (Course) bakerRepositoryRef.getProductByID(courseid);
-
-		if (c != null) {
-			return Response.ok().entity(c).build();
-		} else {
-			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
-			builder.entity("Course with id=" + courseid + " not found in baker registry");
-			throw new WebApplicationException(builder.build());
-		}
-	}
-
-
-	@GET
-	@Path("/courses/uuid/{uuid}")
-	@Produces("application/json")
-	public Response getCourseUUID(@PathParam("uuid") String uuid) {
-
-		Course c = (Course) bakerRepositoryRef.getProductByUUID(uuid);
-		if (c != null) {
-			return Response.ok().entity(c).build();
-		} else {
-			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
-			builder.entity("Course with uuid=" + uuid + " not found in local registry");
-			throw new WebApplicationException(builder.build());
-		}
-	}
-
-
-
-
-	@PUT
-	@Path("/courses/{cid}")
-	@Consumes("multipart/form-data")
-	public Response updateCourse(
-			@PathParam("cid") int cid, 
-			List<Attachment> ats){
-
-		Course c = (Course) bakerRepositoryRef.getProductByID(cid);
-		
-		c = (Course) updateProductMetadata(
-				c, 
-				getAttachmentStringValue("userid", ats),  
-				getAttachmentStringValue("prodname", ats),
-				getAttachmentStringValue("uuid", ats), 
-				getAttachmentStringValue("shortDescription", ats), 
-				getAttachmentStringValue("longDescription", ats), 
-				getAttachmentStringValue("version", ats), 
-				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
-				getAttachmentByName("prodIcon", ats), 
-				getAttachmentByName("prodFile", ats), 
-				getListOfAttachmentsByName("screenshots", ats));
-		
-		return Response.ok().entity(c).build();
-	}
-
-	
-
-	@POST
-	@Path("/users/{userid}/courses/")
-	@Consumes("multipart/form-data")
-	public Response addCourse(@PathParam("userid") int userid, List<Attachment> ats){
-		Course c = new Course();
-		c = (Course) addNewProductData(c, userid, 
-				getAttachmentStringValue("prodname", ats), 
-				getAttachmentStringValue("shortDescription", ats), 
-				getAttachmentStringValue("longDescription", ats), 
-				getAttachmentStringValue("version", ats), 
-				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
-				getAttachmentByName("prodIcon", ats), 
-				getAttachmentByName("prodFile", ats), 
-				getListOfAttachmentsByName("screenshots", ats));
-		
-		return Response.ok().entity(c).build();
-	}
-
-
-
-	@GET
-	@Path("/users/{userid}/courses/{courseid}")
-	@Produces("application/json")
-	public Response getCourseofUser(
-			@PathParam("userid") int userid, 
-			@PathParam("courseid") int courseid) {
-		logger.info("getCourseofUser for userid: " + userid + ", courseid=" + courseid);
-		BakerUser u = bakerRepositoryRef.getUserByID(userid);
-
-		if (u != null) {
-			Course course = (Course) u.getProductById(courseid);
-			return Response.ok().entity(course).build();
-		} else {
-			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
-			builder.entity("User with id=" + userid + " not found in baker registry");
-			throw new WebApplicationException(builder.build());
-		}
-	}
-	
-	@GET
-	@Path("/users/{userid}/courses")
-	@Produces("application/json")
-	public Response getAllCoursesofUser(@PathParam("userid") int userid) {
-		logger.info("getAllCoursesofUser for userid: " + userid);
-		BakerUser u = bakerRepositoryRef.getUserByID(userid);
-
-		if (u != null) {
-			List<Product> prods = u.getProducts();
-			List<Course> courses = new ArrayList<Course>();
-			for (Product p : prods) {
-				if (p instanceof BunMetadata)
-					courses.add(  (Course) p );
-			}
-
-			return Response.ok().entity(courses).build();
-		} else {
-			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
-			builder.entity("User with id=" + userid + " not found in baker registry");
-			throw new WebApplicationException(builder.build());
-		}
-	}
 	
 
 	// Attachment utils ///////////////////////
@@ -1569,122 +1310,6 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		return null;
 	}
 
-	@GET
-	@Path("/fireadapters")
-	@Produces("application/json")
-	public Response getFIREAdapters(@QueryParam("categoryid") Long categoryid) {
-		logger.info("getFIREAdapters categoryid="+categoryid);
-
-		List<FIREAdapter> adapters = bakerRepositoryRef.getFIREAdapters(categoryid);
-		return Response.ok().entity(adapters).build();
-	}
-
-
-	@GET
-	@Path("/fireadapters/{faid}")
-	@Produces("application/json")
-	public Response getFIREAdapterByID( @PathParam("faid") int faid) {
-		logger.info("getFIREAdapterByID  faid=" + faid);
-		FIREAdapter bun = (FIREAdapter) bakerRepositoryRef.getProductByID(faid);
-
-		if (bun != null) {
-			return Response.ok().entity(bun).build();
-		} else {
-			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
-			builder.entity("FIREAdapter with id=" + faid + " not found in baker registry");
-			throw new WebApplicationException(builder.build());
-		}
-	}
-
-
-	@GET
-	@Path("/fireadapters/uuid/{uuid}")
-	@Produces("application/json")
-	public Response getFIREAdapterByUUID(@PathParam("uuid") String uuid) {
-		logger.info("Received GET for FIREAdapter uuid: " + uuid);
-		FIREAdapter adapter = null;
-		adapter = (FIREAdapter) bakerRepositoryRef.getProductByUUID(uuid);
-		
-		if (adapter != null) {
-			return Response.ok().entity(adapter).build();
-		} else {
-			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
-			builder.entity("Installed FIREAdapter with uuid=" + uuid + " not found in local registry");
-			throw new WebApplicationException(builder.build());
-		}
-	}
-
-
-
-	@GET
-	@Path("/users/{userid}/fireadapters/{faid}")
-	@Produces("application/json")
-	public Response getFIREAdapterofUser(@PathParam("userid") int userid, @PathParam("faid") int faid) {
-		logger.info("getFIREAdapterofUser for userid: " + userid + ", faid=" + faid);
-		BakerUser u = bakerRepositoryRef.getUserByID(userid);
-
-		if (u != null) {
-			FIREAdapter adapter = (FIREAdapter) u.getProductById(faid);
-			return Response.ok().entity(adapter).build();
-		} else {
-			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
-			builder.entity("User with id=" + userid + " not found in baker registry");
-			throw new WebApplicationException(builder.build());
-		}
-	}
-	
-
-
-	@PUT
-	@Path("/fireadapters/{faid}")
-	@Consumes("multipart/form-data")
-	public Response updateFIREAdapter(@PathParam("faid") int faid,  List<Attachment> ats){
-
-		
-
-		FIREAdapter sm = (FIREAdapter) bakerRepositoryRef.getProductByID(faid);
-		sm = (FIREAdapter) updateProductMetadata(
-				sm, 
-				getAttachmentStringValue("userid", ats),  
-				getAttachmentStringValue("prodname", ats),
-				getAttachmentStringValue("uuid", ats), 
-				getAttachmentStringValue("shortDescription", ats), 
-				getAttachmentStringValue("longDescription", ats), 
-				getAttachmentStringValue("version", ats), 
-				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
-				getAttachmentByName("prodIcon", ats), 
-				getAttachmentByName("prodFile", ats), 
-				getListOfAttachmentsByName("screenshots", ats));
-		
-		return Response.ok().entity(sm).build();
-
-	}
-
-	@POST
-	@Path("/users/{userid}/fireadapters/")
-	@Consumes("multipart/form-data")	
-	public Response addFIREAdapter( @PathParam("userid") int userid, List<Attachment> ats){
-		
-		FIREAdapter sm = new FIREAdapter();
-		sm = (FIREAdapter) addNewProductData(sm, userid, 
-				getAttachmentStringValue("prodname", ats), 
-				getAttachmentStringValue("shortDescription", ats), 
-				getAttachmentStringValue("longDescription", ats), 
-				getAttachmentStringValue("version", ats), 
-				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
-				getAttachmentByName("prodIcon", ats), 
-				getAttachmentByName("prodFile", ats), 
-				getListOfAttachmentsByName("screenshots", ats));
-		
-		return Response.ok().entity(sm).build();
-
-	}
-
-	@DELETE
-	@Path("/fireadapters/{faid}")
-	public void deleteFIREAdapter( @PathParam("faid") int faid) {
-		bakerRepositoryRef.deleteProduct(faid);
-	}
 
 	/***************************************** OAUTH2 FIWARE Related API *********************************************/
 

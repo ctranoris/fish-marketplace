@@ -82,6 +82,9 @@ public class BakerRepoTest {
 		bmeta.setLongDescription("longDescription");
 		bmeta.setShortDescription("shortDescription");
 		bmeta.setPackageLocation("packageLocation");
+		bmeta.addExtensionItem("aname", "avalue");
+		bmeta.addExtensionItem("aname", "avalue");
+		bmeta.addExtensionItem("aname1", "avalue1");
 		bu.addProduct(bmeta);
 
 		bakerJpaControllerTest.updateBakerUser(bu);
@@ -121,6 +124,9 @@ public class BakerRepoTest {
 		assertEquals(uuid, testbm.getUuid());
 		assertNotNull(testbm.getOwner());
 		assertEquals("ausername", testbm.getOwner().getUsername());
+		assertEquals( 2, testbm.getExtensions().size() );
+		assertEquals( "aname", testbm.getExtensions().get(0).getName() );
+		assertEquals( "aname1", testbm.getExtensions().get(1).getName() );
 
 		bu = new BakerUser();
 		bu.setOrganization("UoP2");
