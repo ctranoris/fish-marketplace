@@ -124,7 +124,7 @@ public class BakerRepository {
 
 	
 
-	public Product getProductByID(int bunid) {
+	public Product getProductByID(long bunid) {
 		return (Product) bakerJpaController.readProductByID(bunid);
 	}
 	

@@ -25,6 +25,8 @@
 		<class>gr.upatras.ece.nam.baker.model.BunMetadata</class>
 		<class>gr.upatras.ece.nam.baker.model.ApplicationMetadata</class>
 		<class>gr.upatras.ece.nam.baker.model.BakerProperty</class>
+		<class>gr.upatras.ece.nam.baker.model.Container</class>
+		<class>gr.upatras.ece.nam.baker.model.DeployArtifact</class>
 		
 
 
@@ -67,6 +69,8 @@
 		<class>gr.upatras.ece.nam.baker.model.Product</class>
 		<class>gr.upatras.ece.nam.baker.model.ProductExtensionItem</class>
 		<class>gr.upatras.ece.nam.baker.model.BakerProperty</class>
+		<class>gr.upatras.ece.nam.baker.model.Container</class>
+		<class>gr.upatras.ece.nam.baker.model.DeployArtifact</class>
 
 
 

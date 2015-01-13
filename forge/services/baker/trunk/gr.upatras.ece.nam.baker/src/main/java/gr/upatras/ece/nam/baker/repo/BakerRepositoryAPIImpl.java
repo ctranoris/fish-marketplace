@@ -27,6 +27,7 @@ import gr.upatras.ece.nam.baker.model.Category;
 import gr.upatras.ece.nam.baker.model.IBakerRepositoryAPI;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
 import gr.upatras.ece.nam.baker.model.Product;
+import gr.upatras.ece.nam.baker.model.ProductExtensionItem;
 import gr.upatras.ece.nam.baker.model.SubscribedMachine;
 import gr.upatras.ece.nam.baker.model.UserSession;
 import gr.upatras.ece.nam.baker.util.EmailUtil;
@@ -87,6 +88,7 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.MappingJsonFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -422,63 +424,69 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@Consumes("multipart/form-data")	
 	public Response addBunMetadata( @PathParam("userid") int userid, List<Attachment> ats){
 
+		BunMetadata bun = new BunMetadata();
+		
+		try {
+			MappingJsonFactory factory = new MappingJsonFactory();
+			JsonParser parser = factory.createJsonParser( getAttachmentStringValue("bun", ats) );
+			bun = parser.readValueAs(BunMetadata.class);
 
+			logger.info("Received @POST for bun : " + bun.getName());
+			logger.info("Received @POST for bun.extensions : " + bun.getExtensions() );
+			
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
-		BunMetadata sm = new BunMetadata();
-		sm = (BunMetadata) addNewProductData(sm, userid, 
-				getAttachmentStringValue("prodname", ats), 
-				getAttachmentStringValue("shortDescription", ats), 
-				getAttachmentStringValue("longDescription", ats), 
-				getAttachmentStringValue("version", ats), 
-				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
-				getAttachmentStringValue("extensions", ats), //extensions are comma separated param=value
+		bun = (BunMetadata) addNewProductData(
+				bun, 
+				
 				getAttachmentByName("prodIcon", ats), 
 				getAttachmentByName("prodFile", ats), 
-				getListOfAttachmentsByName("screenshots", ats));
+				getListOfAttachmentsByName("screenshots", ats)
+				);
 		
-//		BunMetadata sm = new BunMetadata();
-//		sm = (BunMetadata) addNewProductData(sm, userid, bunname, shortDescription, longDescription, version,
-//				categories, image, bunFile, null);
-
 		
-		return Response.ok().entity(sm).build();
+		return Response.ok().entity(bun).build();
 
 	}
 
 	
-	private Product addNewProductData(Product prod, int userid, String prodName, 
-			String shortDescription, String longDescription, String version,
-			String categories, String extensions, Attachment image, Attachment bunFile, List<Attachment> screenshots) {
+	private Product addNewProductData(Product prod, Attachment image, Attachment bunFile, List<Attachment> screenshots) {
+		
 		String uuid = UUID.randomUUID().toString();
 		
-		
-		
-		logger.info("bunname = " + prodName);
-		logger.info("version = " + version);
-		logger.info("shortDescription = " + shortDescription);
-		logger.info("longDescription = " + longDescription);
+		logger.info("prodname = " + prod.getName());
+		logger.info("version = " + prod.getVersion());
+		logger.info("shortDescription = " + prod.getShortDescription());
+		logger.info("longDescription = " + prod.getLongDescription());
 		
 		prod.setUuid(uuid);
-		prod.setName(prodName);
-		prod.setShortDescription(shortDescription);
-		prod.setLongDescription(longDescription);
-		prod.setVersion(version);
+//		prod.setName(prodName);
+//		prod.setShortDescription(shortDescription);
+//		prod.setLongDescription(longDescription);
+//		prod.setVersion(version);
 		prod.setDateCreated(new Date());
 		prod.setDateUpdated(new Date());
 		
 		
-		String[] catIDs = categories.split(",");
-		for (String catid : catIDs) {
-			Category category = bakerRepositoryRef.getCategoryByID( Integer.valueOf(catid) );		
-			prod.addCategory(category);
-		}
+//		String[] catIDs = categories.split(",");
+//		for (String catid : catIDs) {
+//			Category category = bakerRepositoryRef.getCategoryByID( Integer.valueOf(catid) );		
+//			prod.addCategory(category);
+//		}
 
-		
-		String[] exts = extensions.split(",");
-		for (String extparmval : exts) {
-			String[] i = extparmval.split("=");
-			prod.addExtensionItem(i[0], i[1]);
-		}
+//		for (ProductExtensionItem e : extensions) {
+//			
+//		}
+//		
+//		String[] exts = extensions.split(",");
+//		for (String extparmval : exts) {
+//			String[] i = extparmval.split("=");
+//			prod.addExtensionItem(i[0], i[1]);
+//		}
 		
 		URI endpointUrl = uri.getBaseUri();
 
@@ -537,9 +545,9 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		}
 
 		// Save now bun for User
-		BakerUser bunOwner = bakerRepositoryRef.getUserByID(userid);
+		BakerUser bunOwner = bakerRepositoryRef.getUserByID( prod.getOwner().getId() );
 		bunOwner.addProduct(prod);
-		bakerRepositoryRef.updateUserInfo(userid, bunOwner);
+		bakerRepositoryRef.updateUserInfo( prod.getOwner().getId(), bunOwner);
 		return prod;
 	}
 
@@ -552,83 +560,90 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@Consumes("multipart/form-data")
 	public Response updateBunMetadata(@PathParam("bid") int bid,  List<Attachment> ats){
 
+		BunMetadata bun = new BunMetadata();
 		
+		try {
+			MappingJsonFactory factory = new MappingJsonFactory();
+			JsonParser parser = factory.createJsonParser( getAttachmentStringValue("bun", ats) );
+			bun = parser.readValueAs(BunMetadata.class);
 
-		BunMetadata sm = (BunMetadata) bakerRepositoryRef.getProductByID(bid);
-		sm = (BunMetadata) updateProductMetadata(
-				sm, 
-				getAttachmentStringValue("userid", ats),  
-				getAttachmentStringValue("prodname", ats),
-				getAttachmentStringValue("uuid", ats), 
-				getAttachmentStringValue("shortDescription", ats), 
-				getAttachmentStringValue("longDescription", ats), 
-				getAttachmentStringValue("version", ats), 
-				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
-				getAttachmentStringValue("extensions", ats), //extensions are comma separated param=value
+			logger.info("Received @POST for bun : " + bun.getName());
+			logger.info("Received @POST for bun.extensions : " + bun.getExtensions() );
+			
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		
+		//BunMetadata sm = (BunMetadata) bakerRepositoryRef.getProductByID(bid);
+		bun = (BunMetadata) updateProductMetadata(
+				bun, 
 				getAttachmentByName("prodIcon", ats), 
 				getAttachmentByName("prodFile", ats), 
 				getListOfAttachmentsByName("screenshots", ats));
 		
-		return Response.ok().entity(sm).build();
+		return Response.ok().entity(bun).build();
 
 	}
 
 	// Buns related API
 
-	private Product updateProductMetadata(Product prod, String userid, String prodname, String uuid, String shortDescription, String longDescription,
-			String version, String categories, String extensions, 
+	private Product updateProductMetadata(Product prod, 
 			Attachment image, Attachment prodFile, List<Attachment> screenshots) {
 		
 		
-		logger.info("userid = " + userid);
-		logger.info("bunname = " + prodname);
+		logger.info("userid = " + prod.getOwner().getId());
+		logger.info("bunname = " + prod.getName());
 		logger.info("bunid = " + prod.getId());
 		
-		logger.info("bunuuid = " + uuid);
-		logger.info("version = " + version);
-		logger.info("shortDescription = " + shortDescription);
-		logger.info("longDescription = " + longDescription);
+		logger.info("bunuuid = " + prod.getUuid());
+		logger.info("version = " + prod.getVersion());
+		logger.info("shortDescription = " + prod.getShortDescription());
+		logger.info("longDescription = " + prod.getLongDescription());
 
 		// Save now bun for User
-		BakerUser bunOwner = bakerRepositoryRef.getUserByID( Integer.parseInt(userid) );
-		prod.setShortDescription(shortDescription);
-		prod.setLongDescription(longDescription);
-		prod.setVersion(version);
-		prod.setName(prodname);
-		prod.setOwner(bunOwner);
+		BakerUser bunOwner = bakerRepositoryRef.getUserByID( prod.getOwner().getId() );
+//		prod.setShortDescription(shortDescription);
+//		prod.setLongDescription(longDescription);
+//		prod.setVersion(version);
+//		prod.setName(prodname);
+//		prod.setOwner(bunOwner);
 		prod.setDateUpdated(new Date());
 
 		
 		//first remove the bun from the previous category
-		List<Category> cats = prod.getCategories();
+		Product prodPreUpdate = (Product) bakerRepositoryRef.getProductByID(  prod.getId());
+		List<Category> cats = prodPreUpdate.getCategories();
 		List<Category> catsToUpdate = new ArrayList<Category>();
 		for (Category category : cats) {
 			catsToUpdate.add(category);
 		}		
-		
+		//now remove
 		for (Category c : catsToUpdate) {
 			c.removeProduct(prod);
 			prod.removeCategory(c);
 			bakerRepositoryRef.updateCategoryInfo( c );
 		}
 		
-		String[] catIDs = categories.split(",");
-		for (String catid : catIDs) {
-			//and now add the new one
-			Category category = bakerRepositoryRef.getCategoryByID(Integer.valueOf(catid));
-			prod.addCategory(category);
-		}
-
-		prod.getExtensions().clear();
-		String[] exts = extensions.split(",");
-		for (String extparmval : exts) {
-			String[] i = extparmval.split("=");
-			prod.addExtensionItem(i[0], i[1]);
-		}
+		//String[] catIDs = categories.split(",");
+//		for (Category c : prod.getCategories()) {
+//			//and now add the new one
+//			Category category = bakerRepositoryRef.getCategoryByID( c.getId() );
+//			prod.addCategory(category);
+//		}
+//
+//		prod.getExtensions().clear();
+//		String[] exts = extensions.split(",");
+//		for (String extparmval : exts) {
+//			String[] i = extparmval.split("=");
+//			prod.addExtensionItem(i[0], i[1]);
+//		}
 
 		URI endpointUrl = uri.getBaseUri();
 
-		String tempDir = METADATADIR + uuid + File.separator;
+		String tempDir = METADATADIR + prod.getUuid() + File.separator;
 		try {
 			Files.createDirectories(Paths.get(tempDir));
 			
@@ -638,7 +653,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 				if (!imageFileNamePosted.equals("unknown")) {
 					String imgfile = saveFile(image, tempDir + imageFileNamePosted);
 					logger.info("imgfile saved to = " + imgfile);
-					prod.setIconsrc(endpointUrl + "repo/images/" + uuid + File.separator + imageFileNamePosted);
+					prod.setIconsrc(endpointUrl + "repo/images/" + prod.getUuid() + File.separator + imageFileNamePosted);
 				}
 			}
 
@@ -648,7 +663,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 				if (!bunFileNamePosted.equals("unknown")) {
 					String bunfilepath = saveFile(prodFile, tempDir + bunFileNamePosted);
 					logger.info("bunfilepath saved to = " + bunfilepath);
-					prod.setPackageLocation(endpointUrl + "repo/packages/" + uuid + File.separator + bunFileNamePosted);
+					prod.setPackageLocation(endpointUrl + "repo/packages/" + prod.getUuid() + File.separator + bunFileNamePosted);
 				}
 			}
 			
@@ -664,7 +679,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 					shotFileNamePosted = "shot"+i+"_"+shotFileNamePosted;
 					String shotfilepath = saveFile(shot, tempDir + shotFileNamePosted);
 					logger.info("shotfilepath saved to = " + shotfilepath);
-					shotfilepath = endpointUrl + "repo/images/" + uuid + File.separator + shotFileNamePosted;
+					shotfilepath = endpointUrl + "repo/images/" + prod.getUuid() + File.separator + shotFileNamePosted;
 					screenshotsFilenames += shotfilepath+","; 
 					i++;
 				}
@@ -684,7 +699,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 		if (bunOwner.getProductById(prod.getId()) == null)
 			bunOwner.addProduct(prod);
-		bakerRepositoryRef.updateUserInfo(Integer.parseInt(userid), bunOwner);
+		bakerRepositoryRef.updateUserInfo(prod.getOwner().getId(), bunOwner);
 		return prod;
 	}
 
@@ -1070,19 +1085,34 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@Consumes("multipart/form-data")
 	public Response addAppMetadata(@PathParam("userid") int userid, List<Attachment> ats){
 
-		ApplicationMetadata sm = new ApplicationMetadata();
-		sm = (ApplicationMetadata) addNewProductData(sm, userid, 
-				getAttachmentStringValue("prodname", ats), 
-				getAttachmentStringValue("shortDescription", ats), 
-				getAttachmentStringValue("longDescription", ats), 
-				getAttachmentStringValue("version", ats), 
-				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
-				getAttachmentStringValue("extensions", ats), //extensions are comma separated param=value
+
+		ApplicationMetadata app = new ApplicationMetadata();
+		
+		try {
+			MappingJsonFactory factory = new MappingJsonFactory();
+			JsonParser parser = factory.createJsonParser( getAttachmentStringValue("application", ats) );
+			app = parser.readValueAs(ApplicationMetadata.class);
+
+			logger.info("Received @POST for app : " + app.getName());
+			logger.info("Received @POST for app.containers : " + app.getContainers().size() );
+			logger.info("Received @POST for app.containers(0).name : " + app.getContainers().get(0).getName() );
+			
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+		
+		//ApplicationMetadata sm = new ApplicationMetadata();
+		app = (ApplicationMetadata) addNewProductData(
+				app, 
 				getAttachmentByName("prodIcon", ats), 
 				getAttachmentByName("prodFile", ats), 
 				getListOfAttachmentsByName("screenshots", ats));
 
-		return Response.ok().entity(sm).build();
+		return Response.ok().entity(app).build();
 
 	}
 	
@@ -1105,21 +1135,30 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		
 		
 
-		ApplicationMetadata appmeta = (ApplicationMetadata) bakerRepositoryRef.getProductByID(aid);
+		ApplicationMetadata appmeta = new ApplicationMetadata();
+		
+		try {
+			MappingJsonFactory factory = new MappingJsonFactory();
+			JsonParser parser = factory.createJsonParser( getAttachmentStringValue("application", ats) );
+			appmeta = parser.readValueAs(ApplicationMetadata.class);
+
+			logger.info("Received @POST for app : " + appmeta.getName());
+			logger.info("Received @POST for app.containers : " + appmeta.getContainers().size() );
+			logger.info("Received @POST for app.containers(0).name : " + appmeta.getContainers().get(0).getName() );
+			
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		
+		//ApplicationMetadata appmeta = (ApplicationMetadata) bakerRepositoryRef.getProductByID(aid);
 		
 		
 		
 		appmeta = (ApplicationMetadata) updateProductMetadata(
-				appmeta, 
-				getAttachmentStringValue("userid", ats),  
-				getAttachmentStringValue("prodname", ats),
-				getAttachmentStringValue("uuid", ats), 
-				getAttachmentStringValue("shortDescription", ats), 
-				getAttachmentStringValue("longDescription", ats), 
-				getAttachmentStringValue("version", ats), 
-				getAttachmentStringValue("categories", ats), //categories are comma separated Ids
-				getAttachmentStringValue("extensions", ats), //extensions are comma separated param=value
-				getAttachmentByName("prodIcon", ats), 
+				appmeta, getAttachmentByName("prodIcon", ats), 
 				getAttachmentByName("prodFile", ats), 
 				getListOfAttachmentsByName("screenshots", ats));
 		
@@ -1434,7 +1473,6 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			ex.printStackTrace();
 			return Response.status(Status.UNAUTHORIZED).entity("USER Access problem").build();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

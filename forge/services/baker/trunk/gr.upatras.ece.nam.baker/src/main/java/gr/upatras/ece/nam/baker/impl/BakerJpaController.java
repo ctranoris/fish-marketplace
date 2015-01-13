@@ -414,7 +414,7 @@ public class BakerJpaController {
 		return (q.getResultList().size()==0)?null:(Product) q.getSingleResult();
 	}
 	
-	public Product readProductByID(int id) {
+	public Product readProductByID(long id) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 		Product u = entityManager.find(Product.class, id);
 		return u;
