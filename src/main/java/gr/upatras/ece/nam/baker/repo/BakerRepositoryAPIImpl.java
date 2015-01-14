@@ -464,10 +464,6 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		logger.info("longDescription = " + prod.getLongDescription());
 		
 		prod.setUuid(uuid);
-//		prod.setName(prodName);
-//		prod.setShortDescription(shortDescription);
-//		prod.setLongDescription(longDescription);
-//		prod.setVersion(version);
 		prod.setDateCreated(new Date());
 		prod.setDateUpdated(new Date());
 		
@@ -543,12 +539,32 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+	
+		
+		
+		
+		//we must replace given product categories with the ones from our DB 
+		for (Category c : prod.getCategories()) {
+			Category catToUpdate = bakerRepositoryRef.getCategoryByID(c.getId());
+			//logger.info("BEFORE PROD SAVE, category "+catToUpdate.getName()+"  contains Products: "+ catToUpdate.getProducts().size() );
+			prod.getCategories().set( prod.getCategories().indexOf(c) , catToUpdate);
+			
+		}
+				
 		// Save now bun for User
 		BakerUser bunOwner = bakerRepositoryRef.getUserByID( prod.getOwner().getId() );
 		bunOwner.addProduct(prod);
-		bakerRepositoryRef.updateUserInfo( prod.getOwner().getId(), bunOwner);
-		return prod;
+		BakerUser owner = bakerRepositoryRef.updateUserInfo( prod.getOwner().getId(), bunOwner);
+		Product registeredProd = bakerRepositoryRef.getProductByUUID(uuid);
+		
+		//now fix category references
+		for (Category c : registeredProd.getCategories()) {
+			Category catToUpdate = bakerRepositoryRef.getCategoryByID(c.getId());
+			catToUpdate.addProduct(registeredProd);
+			bakerRepositoryRef.updateCategoryInfo( catToUpdate );
+		}
+				
+		return registeredProd;
 	}
 
 	
@@ -605,41 +621,23 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 		// Save now bun for User
 		BakerUser bunOwner = bakerRepositoryRef.getUserByID( prod.getOwner().getId() );
-//		prod.setShortDescription(shortDescription);
-//		prod.setLongDescription(longDescription);
-//		prod.setVersion(version);
-//		prod.setName(prodname);
-//		prod.setOwner(bunOwner);
 		prod.setDateUpdated(new Date());
-
 		
-		//first remove the bun from the previous category
+		//first remove all references of the product from the previous categories
 		Product prodPreUpdate = (Product) bakerRepositoryRef.getProductByID(  prod.getId());
-		List<Category> cats = prodPreUpdate.getCategories();
-		List<Category> catsToUpdate = new ArrayList<Category>();
-		for (Category category : cats) {
-			catsToUpdate.add(category);
-		}		
-		//now remove
-		for (Category c : catsToUpdate) {
-			c.removeProduct(prod);
-			prod.removeCategory(c);
+		for (Category c : prodPreUpdate.getCategories()) {
+			//logger.info("Will remove product "+prodPreUpdate.getName()+ ", from Previous Category "+c.getName()  );
+			c.removeProduct(prodPreUpdate);
 			bakerRepositoryRef.updateCategoryInfo( c );
 		}
 		
-		//String[] catIDs = categories.split(",");
-//		for (Category c : prod.getCategories()) {
-//			//and now add the new one
-//			Category category = bakerRepositoryRef.getCategoryByID( c.getId() );
-//			prod.addCategory(category);
-//		}
-//
-//		prod.getExtensions().clear();
-//		String[] exts = extensions.split(",");
-//		for (String extparmval : exts) {
-//			String[] i = extparmval.split("=");
-//			prod.addExtensionItem(i[0], i[1]);
-//		}
+		//we must replace API given product categories with the ones from our DB 
+		for (Category c : prod.getCategories()) {
+			Category catToUpdate = bakerRepositoryRef.getCategoryByID(c.getId());
+			//logger.info("BEFORE PROD SAVE, category "+catToUpdate.getName()+"  contains Products: "+ catToUpdate.getProducts().size() );
+			prod.getCategories().set( prod.getCategories().indexOf(c) , catToUpdate);
+		}
+		
 
 		URI endpointUrl = uri.getBaseUri();
 
@@ -694,9 +692,19 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			
 			e.printStackTrace();
 		}
-
-		bakerRepositoryRef.updateProductInfo(prod);
-
+		
+		//save product
+		prod = bakerRepositoryRef.updateProductInfo(prod);
+		
+		//now fix category product references
+		for (Category catToUpdate : prod.getCategories()) {
+			Product p = bakerRepositoryRef.getProductByID( prod.getId() ); 
+			catToUpdate.addProduct( p );
+			bakerRepositoryRef.updateCategoryInfo( catToUpdate );
+		}
+		
+		
+		
 		if (bunOwner.getProductById(prod.getId()) == null)
 			bunOwner.addProduct(prod);
 		bakerRepositoryRef.updateUserInfo(prod.getOwner().getId(), bunOwner);

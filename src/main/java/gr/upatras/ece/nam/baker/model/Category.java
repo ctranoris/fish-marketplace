@@ -24,17 +24,19 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 
-import org.apache.commons.collections.ListUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 @Entity(name = "Category")
 @JsonIgnoreProperties(value = {  "products" }, ignoreUnknown = true )
 public class Category {
 
+	private static final transient Log logger = LogFactory.getLog(Category.class.getName());
+	
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id = 0;
@@ -78,8 +80,9 @@ public class Category {
 
 	public void addProduct(Product product) {
 		if (!products.contains(product)) {
+			logger.info("ACTUALLY add into category "+ this.getName()+"  product "+product.getId());
 			products.add(product);
-			product.addCategory(this);
+			//product.addCategory(this);
 		}		
 	}
 	

@@ -23,26 +23,32 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.InheritanceType;
-import javax.persistence.DiscriminatorType;
 import javax.persistence.OneToMany;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 @Entity(name = "Product")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "app_type", discriminatorType = DiscriminatorType.STRING)
 public class Product {
 
+	private static final transient Log logger = LogFactory.getLog(Product.class.getName());
+	
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id = 0;
@@ -211,19 +217,20 @@ public class Product {
 	}
 	
 
-	public void addCategory(Category category) {
-		if (!this.categories.contains(category) ){
-			this.categories.add(category);
-			category.addProduct(this);
-		}
-	}
-	
-	public void removeCategory(Category category) {
-		if (this.categories.contains(category) ){
-			this.categories.remove(category);
-			category.removeProduct(this);
-		}
-	}
+//	public void addCategory(Category category) {
+//		logger.info("IN Product  "+ this.getId()+"  category "+category.getId());
+//		if (!this.categories.contains(category) ){
+//			this.categories.add(category);
+//			category.addProduct(this);
+//		}
+//	}
+//	
+//	public void removeCategory(Category category) {
+//		if (this.categories.contains(category) ){
+//			this.categories.remove(category);
+//			category.removeProduct(this);
+//		}
+//	}
 	
 	public void addExtensionItem(ProductExtensionItem i){
 		if (!this.extensions.contains(i)){
