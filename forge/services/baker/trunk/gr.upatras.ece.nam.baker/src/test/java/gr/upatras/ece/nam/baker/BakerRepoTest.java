@@ -183,8 +183,8 @@ public class BakerRepoTest {
 		appmeta.setUuid(uuid);
 		appmeta.setLongDescription("longDescription");
 		appmeta.setShortDescription("shortDescription");
-		appmeta.addCategory(c);
-		appmeta.addCategory(c2);
+		appmeta.getCategories().add(c);
+		appmeta.getCategories().add(c2);
 		ProductExtensionItem item = new ProductExtensionItem();
 		item.setName("param1");
 		item.setValue("value1");
@@ -208,7 +208,7 @@ public class BakerRepoTest {
 		appmeta2.setLongDescription("longDescription2");
 		appmeta2.setShortDescription("shortDescription2");
 		appmeta2.setOwner(bu);
-		appmeta2.addCategory(c);
+		appmeta2.getCategories().add(c);
 		bu.addProduct(appmeta2);
 
 		bakerJpaControllerTest.updateBakerUser(bu);
