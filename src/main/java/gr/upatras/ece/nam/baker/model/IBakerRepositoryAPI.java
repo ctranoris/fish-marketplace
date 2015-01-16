@@ -60,7 +60,7 @@ public interface IBakerRepositoryAPI {
 	Response addBunMetadata(int userid,  List<Attachment> attachements);
 	void deleteBun( int bunid);
 	
-	//Subscribed machines
+	//Subscribed resources
 	Response getSubscribedResources();
 	Response getSubscribedResourceById(int smId);
 	Response addSubscribedResource(SubscribedResource sm);

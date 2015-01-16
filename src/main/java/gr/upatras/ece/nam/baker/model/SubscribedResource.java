@@ -16,10 +16,15 @@
 package gr.upatras.ece.nam.baker.model;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
+import javax.persistence.ManyToOne;
 
 
 @Entity(name = "SubscribedResource")
@@ -31,8 +36,20 @@ public class SubscribedResource {
 
 	@Basic
 	private String URL = null;
+	
+	@ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }, fetch = FetchType.LAZY)
+	@JoinColumns({ @JoinColumn() })
+	private BakerUser owner = null;
 
 	
+	public BakerUser getOwner() {
+		return owner;
+	}
+
+	public void setOwner(BakerUser owner) {
+		this.owner = owner;
+	}
+
 	public int getId() {
 		return id;
 	}

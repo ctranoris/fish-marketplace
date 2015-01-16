@@ -106,7 +106,7 @@ public class BakerInstallationMgmt {
 	}
 
 	/**
-	 * It executes the installation of the bun in a thread job, following the bun installation state machine
+	 * It executes the installation of the bun in a thread job, following the bun installation state resource
 	 * 
 	 * @param s
 	 *            InstalledBun object to manage the lifecycle

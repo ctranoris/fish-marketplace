@@ -988,7 +988,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		return Response.status(Status.UNAUTHORIZED).build();
 	}	
 	
-	//Subscribed MAchines related API
+	//Subscribed resources related API
 	
 	@GET
 	@Path("/subscribedresources/")
