@@ -24,6 +24,7 @@ import gr.upatras.ece.nam.baker.model.BakerProperty;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
+import gr.upatras.ece.nam.baker.model.DeployContainer;
 import gr.upatras.ece.nam.baker.model.DeploymentDescriptor;
 import gr.upatras.ece.nam.baker.model.IBakerRepositoryAPI;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
@@ -384,24 +385,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	}
 	
 	
-	@GET
-	@Path("/deployments")
-	@Produces("application/json")
-	public Response getAllDeploymentsofUser() {
-		
-		BakerUser u =bakerRepositoryRef.getUserBySessionID( ws.getHttpServletRequest().getSession().getId() );
-		
-		
-		if (u != null) {
-			logger.info("getAllDeploymentsofUser for userid: " + u.getId());
-			List<DeploymentDescriptor> deployments = u.getDeployments();
-			return Response.ok().entity(deployments).build();
-		} else {
-			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
-			builder.entity("User not found in baker registry or not logged in");
-			throw new WebApplicationException(builder.build());
-		}
-	}
+	
 
 
 	@GET
@@ -994,9 +978,13 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@Path("/subscribedresources/")
 	@Produces("application/json")
 	public Response getSubscribedResources() {
+		
+		
 		return Response.ok().entity(bakerRepositoryRef.getSubscribedResourcesAsCollection()).build();
 	}
 
+	
+	
 	@GET
 	@Path("/subscribedresources/{smId}")
 	@Produces("application/json")
@@ -1013,20 +1001,25 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	}
 
 	
-	
 	@POST
 	@Path("/subscribedresources/")
 	@Produces("application/json")
 	@Consumes("application/json")
 	public Response addSubscribedResource(SubscribedResource sm) {
-		
-		SubscribedResource u = bakerRepositoryRef.addSubscribedResource(sm);
 
+		BakerUser u = sm.getOwner();		
+		u = bakerRepositoryRef.getUserByID(sm.getOwner().getId());
+		
 		if (u != null) {
-			return Response.ok().entity(u).build();
+			sm.setOwner(u);
+			
+			u.getSubscribedResources().add(sm);
+			u = bakerRepositoryRef.updateUserInfo( u.getId(), u);
+			
+			return Response.ok().entity(sm).build();
 		} else {
 			ResponseBuilder builder = Response.status(Status.INTERNAL_SERVER_ERROR);
-			builder.entity("Requested SubscribedResource with rls=" + sm.getURL() + " cannot be saved");
+			builder.entity("Requested SubscribedResource with rls=" + sm.getURL() + " cannot be registered under not found user");
 			throw new WebApplicationException(builder.build());
 		}
 	}
@@ -1038,17 +1031,17 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	public Response updateSubscribedResource(@PathParam("smId")int smId, SubscribedResource sm) {
 		logger.info("Received SubscribedResource for user: " + sm.getURL());
 
-		SubscribedResource previouSM = bakerRepositoryRef.getSubscribedResourceByID(smId);
 
+		BakerUser u = bakerRepositoryRef.getUserByID(sm.getOwner().getId());
+		sm.setOwner(u);
 		
-
-		SubscribedResource u = bakerRepositoryRef.updateSubscribedResourceInfo(smId, sm);
+		SubscribedResource sr = bakerRepositoryRef.updateSubscribedResourceInfo(smId, sm);
 
 		if (u != null) {
 			return Response.ok().entity(u).build();
 		} else {
 			ResponseBuilder builder = Response.status(Status.INTERNAL_SERVER_ERROR);
-			builder.entity("Requested SubscribedResource with url=" + sm.getURL()+" cannot be updated");
+			builder.entity("Requested SubscribedResource with url=" + sr.getURL()+" cannot be updated");
 			throw new WebApplicationException(builder.build());
 		}
 	}
@@ -1574,6 +1567,62 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		} else {
 			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
 			builder.entity("BakerProperty " + propid + " not found in baker registry");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+	
+	@GET
+	@Path("/deployments")
+	@Produces("application/json")
+	public Response getAllDeploymentsofUser() {
+		
+		BakerUser u =bakerRepositoryRef.getUserBySessionID( ws.getHttpServletRequest().getSession().getId() );
+		
+		
+		if (u != null) {
+			logger.info("getAllDeploymentsofUser for userid: " + u.getId());
+			List<DeploymentDescriptor> deployments = u.getDeployments();
+			return Response.ok().entity(deployments).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("User not found in baker registry or not logged in");
+			throw new WebApplicationException(builder.build());
+		}
+	}
+	
+	@POST
+	@Path("/deployments")
+	@Produces("application/json")
+	@Consumes("application/json")
+	public Response addDeployment(DeploymentDescriptor deployment) {
+		
+		BakerUser u =bakerRepositoryRef.getUserBySessionID( ws.getHttpServletRequest().getSession().getId() );
+		
+		if (u != null) {
+			logger.info("addDeployment for userid: " + u.getId());	
+			
+			for (DeploymentDescriptor d : u.getDeployments()) {
+				logger.info("deployment already for userid: " + d.getId());					
+			}
+			
+			u = bakerRepositoryRef.getUserByID(u.getId());
+			deployment.setOwner(u);	//reattach from the DB model	
+			u.getDeployments().add(deployment);			
+			
+			ApplicationMetadata baseApplication = 
+					(ApplicationMetadata) bakerRepositoryRef.getProductByID(deployment.getBaseApplication().getId() );			
+			deployment.setBaseApplication(baseApplication); //reattach from the DB model
+			
+			for( DeployContainer dc:  deployment.getDeployContainers()){
+				dc.getTargetResource().setOwner(u);//reattach from the DB model, in case missing from the request
+			}
+			
+			u = bakerRepositoryRef.updateUserInfo( u.getId(), u);
+			
+			return Response.ok().entity(deployment).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("User not found in baker registry or not logged in. DeploymentDescriptor not added.");
 			throw new WebApplicationException(builder.build());
 		}
 	}

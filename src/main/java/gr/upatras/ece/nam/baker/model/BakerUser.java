@@ -33,7 +33,7 @@ import javax.persistence.OneToMany;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 @Entity(name = "BakerUser")
-@JsonIgnoreProperties(value = { "products", "deployments", "resources" })
+@JsonIgnoreProperties(value = { "products", "deployments", "subscribedResources" })
 public class BakerUser {
 
 	@Id
