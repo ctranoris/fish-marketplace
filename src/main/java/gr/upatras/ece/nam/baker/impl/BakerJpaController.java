@@ -22,7 +22,7 @@ import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
 import gr.upatras.ece.nam.baker.model.Product;
-import gr.upatras.ece.nam.baker.model.SubscribedMachine;
+import gr.upatras.ece.nam.baker.model.SubscribedResource;
 
 import java.util.Iterator;
 import java.util.List;
@@ -247,17 +247,6 @@ public class BakerJpaController {
 		entityTransaction.begin();
 
 		entityManager.persist(bu);
-//		List<ApplicationMetadata> apps = bu.getApps();
-//		for (ApplicationMetadata app : apps) {			
-//			entityManager.persist(app.getCategory());
-//			entityManager.persist(app);
-//		}
-//		
-//		List<BunMetadata> buns = bu.getBuns() ;
-//		for (BunMetadata bun : buns) {			
-//			entityManager.persist(bun.getCategory());
-//			entityManager.persist(bun);
-//		}
 		
 		
 		entityManager.flush();
@@ -269,6 +258,12 @@ public class BakerJpaController {
 	public BakerUser readBakerUserByUsername(String username) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 		Query q = entityManager.createQuery("SELECT m FROM BakerUser m WHERE m.username='" + username + "'");
+		return (q.getResultList().size()==0)?null:(BakerUser) q.getSingleResult();
+	}
+	
+	public BakerUser readBakerUserBySessionID(String id) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		Query q = entityManager.createQuery("SELECT m FROM BakerUser m WHERE m.currentSessionID='" + id + "'");
 		return (q.getResultList().size()==0)?null:(BakerUser) q.getSingleResult();
 	}
 	
@@ -495,8 +490,8 @@ public class BakerJpaController {
 	
 
 	
-	public void saveSubscribedMachine(SubscribedMachine sm) {
-		logger.info("Will save SubscribedMachine = " + sm.getURL());
+	public void saveSubscribedResource(SubscribedResource sm) {
+		logger.info("Will save SubscribedResource = " + sm.getURL());
 
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
@@ -510,29 +505,29 @@ public class BakerJpaController {
 
 	}
 	
-	public SubscribedMachine updateSubscribedMachine(SubscribedMachine sm) {
+	public SubscribedResource updateSubscribedResource(SubscribedResource sm) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
 		EntityTransaction entityTransaction = entityManager.getTransaction();
 
 		entityTransaction.begin();
-		SubscribedMachine resis = entityManager.merge(sm);
+		SubscribedResource resis = entityManager.merge(sm);
 		entityTransaction.commit();
 
 		return resis;
 	}
 
-	public SubscribedMachine readSubscribedMachineById(int userid) {
+	public SubscribedResource readSubscribedResourceById(int userid) {
 		
 		
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
-		return entityManager.find(SubscribedMachine.class, userid);
+		return entityManager.find(SubscribedResource.class, userid);
 		
 	}
 	
-	public void deleteSubscribedMachine(int smId) {
+	public void deleteSubscribedResource(int smId) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
-		SubscribedMachine sm = entityManager.find(SubscribedMachine.class, smId);	
+		SubscribedResource sm = entityManager.find(SubscribedResource.class, smId);	
 
 		EntityTransaction entityTransaction = entityManager.getTransaction();
 		entityTransaction.begin();
@@ -540,36 +535,36 @@ public class BakerJpaController {
 		entityTransaction.commit();
 	}
 	
-	public long countSubscribedMachines() {
+	public long countSubscribedResources() {
 
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
-		Query q = entityManager.createQuery("SELECT COUNT(s) FROM SubscribedMachine s");
+		Query q = entityManager.createQuery("SELECT COUNT(s) FROM SubscribedResource s");
 		return (Long) q.getSingleResult();
 	}
 
 	
-	public void getAllSubscribedMachinesPrinted() {
-		logger.info("================= getSubscribedMachine() ==================START");
+	public void getAllSubscribedResourcesPrinted() {
+		logger.info("================= getSubscribedResource() ==================START");
 
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
-		List<SubscribedMachine> lb = entityManager.createQuery("select p from SubscribedMachine p").getResultList();
+		List<SubscribedResource> lb = entityManager.createQuery("select p from SubscribedResource p").getResultList();
 		for (Iterator iterator = lb.iterator(); iterator.hasNext();) {
-			SubscribedMachine sm = (SubscribedMachine) iterator.next();
-			logger.info("	======> SubscribedMachine found: " + sm.getURL() + ", Id: " + sm.getId()  );			
+			SubscribedResource sm = (SubscribedResource) iterator.next();
+			logger.info("	======> SubscribedResource found: " + sm.getURL() + ", Id: " + sm.getId()  );			
 
 		}
 	}
 
-	public void deleteAllSubscribedMachines() {
+	public void deleteAllSubscribedResources() {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
 		EntityTransaction entityTransaction = entityManager.getTransaction();
 
 		entityTransaction.begin();
 
-		Query q = entityManager.createQuery("DELETE FROM SubscribedMachine ");
+		Query q = entityManager.createQuery("DELETE FROM SubscribedResource ");
 		q.executeUpdate();
 		entityManager.flush();
 
@@ -577,10 +572,10 @@ public class BakerJpaController {
 		
 	}
 
-	public List<SubscribedMachine> readSubscribedMachines(int firstResult, int maxResults) {
+	public List<SubscribedResource> readSubscribedResources(int firstResult, int maxResults) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
-		Query q = entityManager.createQuery("SELECT m FROM SubscribedMachine m");
+		Query q = entityManager.createQuery("SELECT m FROM SubscribedResource m");
 		q.setFirstResult(firstResult);
 		q.setMaxResults(maxResults);
 		return q.getResultList();
@@ -749,6 +744,8 @@ public class BakerJpaController {
 		return u;
 
 	}
+
+
 
 	
 

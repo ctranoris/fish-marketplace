@@ -22,8 +22,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 
-@Entity(name = "SubscribedMachine")
-public class SubscribedMachine {
+@Entity(name = "SubscribedResource")
+public class SubscribedResource {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

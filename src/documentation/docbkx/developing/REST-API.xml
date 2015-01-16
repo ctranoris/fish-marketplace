@@ -359,11 +359,11 @@
 			<programlisting language="bash">	
 			
 	GET all subscribed machines
-	Path("/subscribedmachines/")
+	Path("/subscribedresources/")
 	Produces("application/json")
 	
 	GET subscribed machine by ID
-	Path("/subscribedmachines/{smId}")
+	Path("/subscribedresources/{smId}")
 	Produces("application/json")
 	
 	{
@@ -372,17 +372,17 @@
 	}
 	
 	POST add a new Subscribed Machine
-	Path("/subscribedmachines/")
+	Path("/subscribedresources/")
 	Produces("application/json")
 	Consumes("application/json")
 	
 	PUT update an existing
-	Path("/subscribedmachines/{smId}")
+	Path("/subscribedresources/{smId}")
 	Produces("application/json")
 	Consumes("application/json")
 	
 	DELETE by subscribed machine ID
-	Path("/subscribedmachines/{smId}")
+	Path("/subscribedresources/{smId}")
 	Produces("application/json")
 	
 		</programlisting>

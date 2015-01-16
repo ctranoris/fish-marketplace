@@ -24,8 +24,12 @@ import gr.upatras.ece.nam.baker.model.ApplicationMetadata;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
+import gr.upatras.ece.nam.baker.model.Container;
+import gr.upatras.ece.nam.baker.model.DeployArtifact;
+import gr.upatras.ece.nam.baker.model.DeployContainer;
+import gr.upatras.ece.nam.baker.model.DeploymentDescriptor;
 import gr.upatras.ece.nam.baker.model.ProductExtensionItem;
-import gr.upatras.ece.nam.baker.model.SubscribedMachine;
+import gr.upatras.ece.nam.baker.model.SubscribedResource;
 import gr.upatras.ece.nam.baker.util.EncryptionUtil;
 
 import org.apache.commons.logging.Log;
@@ -56,7 +60,7 @@ public class BakerRepoTest {
 
 		bakerJpaControllerTest.deleteAllProducts();
 		bakerJpaControllerTest.deleteAllUsers();
-		bakerJpaControllerTest.deleteAllSubscribedMachines();
+		bakerJpaControllerTest.deleteAllSubscribedResources();
 		bakerJpaControllerTest.deleteAllCategories();
 
 	}
@@ -141,27 +145,27 @@ public class BakerRepoTest {
 	}
 
 	@Test
-	public void testSubscribedMachines() {
-		SubscribedMachine sm = new SubscribedMachine();
+	public void testSubscribedResources() {
+		SubscribedResource sm = new SubscribedResource();
 		sm.setURL("testURL");
 
 		assertEquals("testURL", sm.getURL());
 
-		bakerJpaControllerTest.saveSubscribedMachine(sm);
+		bakerJpaControllerTest.saveSubscribedResource(sm);
 
 		sm.setURL("testURL1");
-		bakerJpaControllerTest.updateSubscribedMachine(sm);
+		bakerJpaControllerTest.updateSubscribedResource(sm);
 
-		SubscribedMachine testsm = bakerJpaControllerTest.readSubscribedMachineById(sm.getId());
+		SubscribedResource testsm = bakerJpaControllerTest.readSubscribedResourceById(sm.getId());
 		assertEquals("testURL1", testsm.getURL());
 
-		sm = new SubscribedMachine();
+		sm = new SubscribedResource();
 		sm.setURL("anotherTestURL");
-		bakerJpaControllerTest.saveSubscribedMachine(sm);
-		bakerJpaControllerTest.getAllSubscribedMachinesPrinted();
-		assertEquals(2, bakerJpaControllerTest.countSubscribedMachines());
+		bakerJpaControllerTest.saveSubscribedResource(sm);
+		bakerJpaControllerTest.getAllSubscribedResourcesPrinted();
+		assertEquals(2, bakerJpaControllerTest.countSubscribedResources());
 
-		bakerJpaControllerTest.deleteSubscribedMachine(sm.getId());
+		bakerJpaControllerTest.deleteSubscribedResource(sm.getId());
 
 	}
 	
@@ -226,6 +230,75 @@ public class BakerRepoTest {
 		assertEquals("acat1", testApp.getCategories().get(0).getName());
 
 
+	}
+	
+	@Test
+	public void testDeployDescriptorApplications() {
+		Category c = new Category();
+		c.setName("acat1");
+		BakerUser bu = new BakerUser();
+		bu.setUsername("ausername");
+		
+		//add a couple of buns
+		BunMetadata bmeta = new BunMetadata();
+		bmeta.setName("bun1");
+		String uuid = UUID.randomUUID().toString();
+		bmeta.setUuid(uuid);
+		bmeta.addExtensionItem("aname1", "avalue1");
+		bmeta.addExtensionItem("aname2", "avalue2");
+		bu.addProduct(bmeta);
+		
+		BunMetadata bmeta2 = new BunMetadata();
+		bmeta2.setName("bun2");
+		uuid = UUID.randomUUID().toString();
+		bmeta2.setUuid(uuid);
+		bmeta2.addExtensionItem("aname11", "avalue11");
+		bmeta2.addExtensionItem("aname21", "avalue21");
+		bu.addProduct(bmeta2);		
+		
+		//add an application description
+		ApplicationMetadata app = new ApplicationMetadata();
+		app.setName("myapp");
+		uuid = UUID.randomUUID().toString();
+		app.setUuid(uuid);
+		app.setLongDescription("longDescription");
+		app.setShortDescription("shortDescription");
+		app.getCategories().add(c);
+		Container container = new Container(); //add a container
+		container.setName("Container0");		
+		DeployArtifact deployArtifact = new DeployArtifact();
+		deployArtifact.setName(bmeta2.getName() );
+		deployArtifact.setUuid(bmeta2.getUuid());
+		container.getDeployArtifacts().add(deployArtifact);
+		app.getContainers().add(container );		
+		bu.addProduct(app);
+		
+		//now create a dployment
+		DeploymentDescriptor dd = new DeploymentDescriptor();
+		dd.setBaseApplication(app);
+		dd.setName("a test DeployDescriptor");
+		dd.setOwner(bu);
+		dd.setStatus("undeployed");
+		DeployContainer deplContainer = new DeployContainer();
+		deplContainer.setName("deploy1");
+		DeployArtifact deployArtifactInst = new DeployArtifact();
+		deployArtifactInst.setName( dd.getBaseApplication().getContainers().get(0).getDeployArtifacts().get(0).getName() );
+		deployArtifactInst.setUuid( dd.getBaseApplication().getContainers().get(0).getDeployArtifacts().get(0).getUuid() );		
+		deplContainer.getDeployArtifacts().add(deployArtifactInst);
+		SubscribedResource targetResource = new SubscribedResource();
+		targetResource.setURL("targetIP");
+		deplContainer.setTargetResource(targetResource );
+		dd.getDeployContainers().add(deplContainer);
+		bu.getDeployments().add(dd);//now add the deployment to the user
+
+		bakerJpaControllerTest.saveUser(bu);
+		
+
+		BakerUser testbu = bakerJpaControllerTest.readBakerUserByUsername("ausername") ;		
+
+		assertEquals("myapp", testbu.getDeployments().get(0).getBaseApplication().getName() );
+		assertEquals("targetIP", testbu.getDeployments().get(0).getDeployContainers().get(0).getTargetResource().getURL()  );
+		
 	}
 
 }

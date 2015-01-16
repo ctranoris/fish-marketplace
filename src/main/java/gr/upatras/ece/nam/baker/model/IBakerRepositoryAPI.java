@@ -61,11 +61,11 @@ public interface IBakerRepositoryAPI {
 	void deleteBun( int bunid);
 	
 	//Subscribed machines
-	Response getSubscribedMachines();
-	Response getSubscribedMachineById(int smId);
-	Response addSubscribedMachine(SubscribedMachine sm);
-	Response updateSubscribedMachine(int smId, SubscribedMachine sm);
-	Response deleteSubscribedMachine(int smId);
+	Response getSubscribedResources();
+	Response getSubscribedResourceById(int smId);
+	Response addSubscribedResource(SubscribedResource sm);
+	Response updateSubscribedResource(int smId, SubscribedResource sm);
+	Response deleteSubscribedResource(int smId);
 	
 	//Apps Related API methods
 	Response getApps(Long categoryid);
