@@ -24,11 +24,12 @@ import gr.upatras.ece.nam.baker.model.BakerProperty;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
+import gr.upatras.ece.nam.baker.model.DeploymentDescriptor;
 import gr.upatras.ece.nam.baker.model.IBakerRepositoryAPI;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
 import gr.upatras.ece.nam.baker.model.Product;
 import gr.upatras.ece.nam.baker.model.ProductExtensionItem;
-import gr.upatras.ece.nam.baker.model.SubscribedMachine;
+import gr.upatras.ece.nam.baker.model.SubscribedResource;
 import gr.upatras.ece.nam.baker.model.UserSession;
 import gr.upatras.ece.nam.baker.util.EmailUtil;
 
@@ -381,6 +382,26 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			throw new WebApplicationException(builder.build());
 		}
 	}
+	
+	
+	@GET
+	@Path("/deployments")
+	@Produces("application/json")
+	public Response getAllDeploymentsofUser() {
+		
+		BakerUser u =bakerRepositoryRef.getUserBySessionID( ws.getHttpServletRequest().getSession().getId() );
+		
+		
+		if (u != null) {
+			logger.info("getAllDeploymentsofUser for userid: " + u.getId());
+			List<DeploymentDescriptor> deployments = u.getDeployments();
+			return Response.ok().entity(deployments).build();
+		} else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("User not found in baker registry or not logged in");
+			throw new WebApplicationException(builder.build());
+		}
+	}
 
 
 	@GET
@@ -554,6 +575,8 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		// Save now bun for User
 		BakerUser bunOwner = bakerRepositoryRef.getUserByID( prod.getOwner().getId() );
 		bunOwner.addProduct(prod);
+		prod.setOwner(bunOwner);  //replace given owner with the one from our DB 
+		
 		BakerUser owner = bakerRepositoryRef.updateUserInfo( prod.getOwner().getId(), bunOwner);
 		Product registeredProd = bakerRepositoryRef.getProductByUUID(uuid);
 		
@@ -572,7 +595,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	
 	
 	@PUT
-	@Path("/buns/{bid}")
+	@Path("/users/{userid}/buns/{bid}")
 	@Consumes("multipart/form-data")
 	public Response updateBunMetadata(@PathParam("bid") int bid,  List<Attachment> ats){
 
@@ -619,8 +642,10 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		logger.info("shortDescription = " + prod.getShortDescription());
 		logger.info("longDescription = " + prod.getLongDescription());
 
-		// Save now bun for User
+		// get User
 		BakerUser bunOwner = bakerRepositoryRef.getUserByID( prod.getOwner().getId() );
+		prod.setOwner(bunOwner);  //replace given owner with the one from our DB 
+		
 		prod.setDateUpdated(new Date());
 		
 		//first remove all references of the product from the previous categories
@@ -883,6 +908,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		
 		}
 
+		
 
 		Subject currentUser = SecurityUtils.getSubject();
 		if (currentUser !=null){
@@ -890,13 +916,14 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			try {
 				currentUser.login(token);
 				BakerUser bakerUser = bakerRepositoryRef.getUserByUsername( userSession.getUsername() );
+				bakerUser.setCurrentSessionID( ws.getHttpServletRequest().getSession().getId()  );
 				userSession.setBakerUser(bakerUser );				
 				userSession.setPassword("");;//so not tosend in response
 				
 				logger.info(" currentUser = " + currentUser.toString() );
 				logger.info( "User [" + currentUser.getPrincipal() + "] logged in successfully." );
-				logger.info(" currentUser  employee  = " + currentUser.hasRole("employee")  );
-				logger.info(" currentUser  boss  = " + currentUser.hasRole("boss")  );
+				
+				bakerRepositoryRef.updateUserInfo(bakerUser.getId() , bakerUser);
 				
 				return Response.ok().entity(userSession).build();
 				}
@@ -964,23 +991,23 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	//Subscribed MAchines related API
 	
 	@GET
-	@Path("/subscribedmachines/")
+	@Path("/subscribedresources/")
 	@Produces("application/json")
-	public Response getSubscribedMachines() {
-		return Response.ok().entity(bakerRepositoryRef.getSubscribedMachinesAsCollection()).build();
+	public Response getSubscribedResources() {
+		return Response.ok().entity(bakerRepositoryRef.getSubscribedResourcesAsCollection()).build();
 	}
 
 	@GET
-	@Path("/subscribedmachines/{smId}")
+	@Path("/subscribedresources/{smId}")
 	@Produces("application/json")
-	public Response getSubscribedMachineById(@PathParam("smId") int smId) {
-		SubscribedMachine sm = bakerRepositoryRef.getSubscribedMachineByID(smId);
+	public Response getSubscribedResourceById(@PathParam("smId") int smId) {
+		SubscribedResource sm = bakerRepositoryRef.getSubscribedResourceByID(smId);
 
 		if (sm != null) {
 			return Response.ok().entity(sm).build();
 		} else {
 			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
-			builder.entity("SubscribedMachine" + smId + " not found in baker registry");
+			builder.entity("SubscribedResource" + smId + " not found in baker registry");
 			throw new WebApplicationException(builder.build());
 		}
 	}
@@ -988,51 +1015,51 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	
 	
 	@POST
-	@Path("/subscribedmachines/")
+	@Path("/subscribedresources/")
 	@Produces("application/json")
 	@Consumes("application/json")
-	public Response addSubscribedMachine(SubscribedMachine sm) {
+	public Response addSubscribedResource(SubscribedResource sm) {
 		
-		SubscribedMachine u = bakerRepositoryRef.addSubscribedMachine(sm);
+		SubscribedResource u = bakerRepositoryRef.addSubscribedResource(sm);
 
 		if (u != null) {
 			return Response.ok().entity(u).build();
 		} else {
 			ResponseBuilder builder = Response.status(Status.INTERNAL_SERVER_ERROR);
-			builder.entity("Requested SubscribedMachine with rls=" + sm.getURL() + " cannot be saved");
+			builder.entity("Requested SubscribedResource with rls=" + sm.getURL() + " cannot be saved");
 			throw new WebApplicationException(builder.build());
 		}
 	}
 
 	@PUT
-	@Path("/subscribedmachines/{smId}")
+	@Path("/subscribedresources/{smId}")
 	@Produces("application/json")
 	@Consumes("application/json")
-	public Response updateSubscribedMachine(@PathParam("smId")int smId, SubscribedMachine sm) {
-		logger.info("Received SubscribedMachine for user: " + sm.getURL());
+	public Response updateSubscribedResource(@PathParam("smId")int smId, SubscribedResource sm) {
+		logger.info("Received SubscribedResource for user: " + sm.getURL());
 
-		SubscribedMachine previouSM = bakerRepositoryRef.getSubscribedMachineByID(smId);
+		SubscribedResource previouSM = bakerRepositoryRef.getSubscribedResourceByID(smId);
 
 		
 
-		SubscribedMachine u = bakerRepositoryRef.updateSubscribedMachineInfo(smId, sm);
+		SubscribedResource u = bakerRepositoryRef.updateSubscribedResourceInfo(smId, sm);
 
 		if (u != null) {
 			return Response.ok().entity(u).build();
 		} else {
 			ResponseBuilder builder = Response.status(Status.INTERNAL_SERVER_ERROR);
-			builder.entity("Requested SubscribedMachine with url=" + sm.getURL()+" cannot be updated");
+			builder.entity("Requested SubscribedResource with url=" + sm.getURL()+" cannot be updated");
 			throw new WebApplicationException(builder.build());
 		}
 	}
 
 	@DELETE
-	@Path("/subscribedmachines/{smId}")
+	@Path("/subscribedresources/{smId}")
 	@Produces("application/json")
-	public Response deleteSubscribedMachine(@PathParam("smId")int smId) {
-		logger.info("Received SubscribedMachine for userid: " + smId);
+	public Response deleteSubscribedResource(@PathParam("smId")int smId) {
+		logger.info("Received SubscribedResource for userid: " + smId);
 
-		bakerRepositoryRef.deleteSubscribedMachine(smId);
+		bakerRepositoryRef.deleteSubscribedResource(smId);
 
 		return Response.ok().build();
 	}
@@ -1128,18 +1155,9 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 	
 	@PUT
-	@Path("/apps/{aid}")
+	@Path("/users/{userid}/apps/{aid}")
 	@Consumes("multipart/form-data")
 	public Response updateAppMetadata(@PathParam("aid") int aid, List<Attachment> ats){
-//			@Multipart(value = "userid", type = "text/plain")int userid, 
-//			@Multipart(value = "appname", type = "text/plain")String appname, 
-//			@Multipart(value = "appid", type = "text/plain") int appid, 
-//			@Multipart(value = "appuuid", type = "text/plain") String uuid, 
-//			@Multipart(value = "shortDescription", type = "text/plain") String shortDescription, 
-//			@Multipart(value = "longDescription", type = "text/plain") String longDescription, 
-//			@Multipart(value = "version", type = "text/plain") String version,
-//			@Multipart(value = "categories", type = "text/plain") String categories,
-//			@Multipart(value = "prodIcon") Attachment image){
 		
 		
 
@@ -1152,7 +1170,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 			logger.info("Received @POST for app : " + appmeta.getName());
 			logger.info("Received @POST for app.containers : " + appmeta.getContainers().size() );
-			logger.info("Received @POST for app.containers(0).name : " + appmeta.getContainers().get(0).getName() );
+			
 			
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();

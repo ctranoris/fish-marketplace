@@ -23,12 +23,15 @@ import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
 import gr.upatras.ece.nam.baker.model.Product;
-import gr.upatras.ece.nam.baker.model.SubscribedMachine;
+import gr.upatras.ece.nam.baker.model.SubscribedResource;
+import gr.upatras.ece.nam.baker.model.UserSession;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -117,6 +120,10 @@ public class BakerRepository {
 		return bakerJpaController.readBakerUserByUsername(un);
 	}
 	
+	public BakerUser getUserBySessionID(String id) {
+		return bakerJpaController.readBakerUserBySessionID(id);
+	}
+	
 
 	public BakerUser getUserByEmail(String email) {
 		return bakerJpaController.readBakerUserByEmail(email);
@@ -145,33 +152,33 @@ public class BakerRepository {
 		this.bakerJpaController.initData();
 	}
 
-	public Collection<SubscribedMachine> getSubscribedMachinesAsCollection() {
+	public Collection<SubscribedResource> getSubscribedResourcesAsCollection() {
 
-		List<SubscribedMachine> ls = bakerJpaController.readSubscribedMachines(0, 100000);
+		List<SubscribedResource> ls = bakerJpaController.readSubscribedResources(0, 100000);
 		
 		return ls;
 	}
 
 
-	public SubscribedMachine getSubscribedMachineByID(int smId) {
-		return bakerJpaController.readSubscribedMachineById(smId);
+	public SubscribedResource getSubscribedResourceByID(int smId) {
+		return bakerJpaController.readSubscribedResourceById(smId);
 	}
 
 
-	public SubscribedMachine addSubscribedMachine(SubscribedMachine sm) {
-		bakerJpaController.saveSubscribedMachine(sm);
+	public SubscribedResource addSubscribedResource(SubscribedResource sm) {
+		bakerJpaController.saveSubscribedResource(sm);
 		return sm;
 	}
 
 
-	public SubscribedMachine updateSubscribedMachineInfo(int smId, SubscribedMachine sm) {
-		SubscribedMachine bm = bakerJpaController.updateSubscribedMachine(sm);
+	public SubscribedResource updateSubscribedResourceInfo(int smId, SubscribedResource sm) {
+		SubscribedResource bm = bakerJpaController.updateSubscribedResource(sm);
 		return bm;
 	}
 
 
-	public void deleteSubscribedMachine(int smId) {
-		bakerJpaController.deleteSubscribedMachine(smId);
+	public void deleteSubscribedResource(int smId) {
+		bakerJpaController.deleteSubscribedResource(smId);
 		
 	}
 
@@ -264,4 +271,7 @@ public class BakerRepository {
 	public BakerProperty getPropertyByID(int propid) {
 		return bakerJpaController.readPropertyByID(propid);
 	}
+
+
+	
 }

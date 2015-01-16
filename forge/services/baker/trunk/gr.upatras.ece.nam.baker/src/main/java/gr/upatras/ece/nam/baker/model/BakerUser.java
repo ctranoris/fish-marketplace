@@ -17,7 +17,6 @@ package gr.upatras.ece.nam.baker.model;
 
 import gr.upatras.ece.nam.baker.util.EncryptionUtil;
 
-import java.security.Key;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -30,21 +29,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
-import javax.xml.bind.annotation.XmlTransient;
 
-import org.apache.shiro.codec.CodecSupport;
-import org.apache.shiro.crypto.AesCipherService;
-import org.apache.shiro.crypto.hash.DefaultHashService;
-import org.apache.shiro.crypto.hash.Hash;
-import org.apache.shiro.crypto.hash.HashRequest;
-import org.apache.shiro.crypto.hash.SimpleHashRequest;
-import org.apache.shiro.util.ByteSource;
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonIgnoreType;
 
 @Entity(name = "BakerUser")
-@JsonIgnoreProperties(value = { "products" })
+@JsonIgnoreProperties(value = { "products", "deployments", "resources" })
 public class BakerUser {
 
 	@Id
@@ -65,7 +54,10 @@ public class BakerUser {
 	private String role = null;
 	@Basic()	
 	private Boolean active = false;
-
+	@Basic()
+	private String currentSessionID = null;
+	
+	
 	/**
 	 * 
 	 */
@@ -73,15 +65,25 @@ public class BakerUser {
 	@JoinTable()
 	private List<Product> products = new ArrayList<Product>();
 	
+
+	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
+	@JoinTable()
+	private List<DeploymentDescriptor> deployments = new ArrayList<DeploymentDescriptor>();
 	
-//	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
-//	@JoinTable()
-//	private List<BunMetadata> buns = new ArrayList<BunMetadata>();
-//	
-//
-//	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
-//	@JoinTable()
-//	private List<ApplicationMetadata> apps = new ArrayList<ApplicationMetadata>();
+	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
+	@JoinTable()
+	private List<DeploymentDescriptor> resources = new ArrayList<DeploymentDescriptor>();
+	
+	
+	
+
+	public List<DeploymentDescriptor> getDeployments() {
+		return deployments;
+	}
+
+	public void setDeployments(List<DeploymentDescriptor> deployments) {
+		this.deployments = deployments;
+	}
 
 	public List<Product> getProducts() {
 		return products;
@@ -232,6 +234,14 @@ public class BakerUser {
 
 	public void setActive(Boolean active) {
 		this.active = active;
+	}
+
+	public String getCurrentSessionID() {
+		return currentSessionID;
+	}
+
+	public void setCurrentSessionID(String currentSessionID) {
+		this.currentSessionID = currentSessionID;
 	}
 	
 //	public void addApplication(ApplicationMetadata app) {

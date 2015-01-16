@@ -18,7 +18,7 @@
 
 		<class>gr.upatras.ece.nam.baker.model.InstalledBun</class>
 		<class>gr.upatras.ece.nam.baker.model.BakerUser</class>
-		<class>gr.upatras.ece.nam.baker.model.SubscribedMachine</class>
+		<class>gr.upatras.ece.nam.baker.model.SubscribedResource</class>
 		<class>gr.upatras.ece.nam.baker.model.Category</class>
 		<class>gr.upatras.ece.nam.baker.model.Product</class>
 		<class>gr.upatras.ece.nam.baker.model.ProductExtensionItem</class>
@@ -27,6 +27,8 @@
 		<class>gr.upatras.ece.nam.baker.model.BakerProperty</class>
 		<class>gr.upatras.ece.nam.baker.model.Container</class>
 		<class>gr.upatras.ece.nam.baker.model.DeployArtifact</class>
+		<class>gr.upatras.ece.nam.baker.model.DeploymentDescriptor</class>
+		<class>gr.upatras.ece.nam.baker.model.DeployContainer</class>
 		
 
 
@@ -63,7 +65,7 @@
 		<class>gr.upatras.ece.nam.baker.model.InstalledBun</class>
 		<class>gr.upatras.ece.nam.baker.model.BunMetadata</class>
 		<class>gr.upatras.ece.nam.baker.model.BakerUser</class>
-		<class>gr.upatras.ece.nam.baker.model.SubscribedMachine</class>
+		<class>gr.upatras.ece.nam.baker.model.SubscribedResource</class>
 		<class>gr.upatras.ece.nam.baker.model.ApplicationMetadata</class>
 		<class>gr.upatras.ece.nam.baker.model.Category</class>
 		<class>gr.upatras.ece.nam.baker.model.Product</class>
@@ -71,6 +73,8 @@
 		<class>gr.upatras.ece.nam.baker.model.BakerProperty</class>
 		<class>gr.upatras.ece.nam.baker.model.Container</class>
 		<class>gr.upatras.ece.nam.baker.model.DeployArtifact</class>
+		<class>gr.upatras.ece.nam.baker.model.DeploymentDescriptor</class>
+		<class>gr.upatras.ece.nam.baker.model.DeployContainer</class>
 
 
 
