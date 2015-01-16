@@ -72,10 +72,18 @@ public class BakerUser {
 	
 	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
 	@JoinTable()
-	private List<DeploymentDescriptor> resources = new ArrayList<DeploymentDescriptor>();
+	private List<SubscribedResource> subscribedResources = new ArrayList<SubscribedResource>();
 	
 	
 	
+
+	public List<SubscribedResource> getSubscribedResources() {
+		return subscribedResources;
+	}
+
+	public void setSubscribedResources(List<SubscribedResource> subscribedResources) {
+		this.subscribedResources = subscribedResources;
+	}
 
 	public List<DeploymentDescriptor> getDeployments() {
 		return deployments;

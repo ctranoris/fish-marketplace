@@ -351,18 +351,18 @@
 	</para>
 	
 	<para>
-	<ns:application>Subscribed Machines</ns:application>
+	<ns:application>Subscribed Resources</ns:application>
 	</para>
 	
 	<para> 
 	<informalexample>
 			<programlisting language="bash">	
 			
-	GET all subscribed machines
+	GET all subscribed resources
 	Path("/subscribedresources/")
 	Produces("application/json")
 	
-	GET subscribed machine by ID
+	GET subscribed resource by ID
 	Path("/subscribedresources/{smId}")
 	Produces("application/json")
 	
@@ -371,7 +371,7 @@
 		"id":1
 	}
 	
-	POST add a new Subscribed Machine
+	POST add a new Subscribed Resource
 	Path("/subscribedresources/")
 	Produces("application/json")
 	Consumes("application/json")
@@ -381,7 +381,7 @@
 	Produces("application/json")
 	Consumes("application/json")
 	
-	DELETE by subscribed machine ID
+	DELETE by subscribed resource ID
 	Path("/subscribedresources/{smId}")
 	Produces("application/json")
 	
@@ -394,7 +394,7 @@
 	This API is for applications that want to communicate with a client
 	installation of baker. The baker client communicates with a Baker
 	marketplace to download loccaly and install apps and buns to the local
-	machine where the baker client is installed.
+	resource where the baker client is installed.
 	</para>
 	
 	<para> 
@@ -480,7 +480,7 @@
 	
 	
 	
-	DELETE, uninstall a bun from the local machine. You can uninstall a Stoped bun otherwise will follow lifecycle
+	DELETE, uninstall a bun from the local resource. You can uninstall a Stoped bun otherwise will follow lifecycle
 	Path("/ibuns/{uuid}")		
 	
 	
