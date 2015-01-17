@@ -1604,7 +1604,8 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			for (DeploymentDescriptor d : u.getDeployments()) {
 				logger.info("deployment already for userid: " + d.getId());					
 			}
-			
+
+			deployment.setDateCreated(new Date());
 			u = bakerRepositoryRef.getUserByID(u.getId());
 			deployment.setOwner(u);	//reattach from the DB model	
 			u.getDeployments().add(deployment);			

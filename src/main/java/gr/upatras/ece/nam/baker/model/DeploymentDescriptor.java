@@ -16,6 +16,7 @@
 package gr.upatras.ece.nam.baker.model;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Basic;
@@ -49,7 +50,19 @@ public class DeploymentDescriptor {
 
 	@Basic()
 	private String status = null;
+	
+	@Basic()
+	private Date dateCreated;
 
+
+
+	public Date getDateCreated() {
+		return dateCreated;
+	}
+
+	public void setDateCreated(Date dateCreated) {
+		this.dateCreated = dateCreated;
+	}
 
 	@ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }, fetch = FetchType.LAZY)
 	@JoinColumns({ @JoinColumn() })
