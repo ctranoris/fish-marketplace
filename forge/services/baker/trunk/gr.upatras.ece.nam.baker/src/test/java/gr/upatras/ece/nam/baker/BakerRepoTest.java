@@ -28,6 +28,7 @@ import gr.upatras.ece.nam.baker.model.Container;
 import gr.upatras.ece.nam.baker.model.DeployArtifact;
 import gr.upatras.ece.nam.baker.model.DeployContainer;
 import gr.upatras.ece.nam.baker.model.DeploymentDescriptor;
+import gr.upatras.ece.nam.baker.model.DeploymentDescriptorStatus;
 import gr.upatras.ece.nam.baker.model.ProductExtensionItem;
 import gr.upatras.ece.nam.baker.model.SubscribedResource;
 import gr.upatras.ece.nam.baker.util.EncryptionUtil;
@@ -278,7 +279,7 @@ public class BakerRepoTest {
 		dd.setBaseApplication(app);
 		dd.setName("a test DeployDescriptor");
 		dd.setOwner(bu);
-		dd.setStatus("undeployed");
+		dd.setStatus( DeploymentDescriptorStatus.PENDING_ADMIN_AUTH );
 		DeployContainer deplContainer = new DeployContainer();
 		deplContainer.setName("deploy1");
 		DeployArtifact deployArtifactInst = new DeployArtifact();

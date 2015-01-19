@@ -26,6 +26,7 @@ import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
 import gr.upatras.ece.nam.baker.model.DeployContainer;
 import gr.upatras.ece.nam.baker.model.DeploymentDescriptor;
+import gr.upatras.ece.nam.baker.model.DeploymentDescriptorStatus;
 import gr.upatras.ece.nam.baker.model.IBakerRepositoryAPI;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
 import gr.upatras.ece.nam.baker.model.Product;
@@ -136,8 +137,14 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	// BakerUser related API
 
 
+	
+	
+	
+	/*************** Users API *************************/
+	
+	
 	@GET
-	@Path("/users/")
+	@Path("/admin/users/")
 	@Produces("application/json")
 	// @RolesAllowed("admin") //see this for this annotation
 	// http://pic.dhe.ibm.com/infocenter/radhelp/v9/index.jsp?topic=%2Fcom.ibm.javaee.doc%2Ftopics%2Ftsecuringejee.html
@@ -151,65 +158,10 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 		return Response.ok().entity(bakerRepositoryRef.getUserValues()).build();
 	}
-
-	/**
-	 * @return an example user to see how to do POSTS
-	 */
-	@GET
-	@Path("/users/example")
-	@Produces("application/json")
-	public Response getUserExample() {
-
-		if (securityContext != null) {
-			if (securityContext.getUserPrincipal() != null)
-				logger.info(" securityContext.getUserPrincipal().toString() >" + securityContext.getUserPrincipal().toString() + "<");
-
-		}
-
-		Subject currentUser = SecurityUtils.getSubject();
-		if (currentUser != null) {
-			logger.info(" currentUser = " + currentUser.toString());
-			logger.info("User [" + currentUser.getPrincipal() + "] logged in successfully.");
-			logger.info(" currentUser  employee  = " + currentUser.hasRole("employee"));
-			logger.info(" currentUser  boss  = " + currentUser.hasRole("boss"));
-		}
-
-		if (ws != null) {
-			logger.info("ws = " + ws.toString());
-			if (ws.getHttpServletRequest() != null) {
-				// sessionid
-				logger.info("ws.getHttpServletRequest() = " + ws.getHttpServletRequest().getSession().getId());
-
-				if (ws.getHttpServletRequest().getUserPrincipal() != null)
-					logger.info(" ws.getUserPrincipal().toString(): " + ws.getHttpServletRequest().getUserPrincipal().toString());
-
-			}
-		}
-
-		BakerUser b = new BakerUser();
-		b.setName("Christos");
-		b.setUsername("ctran");
-		b.setPassword("passwd");
-		b.setOrganization("UoP");
-		ResponseBuilder response = Response.ok(b);
-
-		CacheControl cacheControl = new CacheControl();
-		cacheControl.setNoCache(true);
-		response.cacheControl(cacheControl);
-
-		return response.build();
-	}
-
-	
-	
-	
-	/*************** Users API *************************/
-	
-	
 	
 	
 	@GET
-	@Path("/users/{userid}")
+	@Path("/admin/users/{userid}")
 	@Produces("application/json")
 	public Response getUserById(@PathParam("userid") int userid) {
 
@@ -225,12 +177,9 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	}
 
 	
-	
-	
-	
 
 	@POST
-	@Path("/users/")
+	@Path("/admin/users/")
 	@Produces("application/json")
 	@Consumes("application/json")
 	public Response addUser(BakerUser user) {
@@ -300,7 +249,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 	
 	@PUT
-	@Path("/users/{userid}")
+	@Path("/admin/users/{userid}")
 	@Produces("application/json")
 	@Consumes("application/json")
 	public Response updateUserInfo(@PathParam("userid") int userid, BakerUser user) {
@@ -327,7 +276,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	}
 
 	@DELETE
-	@Path("/users/{userid}")
+	@Path("/admin/users/{userid}")
 	@Produces("application/json")
 	public Response deleteUser(@PathParam("userid") int userid) {
 		logger.info("Received DELETE for userid: " + userid);
@@ -385,8 +334,6 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	}
 	
 	
-	
-
 
 	@GET
 	@Path("/users/{userid}/buns/{bunid}")
@@ -423,40 +370,9 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		}
 	}
 	
+	//BUNS API
+	
 
-	@POST
-	@Path("/users/{userid}/buns/")
-	@Consumes("multipart/form-data")	
-	public Response addBunMetadata( @PathParam("userid") int userid, List<Attachment> ats){
-
-		BunMetadata bun = new BunMetadata();
-		
-		try {
-			MappingJsonFactory factory = new MappingJsonFactory();
-			JsonParser parser = factory.createJsonParser( getAttachmentStringValue("bun", ats) );
-			bun = parser.readValueAs(BunMetadata.class);
-
-			logger.info("Received @POST for bun : " + bun.getName());
-			logger.info("Received @POST for bun.extensions : " + bun.getExtensions() );
-			
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		bun = (BunMetadata) addNewProductData(
-				bun, 
-				
-				getAttachmentByName("prodIcon", ats), 
-				getAttachmentByName("prodFile", ats), 
-				getListOfAttachmentsByName("screenshots", ats)
-				);
-		
-		
-		return Response.ok().entity(bun).build();
-
-	}
 
 	
 	private Product addNewProductData(Product prod, Attachment image, Attachment bunFile, List<Attachment> screenshots) {
@@ -576,10 +492,83 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 	
 	/******************* Buns API ***********************/
+
+	@GET
+	@Path("/buns")
+	@Produces("application/json")
+	public Response getAllBuns(@QueryParam("categoryid") Long categoryid) {
+		logger.info("getBuns categoryid="+categoryid);
+
+		List<BunMetadata> buns = bakerRepositoryRef.getBuns(categoryid);
+		return Response.ok().entity(buns).build();
+
+	}
+
+	@GET
+	@Path("/admin/buns")
+	@Produces("application/json")
+	public Response getBuns(@QueryParam("categoryid") Long categoryid) {
+		logger.info("getBuns categoryid="+categoryid);
+		
+
+		BakerUser u =bakerRepositoryRef.getUserBySessionID( ws.getHttpServletRequest().getSession().getId() );
+		
+		if (u != null) {
+			List<BunMetadata> buns;
+			
+			if (u.getRole().equals("ROLE_ADMIN")){			
+				buns = bakerRepositoryRef.getBuns(categoryid);
+			}else{
+				buns = bakerRepositoryRef.getBunsByUserID( (long) u.getId() );
+			}
+			
+			return Response.ok().entity(buns).build();
+		
+		}else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("User not found in baker registry or not logged in");
+			throw new WebApplicationException(builder.build());
+		}
+
+	}
+
 	
+	@POST
+	@Path("/admin/buns/")
+	@Consumes("multipart/form-data")	
+	public Response addBunMetadata( List<Attachment> ats){
+		
+		BunMetadata bun = new BunMetadata();
+		
+		try {
+			MappingJsonFactory factory = new MappingJsonFactory();
+			JsonParser parser = factory.createJsonParser( getAttachmentStringValue("bun", ats) );
+			bun = parser.readValueAs(BunMetadata.class);
+
+			logger.info("Received @POST for bun : " + bun.getName());
+			logger.info("Received @POST for bun.extensions : " + bun.getExtensions() );
+			
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		bun = (BunMetadata) addNewProductData(
+				bun, 
+				
+				getAttachmentByName("prodIcon", ats), 
+				getAttachmentByName("prodFile", ats), 
+				getListOfAttachmentsByName("screenshots", ats)
+				);
+		
+		
+		return Response.ok().entity(bun).build();
+
+	}
 	
 	@PUT
-	@Path("/users/{userid}/buns/{bid}")
+	@Path("/admin/buns/{bid}")
 	@Consumes("multipart/form-data")
 	public Response updateBunMetadata(@PathParam("bid") int bid,  List<Attachment> ats){
 
@@ -720,16 +709,6 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		return prod;
 	}
 
-	@GET
-	@Path("/buns")
-	@Produces("application/json")
-	public Response getBuns(@QueryParam("categoryid") Long categoryid) {
-		logger.info("getBuns categoryid="+categoryid);
-
-		List<BunMetadata> buns = bakerRepositoryRef.getBuns(categoryid);
-		return Response.ok().entity(buns).build();
-
-	}
 
 	@GET
 	@Path("/images/{uuid}/{imgfile}")
@@ -768,7 +747,12 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		return response.build();
 	}
 
-	
+	@DELETE
+	@Path("/admin/buns/{bunid}")
+	public void deleteBun(@PathParam("bunid") int bunid) {
+		bakerRepositoryRef.deleteProduct(bunid);
+	}
+
 
 	@GET
 	@Path("/buns/{bunid}")
@@ -785,6 +769,17 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			throw new WebApplicationException(builder.build());
 		}
 	}
+	
+	
+	@GET
+	@Path("/admin/buns/{bunid}")
+	@Produces("application/json")
+	public Response getAdminBunMetadataByID(@PathParam("bunid") int bunid) {
+		
+		return getBunMetadataByID(bunid);
+	}
+
+	
 
 	@GET
 	@Path("/buns/uuid/{uuid}")
@@ -975,7 +970,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	//Subscribed resources related API
 	
 	@GET
-	@Path("/subscribedresources/")
+	@Path("/admin/subscribedresources/")
 	@Produces("application/json")
 	public Response getSubscribedResources() {
 		
@@ -986,7 +981,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	
 	
 	@GET
-	@Path("/subscribedresources/{smId}")
+	@Path("/admin/subscribedresources/{smId}")
 	@Produces("application/json")
 	public Response getSubscribedResourceById(@PathParam("smId") int smId) {
 		SubscribedResource sm = bakerRepositoryRef.getSubscribedResourceByID(smId);
@@ -1025,7 +1020,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	}
 
 	@PUT
-	@Path("/subscribedresources/{smId}")
+	@Path("/admin/subscribedresources/{smId}")
 	@Produces("application/json")
 	@Consumes("application/json")
 	public Response updateSubscribedResource(@PathParam("smId")int smId, SubscribedResource sm) {
@@ -1047,7 +1042,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	}
 
 	@DELETE
-	@Path("/subscribedresources/{smId}")
+	@Path("/admin/subscribedresources/{smId}")
 	@Produces("application/json")
 	public Response deleteSubscribedResource(@PathParam("smId")int smId) {
 		logger.info("Received SubscribedResource for userid: " + smId);
@@ -1057,17 +1052,47 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		return Response.ok().build();
 	}
 	
-	
 	//Applications related API
+
+	@GET
+	@Path("/admin/apps")
+	@Produces("application/json")
+	public Response getApps(@QueryParam("categoryid") Long categoryid) {
+		
+		BakerUser u =bakerRepositoryRef.getUserBySessionID( ws.getHttpServletRequest().getSession().getId() );
+		
+		if (u != null) {
+			List<ApplicationMetadata> apps;
+			
+			if (u.getRole().equals("ROLE_BOSS")){			
+				apps = bakerRepositoryRef.getApps(categoryid);
+			}else{
+				apps = bakerRepositoryRef.getAppsByUserID( (long) u.getId() );
+			}
+			
+			return Response.ok().entity(apps).build();
+		
+		}else {
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("User not found in baker registry or not logged in");
+			throw new WebApplicationException(builder.build());
+		}
+		
+		
+		
+		
+	}
+
 
 	@GET
 	@Path("/apps")
 	@Produces("application/json")
-	public Response getApps(@QueryParam("categoryid") Long categoryid) {
+	public Response getAllApps(@QueryParam("categoryid") Long categoryid) {
 		logger.info("getApps categoryid="+categoryid);
 		List<ApplicationMetadata> buns = bakerRepositoryRef.getApps(categoryid);
 		return Response.ok().entity(buns).build();
 	}
+
 
 
 	@GET
@@ -1085,7 +1110,15 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			throw new WebApplicationException(builder.build());
 		}
 	}
-	
+
+
+	@GET
+	@Path("/admin/apps/{appid}")
+	@Produces("application/json")
+	public Response getAdminAppMetadataByID(@PathParam("appid") int appid) {
+		return getAppMetadataByID(appid);
+	}
+
 
 	@GET
 	@Path("/apps/uuid/{uuid}")
@@ -1109,9 +1142,9 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	
 
 	@POST
-	@Path("/users/{userid}/apps/")
+	@Path("/admin/apps/")
 	@Consumes("multipart/form-data")
-	public Response addAppMetadata(@PathParam("userid") int userid, List<Attachment> ats){
+	public Response addAppMetadata( List<Attachment> ats){
 
 
 		ApplicationMetadata app = new ApplicationMetadata();
@@ -1148,7 +1181,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 	
 	@PUT
-	@Path("/users/{userid}/apps/{aid}")
+	@Path("/admin/apps/{aid}")
 	@Consumes("multipart/form-data")
 	public Response updateAppMetadata(@PathParam("aid") int aid, List<Attachment> ats){
 		
@@ -1183,11 +1216,18 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		
 		return Response.ok().entity(appmeta).build();
 	}
-
-
-	
 	
 
+	@DELETE
+	@Path("/admin/apps/{appid}")
+	public void deleteApp(@PathParam("appid") int appid) {
+		bakerRepositoryRef.deleteProduct(appid);
+		
+	}
+	
+	
+	
+	//categories API
 	@GET
 	@Path("/categories/")
 	@Produces("application/json")
@@ -1195,9 +1235,17 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		return Response.ok().entity(bakerRepositoryRef.getCategories()).build();
 	}
 
+	@GET
+	@Path("/admin/categories/")
+	@Produces("application/json")
+	public Response getAdminCategories() {
+		return Response.ok().entity(bakerRepositoryRef.getCategories()).build();
+	}
 
+	
+	
 	@POST
-	@Path("/categories/")
+	@Path("/admin/categories/")
 	@Produces("application/json")
 	@Consumes("application/json")
 	public Response addCategory(Category c) {
@@ -1213,7 +1261,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	}
 
 	@PUT
-	@Path("/categories/{catid}")
+	@Path("/admin/categories/{catid}")
 	@Produces("application/json")
 	@Consumes("application/json")
 	public Response updateCategory(@PathParam("catid")int catid, Category c) {
@@ -1233,7 +1281,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	}
 
 	@DELETE
-	@Path("/categories/{catid}")
+	@Path("/admin/categories/{catid}")
 	public Response deleteCategory(@PathParam("catid") int catid) {
 		Category category = bakerRepositoryRef.getCategoryByID(catid);
 		if ((category.getProducts().size()>0) ){
@@ -1262,26 +1310,13 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		}
 	}
 
-	
-
-	@DELETE
-	@Path("/apps/{appid}")
-	public void deleteApp(@PathParam("appid") int appid) {
-		bakerRepositoryRef.deleteProduct(appid);
-		
-	}
-	
-	@DELETE
-	@Path("/buns/{bunid}")
-	public void deleteBun(@PathParam("bunid") int bunid) {
-		bakerRepositoryRef.deleteProduct(bunid);
+	@GET
+	@Path("/admin/categories/{catid}")
+	@Produces("application/json")
+	public Response getAdminCategoryById(@PathParam("catid") int catid) {
+		return getCategoryById(catid);
 	}
 
-	@DELETE
-	@Path("/courses/{courseid}")
-	public void deleteCourse(@PathParam("courseid") int courseid) {
-		bakerRepositoryRef.deleteProduct(courseid);
-	}
 
 	
 
@@ -1530,14 +1565,14 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	}
 	
 	@GET
-	@Path("/properties/")
+	@Path("/admin/properties/")
 	@Produces("application/json")
 	public Response getProperties() {
 		return Response.ok().entity(bakerRepositoryRef.getProperties()).build();
 	}
 	
 	@PUT
-	@Path("/properties/{propid}")
+	@Path("/admin/properties/{propid}")
 	@Produces("application/json")
 	@Consumes("application/json")
 	public Response updateProperty(@PathParam("catid")int propid, BakerProperty p) {
@@ -1557,7 +1592,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	}
 	
 	@GET
-	@Path("/properties/{propid}")
+	@Path("/admin/properties/{propid}")
 	@Produces("application/json")
 	public Response getPropertyById(@PathParam("propid") int propid) {
 		BakerProperty sm = bakerRepositoryRef.getPropertyByID(propid);
@@ -1572,7 +1607,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	}
 	
 	@GET
-	@Path("/deployments")
+	@Path("/admin/deployments")
 	@Produces("application/json")
 	public Response getAllDeploymentsofUser() {
 		
@@ -1581,17 +1616,27 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		
 		if (u != null) {
 			logger.info("getAllDeploymentsofUser for userid: " + u.getId());
-			List<DeploymentDescriptor> deployments = u.getDeployments();
+			List<DeploymentDescriptor> deployments;
+			
+			if (u.getRole().equals("ROLE_BOSS")){			
+				deployments = bakerRepositoryRef.getAllDeployments();
+			}else{
+				deployments = u.getDeployments();
+			}
+			
+			
+			
 			return Response.ok().entity(deployments).build();
 		} else {
 			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
 			builder.entity("User not found in baker registry or not logged in");
 			throw new WebApplicationException(builder.build());
 		}
+		
 	}
 	
 	@POST
-	@Path("/deployments")
+	@Path("/admin/deployments")
 	@Produces("application/json")
 	@Consumes("application/json")
 	public Response addDeployment(DeploymentDescriptor deployment) {
@@ -1606,6 +1651,8 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			}
 
 			deployment.setDateCreated(new Date());
+			deployment.setStatus(DeploymentDescriptorStatus.PENDING_ADMIN_AUTH);
+			
 			u = bakerRepositoryRef.getUserByID(u.getId());
 			deployment.setOwner(u);	//reattach from the DB model	
 			u.getDeployments().add(deployment);			
@@ -1626,6 +1673,96 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			builder.entity("User not found in baker registry or not logged in. DeploymentDescriptor not added.");
 			throw new WebApplicationException(builder.build());
 		}
+	}
+
+	@DELETE
+	@Path("/admin/deployments/{id}")
+	@Consumes("application/json")
+	@Produces("application/json")
+	public Response deleteDeployment(@PathParam("id") int id) {
+		BakerUser u =bakerRepositoryRef.getUserBySessionID( ws.getHttpServletRequest().getSession().getId() );	
+		
+		
+		if (u != null) {
+			if ( u.getRole().equals("ROLE_BOSS")){
+				bakerRepositoryRef.deleteDeployment(id);
+				return Response.ok().build();
+			}
+		}
+		
+		ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+		builder.entity("User not found in baker registry or not logged in");
+		throw new WebApplicationException(builder.build());
+	}
+	
+	@GET
+	@Path("/admin/deployments/{id}")
+	@Produces("application/json")
+	public Response getDeploymentById(@PathParam("id") int deploymentId) {
+		
+		BakerUser u =bakerRepositoryRef.getUserBySessionID( ws.getHttpServletRequest().getSession().getId() );		
+		
+		if (u != null) {
+			logger.info("getDeploymentById for id: " + deploymentId);
+			DeploymentDescriptor deployment = bakerRepositoryRef.getDeploymentByID(deploymentId);
+			
+			if ( (u.getRole().equals("ROLE_BOSS")) || (deployment.getOwner().getId() == u.getId()  ) ){			
+				return Response.ok().entity(deployment).build();
+			}
+			
+		} 
+		
+		ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+		builder.entity("User not found in baker registry or not logged in");
+		throw new WebApplicationException(builder.build());
+	
+		
+	}
+	
+	@PUT
+	@Path("/admin/deployments/{id}")
+	@Produces("application/json")
+	@Consumes("application/json")
+	public Response updateDeployment(@PathParam("id")int id, DeploymentDescriptor d, @QueryParam("action") String action) {
+		
+		
+		BakerUser u =bakerRepositoryRef.getUserBySessionID( ws.getHttpServletRequest().getSession().getId() );	
+		
+		if ( (u != null) && (u.getRole().equals("ROLE_BOSS")) ){ //only admin can alter a deployment
+			
+			//DeploymentDescriptor previousDeploymentDescriptor = bakerRepositoryRef.getDeploymentByID(id);		
+			if (action.equals("AUTH"))
+				d.setStatus( DeploymentDescriptorStatus.QUEUED );
+			else if (action.equals("UNINSTALL"))
+				d.setStatus( DeploymentDescriptorStatus.UNINSTALLING );	
+			else if (action.equals("DENY"))
+				d.setStatus( DeploymentDescriptorStatus.DENIED );	
+			
+			u = bakerRepositoryRef.getUserByID(u.getId());
+			d.setOwner(u);	//reattach from the DB model	
+			
+			ApplicationMetadata baseApplication = 
+					(ApplicationMetadata) bakerRepositoryRef.getProductByID(d.getBaseApplication().getId() );			
+			d.setBaseApplication(baseApplication); //reattach from the DB model
+			
+			for( DeployContainer dc:  d.getDeployContainers()){
+				dc.getTargetResource().setOwner(u);//reattach from the DB model, in case missing from the request
+			}
+
+			DeploymentDescriptor deployment = bakerRepositoryRef.updateDeploymentDescriptor(d);
+			
+			logger.info("updateDeployment for id: " + d.getId());
+			
+					
+			return Response.ok().entity(deployment).build();
+			
+			
+		} 
+		
+		ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+		builder.entity("User not found in baker registry or not logged in as admin");
+		throw new WebApplicationException(builder.build());
+		
 	}
 
 }

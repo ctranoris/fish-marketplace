@@ -57,7 +57,7 @@ public interface IBakerRepositoryAPI {
 	Response getBunofUser( int userid, int bunid);
 	Response downloadBunPackage(String uuid, String bunfile);	
 	Response updateBunMetadata(int bid, List<Attachment> attachements);
-	Response addBunMetadata(int userid,  List<Attachment> attachements);
+	Response addBunMetadata(List<Attachment> attachements);
 	void deleteBun( int bunid);
 	
 	//Subscribed resources
@@ -73,7 +73,7 @@ public interface IBakerRepositoryAPI {
 	Response getAppMetadataByUUID(String uuid);		
 	Response getAppofUser( int userid, int appid);
 	Response updateAppMetadata(int aid, List<Attachment> attachements);
-	Response addAppMetadata(int userid,  List<Attachment> attachements);
+	Response addAppMetadata( List<Attachment> attachements);
 	void deleteApp(int appid);
 	
 	

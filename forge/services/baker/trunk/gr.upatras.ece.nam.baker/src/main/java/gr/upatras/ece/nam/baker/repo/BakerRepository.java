@@ -21,6 +21,7 @@ import gr.upatras.ece.nam.baker.model.BakerProperty;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
+import gr.upatras.ece.nam.baker.model.DeploymentDescriptor;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
 import gr.upatras.ece.nam.baker.model.Product;
 import gr.upatras.ece.nam.baker.model.SubscribedResource;
@@ -271,6 +272,45 @@ public class BakerRepository {
 	public BakerProperty getPropertyByID(int propid) {
 		return bakerJpaController.readPropertyByID(propid);
 	}
+
+
+	public List<BunMetadata> getBunsByUserID(Long ownerid) {
+
+		List<BunMetadata> ls = bakerJpaController.readBunsMetadataForOwnerID( ownerid, 0, 100000);	
+		return ls;
+		
+	}
+
+
+	public List<ApplicationMetadata> getAppsByUserID(Long ownerid) {
+		List<ApplicationMetadata> ls = bakerJpaController.readAppsMetadataForOwnerID( ownerid, 0, 100000);	
+		return ls;
+	}
+
+
+	public List<DeploymentDescriptor> getAllDeployments() {
+		List<DeploymentDescriptor> ls = bakerJpaController.readDeploymentDescriptors( 0, 100000);	
+		return ls;
+	}
+
+
+	public void deleteDeployment(int id) {
+		bakerJpaController.deleteDeployment(id);
+		
+	}
+
+
+	public DeploymentDescriptor getDeploymentByID(int deploymentId) {
+		return (DeploymentDescriptor) bakerJpaController.readDeploymentByID(deploymentId);
+	}
+
+
+	public DeploymentDescriptor updateDeploymentDescriptor(DeploymentDescriptor d) {
+		DeploymentDescriptor bmr = bakerJpaController.updateDeploymentDescriptor(d);
+		return bmr;
+	}
+
+
 
 
 	

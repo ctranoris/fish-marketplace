@@ -49,8 +49,10 @@ public class DeploymentDescriptor {
 	private String name = null;
 
 	@Basic()
-	private String status = null;
+	private DeploymentDescriptorStatus status = DeploymentDescriptorStatus.INIT;
 	
+	
+
 	@Basic()
 	private Date dateCreated;
 
@@ -102,14 +104,7 @@ public class DeploymentDescriptor {
 		this.name = name;
 	}
 
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
+	
 	public ApplicationMetadata getBaseApplication() {
 		return baseApplication;
 	}
@@ -127,6 +122,12 @@ public class DeploymentDescriptor {
 	}
 
 
-	
+	public DeploymentDescriptorStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(DeploymentDescriptorStatus status) {
+		this.status = status;
+	}
 
 }
