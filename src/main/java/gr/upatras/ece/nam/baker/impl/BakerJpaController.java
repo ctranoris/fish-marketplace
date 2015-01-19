@@ -20,6 +20,7 @@ import gr.upatras.ece.nam.baker.model.BakerProperty;
 import gr.upatras.ece.nam.baker.model.BakerUser;
 import gr.upatras.ece.nam.baker.model.BunMetadata;
 import gr.upatras.ece.nam.baker.model.Category;
+import gr.upatras.ece.nam.baker.model.DeploymentDescriptor;
 import gr.upatras.ece.nam.baker.model.InstalledBun;
 import gr.upatras.ece.nam.baker.model.Product;
 import gr.upatras.ece.nam.baker.model.SubscribedResource;
@@ -402,6 +403,23 @@ public class BakerJpaController {
 	}
 	
 
+	@SuppressWarnings("unchecked")
+	public List<BunMetadata> readBunsMetadataForOwnerID(Long ownerid, int firstResult, int maxResults) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		//Query q = entityManager.createQuery("SELECT m FROM BunMetadata m");
+		Query q;
+		
+		if ((ownerid!=null) && (ownerid>=0))
+			q = entityManager.createQuery("SELECT a FROM BunMetadata a WHERE a.owner.id="+ownerid+" ORDER BY a.id");
+		else
+			q = entityManager.createQuery("SELECT a FROM BunMetadata a ORDER BY a.id");
+
+		q.setFirstResult(firstResult);
+		q.setMaxResults(maxResults);
+		return q.getResultList();
+	}
+	
+
 	public Product readProductByUUID(String uuid) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
@@ -595,6 +613,23 @@ public class BakerJpaController {
 		q.setMaxResults(maxResults);
 		return q.getResultList();
 	}
+	
+	
+	@SuppressWarnings("unchecked")
+	public List<ApplicationMetadata> readAppsMetadataForOwnerID(Long ownerid, int firstResult, int maxResults) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		//Query q = entityManager.createQuery("SELECT m FROM BunMetadata m");
+		Query q;
+		
+		if ((ownerid!=null) && (ownerid>=0))
+			q = entityManager.createQuery("SELECT a FROM ApplicationMetadata a WHERE a.owner.id="+ownerid+" ORDER BY a.id");
+		else
+			q = entityManager.createQuery("SELECT a FROM ApplicationMetadata a ORDER BY a.id");
+
+		q.setFirstResult(firstResult);
+		q.setMaxResults(maxResults);
+		return q.getResultList();
+	}
 
 	public List<Category> readCategories(int firstResult, int maxResults) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -745,6 +780,45 @@ public class BakerJpaController {
 
 	}
 
+	public List<DeploymentDescriptor> readDeploymentDescriptors(int firstResult, int maxResults) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		Query q = entityManager.createQuery("SELECT m FROM DeploymentDescriptor m  ORDER BY m.id");
+		q.setFirstResult(firstResult);
+		q.setMaxResults(maxResults);
+		return q.getResultList();
+	}
+
+	public void deleteDeployment(int id) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		DeploymentDescriptor c = entityManager.find(DeploymentDescriptor.class, id);
+
+		EntityTransaction entityTransaction = entityManager.getTransaction();
+		entityTransaction.begin();
+		entityManager.remove(c);
+		entityTransaction.commit();
+		
+	}
+
+	public DeploymentDescriptor readDeploymentByID(int deploymentId) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		DeploymentDescriptor u = entityManager.find(DeploymentDescriptor.class, deploymentId);
+		return u;
+	}
+
+	public DeploymentDescriptor updateDeploymentDescriptor(DeploymentDescriptor d) {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		EntityTransaction entityTransaction = entityManager.getTransaction();
+
+		entityTransaction.begin();
+		DeploymentDescriptor  resis = entityManager.merge(d);
+		entityTransaction.commit();
+
+		return resis;
+	}
+
+	
 
 
 	
