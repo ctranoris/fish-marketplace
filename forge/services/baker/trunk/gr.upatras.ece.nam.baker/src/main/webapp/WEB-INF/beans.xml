@@ -134,6 +134,7 @@
                 /services/api/repo/categories/** = anon, rest
                 /services/api/repo/apps/** = anon, rest
                 /services/api/repo/register/** = anon, rest
+                /services/api/repo/registerresource/** = anon, rest
                 /services/api/repo/fiware/** = userfilter, rest
                 /services/api/** = userfilter, rest
                 /admin/logout = logout
