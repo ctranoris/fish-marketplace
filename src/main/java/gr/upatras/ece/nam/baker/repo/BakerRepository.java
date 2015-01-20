@@ -311,6 +311,11 @@ public class BakerRepository {
 	}
 
 
+	public SubscribedResource getSubscribedResourceByUUID(String uuid) {
+		return bakerJpaController.readSubscribedResourceByuuid(uuid);
+	}
+
+
 
 
 	

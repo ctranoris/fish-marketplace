@@ -543,6 +543,17 @@ public class BakerJpaController {
 		
 	}
 	
+	public SubscribedResource readSubscribedResourceByuuid(String uuid) {
+		
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		Query q = entityManager.createQuery("SELECT m FROM SubscribedResource m WHERE m.uuid='" + uuid + "'");
+		return (q.getResultList().size()==0)?null:(SubscribedResource) q.getSingleResult();
+		
+		
+	}
+	
+	
 	public void deleteSubscribedResource(int smId) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 		SubscribedResource sm = entityManager.find(SubscribedResource.class, smId);	
@@ -817,6 +828,8 @@ public class BakerJpaController {
 
 		return resis;
 	}
+
+	
 
 	
 
