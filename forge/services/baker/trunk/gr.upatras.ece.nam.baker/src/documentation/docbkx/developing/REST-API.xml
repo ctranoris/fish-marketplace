@@ -15,68 +15,160 @@
 	</para>
 	
 	<para>
-	<ns:application>USERS</ns:application>
+	<ns:application>Authenticate, Create Session</ns:application>
 	</para>
 	
 	<para> 
 	<informalexample>
 			<programlisting language="bash">
 			
-			
 	
-	GET Get all users
-	Path("/users/")
-	Produces("application/json")
-	
-	
-	GET Get user by id GET /users/{userid}
-	Path("/users/{userid}")
-	Produces("application/json")
-	
-	Example response in json
-	{
-		"role":"SERVICE_PLATFORM_PROVIDER",
-		"organization":"University of Patras",
-		"username":"ctranoris",
-		"password":"gnzLDuqKcGxMNKFokfhOew==",
-		"email":"tranoris@ece.upat.gr",
-		"name":"Christos Tranoris",
-		"id":1
-	}
-		
-	POST, adds a new user
-	Path("/users/")
-	Produces("application/json")
-	Consumes("application/json")	
-	Request payload:
-	{
-	   "name":"Test",
-	   "username":"ctest",
-	   "password":"passw",
-	   "email":"email@test.org",
-	   "organization":"myOrg",
-	   "role":"SERVICE_PLATFORM_PROVIDER"
-	}
 
-	Response
+	curl -v -H "Content-Type: application/json" -X POST --data '{"username":"admin", "password":"changeme"}' http://localhost:13000/baker/services/api/repo/sessions
+
+Response
+
 	{
-	   "role":"SERVICE_PLATFORM_PROVIDER",
-	   "organization":"myOrg",
-	   "username":"ctest",
-	   "password":"15CWGItnDC+BtwAfc4ARFw==",
-	   "email":"email@test.org",
-	   "name":"Test",
-	   "id":46
-	}
+	    "username": "admin",
+	    "password": "",
+	    "bakerUser": {
+	        "id": 1,
+	        "organization": "",
+	        "name": "admina",
+	        "email": "admin@gma",
+	        "username": "admin",
+	        "password": "TLnIqASP0CKUR3/LGkEZGg==",
+	        "role": "ROLE_BOSS",
+	        "active": true,
+	        "currentSessionID": "de9d92dd-6cd0-4b60-8b43-6c1a1ce38df8"
+	    },
+	    "fiwareuser": null
+	}  		
+				
+In the following examples JSESSIONID cookie value is equal to the currentSessionID (and JSESSIONID given from server). Must be present for authenticated requests
 	
-	PUT, update a user
-	Path("/users/{userid}")
-	Produces("application/json")
-	Consumes("application/json")
+	
+			</programlisting>
+		</informalexample>
+	</para>
+	
+	<para>
+	<ns:application>Categories</ns:application>
+	</para>
+	
+	<para> 
+	<informalexample>
+			<programlisting language="bash">
+			
+
+GET all categories
+
+    curl -v -H "Content-Type: application/json" http://localhost:13000/baker/services/api/repo/categories
+    
+Response
+	[{
+        "id": 1,
+        "name": "None",
+        "bunscount": 0,
+        "productsCount": 0,
+        "appscount": 0
+    }, {
+        "id": 2,
+        "name": "Multimedia",
+        "bunscount": 0,
+        "productsCount": 0,
+        "appscount": 0
+    }, {
+        "id": 3,
+        "name": "Remote access",
+        "bunscount": 0,	
+	
+	
+	
+GET all categories (only admin role user)
+	
+	curl -v -H "Content-Type: application/json" --cookie "JSESSIONID=b9e382e4-f6e0-47da-94a2-58dcb9871010"  http://localhost:13000/baker/services/api/repo/admin/categories
+	
+JSESSIONID is the same value returned from sessionId
 		
-	DELETE Delete user 
-	Path("/users/{userid}")
-	Produces("application/json")
+		
+Add a new category (if authorized, only admin role)
+
+    curl -v -H "Content-Type: application/json" -X POST --data '{"name":"NewCateg"}' --cookie "JSESSIONID=b9e382e4-f6e0-47da-94a2-58dcb9871010"  http://localhost:13000/baker/services/api/repo/admin/categories
+
+Response
+	{
+	    "id": 20,
+	    "name": "NewCateg",
+	    "bunscount": 0,
+	    "productsCount": 0,
+	    "appscount": 0
+	}			
+			
+Update a category(if authorized, only admin role)
+
+    curl -H "Content-Type: application/json" -X PUT --data '{"id":"10", "name":"NewCategNAMEX"}'  http://localhost:13000/baker/services/api/repo/admin/categories/10
+
+
+			</programlisting>
+		</informalexample>
+	</para>
+	
+	<para>
+	<ns:application>Users</ns:application>
+	</para>
+	
+	<para> 
+	<informalexample>
+			<programlisting language="bash">
+
+Getting all users (if authorized, only admin role)			
+			
+	curl -v -H "Content-Type: application/json" --cookie "JSESSIONID=b9e382e4-f6e0-47da-94a2-58dcb9871010"  http://localhost:13000/baker/services/api/repo/admin/users/			
+			
+Response sample:
+
+	[{
+	    "id": 1,
+	    "organization": "",
+	    "name": "admina",
+	    "email": "admin@gma",
+	    "username": "admin",
+	    "password": "TLnIqASP0CKUR3/LGkEZGg==",
+	    "role": "ROLE_BOSS",
+	    "active": true,
+	    "currentSessionID": "b9e382e4-f6e0-47da-94a2-58dcb9871010"
+	}, {
+	    "id": 2,
+	    "organization": "FISH",
+	    "name": "fishadmin",
+	    "email": "admin@baker.org",
+	    "username": "fishadmin",
+	    "password": "TLnIqASP0CKUR3/LGkEZGg==",
+	    "role": "ROLE_BOSS",
+	    "active": true,
+	    "currentSessionID": "68687786-e735-4698-96c0-34d51ec26758"
+	}, {
+	    "id": 6,
+	    "organization": "FI-WARE",			
+			
+			
+Add a user (if authorized, only admin role)			
+			
+	curl -v -H "Content-Type: application/json" -X POST --data '{"name":"NewUser","username":"NewUser","email":"NewUser@org", "password":"somepass"}' --cookie "JSESSIONID=b9e382e4-f6e0-47da-94a2-58dcb9871010"  http://localhost:13000/baker/services/api/repo/admin/users/			
+
+
+Update a user with id (if authorized, only admin role)			
+			
+	curl -v -H "Content-Type: application/json" -X PUT --data '{"id":"12","name":"NewUser","username":"NewUser","email":"NewUser@org", "password":"somepass"}' --cookie "JSESSIONID=b9e382e4-f6e0-47da-94a2-58dcb9871010"  http://localhost:13000/baker/services/api/repo/admin/users/12			
+			
+			
+Delete a user wit id (if authorized, only admin role)			
+			
+	curl -v -H "Content-Type: application/json" -X DELETE --cookie "JSESSIONID=b9e382e4-f6e0-47da-94a2-58dcb9871010"  http://localhost:13000/baker/services/api/repo/admin/users/12			
+			
+			
+		
 	
 			</programlisting>
 		</informalexample>
@@ -90,304 +182,343 @@
 	<informalexample>
 			<programlisting language="bash">
 			
-	GET a bun by bun ID
-	Path("/buns/{bunid}")
-	Produces("application/json")
-	
-	Response example:
-	{
-	   "version":"5.1",
-	   "shortDescription":"WS for experimenters",
-	   "longDescription":"",
-	   "uuid":"511af54b-222e-43c2-ad8f-b618d43abdb8",
-	   "packageLocation":"http://localhost:13000/baker/services/api/repo/packages/511af54b-222e-43c2-ad8f-b618d43abdb8/_examplebun.tar.gz",
-	   "iconsrc":"http://localhost:13000/baker/services/api/repo/images/511af54b-222e-43c2-ad8f-b618d43abdb8/labwiki.png",
-	   "name":"LabWiki",
-	   "id":2,
-	   "owner":{
-	      "role":"SERVICE_PLATFORM_PROVIDER",
-	      "organization":"University of Patras",
-	      "username":"ctranoris",
-	      "password":"gnzLDuqKcGxMNKFokfhOew==",
-	      "email":"tranoris@ece.upatras.gr",
-	      "name":"Christos Tranoris",
-	      "id":1
-	   }
-	}
-	
-	
-	GET a bun by bun UUID
-	Path("/buns/uuid/{uuid}")
-	Produces("application/json")
-	
-	GET Buns of user, by user id 
-	Path("/users/{userid}/buns")
-	Produces("application/json")
-	
-	GET apps of user by userid
-	Path("/users/{userid}/apps")
-	Produces("application/json")
-	
-	GET, specific bun by bunid of user
-	Path("/users/{userid}/buns/{bunid}")
-	Produces("application/json")
-	
-	GET, specific app by appid of user
-	Path("/users/{userid}/apps/{appid}")
-	Produces("application/json")
-	
-	POST add a new bun, with userid as an owner
-	Path("/users/{userid}/buns/")
-	Consumes("multipart/form-data")
-	Multipart(value = "bunname", type = "text/plain")
-	Multipart(value = "shortDescription", type = "text/plain")
-	Multipart(value = "longDescription", type = "text/plain") 
-	Multipart(value = "version", type = "text/plain"), 
-	Multipart(value = "uploadedBunIcon")
-	Multipart(value = "uploadedBunFile") 
-	
-	PUT, update bun metadata
-	Path("/buns/{bid}")
-	Consumes("multipart/form-data")
-	Multipart(value = "userid", type = "text/plain")
-	Multipart(value = "bunname", type = "text/plain") 
-	Multipart(value = "bunid", type = "text/plain")
-	Multipart(value = "bunuuid", type = "text/plain")
-	Multipart(value = "shortDescription", type = "text/plain")
-	Multipart(value = "longDescription", type = "text/plain")
-	Multipart(value = "version", type = "text/plain") 
-	Multipart(value = "uploadedBunIcon")
-	Multipart(value = "uploadedBunFile")
-	
-	GET all registered buns
-	Path("/buns")
-	Produces("application/json")
 			
-	GET a bun logo image by bun uuid
-	Path("/images/{uuid}/{imgfile}")
-	Produces("image/*")
+			
+Get all Buns (no need for authorization)
 	
-	GET a bun's package by bun uuid
-	Path("/packages/{uuid}/{bunfile}")
-	Produces("application/gzip")
+	http://localhost:13000/baker/services/api/repo/buns
 	
+Get a bun by ID
+
+	http://localhost:13000/baker/services/api/repo/buns/67
+
+
+Get a bun by UUID
+
+	http://localhost:13000/baker/services/api/repo/buns/uuid/4a16c8ec-edc3-40ca-9453-7822eacdaf14
+
+	
+
+Get all user buns (if authorized)
+
+	http://localhost:13000/baker/services/api/repo/admin/buns	
+
+returns all Buns of the logged in User.
+If Admin returns all buns of registered users
+
+
+
+Admin a bun
+	GET http://localhost:13000/baker/services/api/repo/admin/buns/69
+	
+
+Save an existing bun
+content/type "multipart/form-data"
+
+	PUT http://localhost:13000/baker/services/api/repo/admin/buns/69
+	
+		-----------------------------28256268319500
+	Content-Disposition: form-data; name="bun"
+	
+	{"id":69,"owner":{"id":34,"organization":"dev","name":"dev","email":"dev@dev.gr","username":"dev","password":"53mJ7SF1jngzGyDkd/xVgg==","role":"ROLE_DEVELOPER","active":false,"currentSessionID":"f97c2228-6a9e-47d5-abb0-f7c5590e7445"},"uuid":"6f6067fa-7739-4d13-9ed1-18c7a769bf41","name":"devtestbun","iconsrc":"http://localhost:13000/baker/services/api/repo/images/6f6067fa-7739-4d13-9ed1-18c7a769bf41/iminds18.png","shortDescription":"devtestbun","longDescription":"test","version":null,"packageLocation":"http://localhost:13000/baker/services/api/repo/packages/6f6067fa-7739-4d13-9ed1-18c7a769bf41/unknown","dateCreated":1421658798000,"dateUpdated":1421658835000,"categories":[{"id":11,"name":"Big Data","appscount":2,"bunscount":2,"productsCount":4}],"extensions":[{"id":140,"name":"param","value":"val"}],"screenshots":""}
+	-----------------------------28256268319500
+	Content-Disposition: form-data; name="prodIcon"
+	
+	
+	-----------------------------28256268319500
+	Content-Disposition: form-data; name="prodFile"
+	
+	
+	-----------------------------28256268319500--
+	
+
+Save a new bun (ony authorized users, role Developer)
+	
+	POST http://localhost:13000/baker/services/api/repo/admin/buns/
+	
+	content/type "multipart/form-data"
+	
+	-----------------------------9816548228756
+	Content-Disposition: form-data; name="bun"
+	
+	{"owner":{"id":34,"organization":"dev","name":"dev","email":"dev@dev.gr","username":"dev","password":"53mJ7SF1jngzGyDkd/xVgg==","role":"ROLE_DEVELOPER","active":false,"currentSessionID":"f97c2228-6a9e-47d5-abb0-f7c5590e7445"},"extensions":[{"name":"param1","value":"val1"},{"name":"param2","value":"val2"}],"name":"ATestBun","version":"vers12","shortDescription":"a small descrip","longDescription":"A long desctip","categories":[{"id":11,"name":"Big Data","appscount":2,"bunscount":2,"productsCount":4},{"id":12,"name":"eHealth","appscount":0,"bunscount":0,"productsCount":0}]}
+	-----------------------------9816548228756
+	Content-Disposition: form-data; name="prodIcon"; filename="_widgetIconEmpty.PNG"
+	Content-Type: image/png
+	
+	-----------------------------9816548228756
+	Content-Disposition: form-data; name="prodFile"; filename="examplebun.tar.gz"
+	Content-Type: application/x-gzip
+
+
+Delete a bun (only bun owner or admin auth)
+	DELETE http://localhost:13000/baker/services/api/repo/admin/buns/72	
+	
+	
+	
+Get all Apps
+
+	GET http://localhost:13000/baker/services/api/repo/apps/
+
+GET Admin apps (only for authorized users)
+
+	GET http://localhost:13000/baker/services/api/repo/admin/apps/	
+	
+Add a new App
+
+	POST http://localhost:13000/baker/services/api/repo/admin/apps/
 		
-	DELETE a bun by bun  UUID
-	Path("/buns/{bunid}")
+Content type multipart/form-data
+Payload:
+
+	-----------------------------23719209031
+	Content-Disposition: form-data; name="application"
 	
+	{"owner":{"id":34,"organization":"dev","name":"dev","email":"dev@dev.gr","username":"dev","password":"53mJ7SF1jngzGyDkd/xVgg==","role":"ROLE_DEVELOPER","active":false,"currentSessionID":"214f663c-de06-418f-8e75-156d53fe5d13"},"containers":[{"id":0,"name":"Container0","deployArtifacts":[{"id":null,"name":"Apache http server","uuid":"906c15ee-22f9-43ab-817b-f6df41f0320c","artifactURL":"uuid/906c15ee-22f9-43ab-817b-f6df41f0320c","artifactPackageURL":"http://localhost:13000/baker/services/api/repo/packages/906c15ee-22f9-43ab-817b-f6df41f0320c/unknown","extensions":[{"name":"ListenPort","value":"80"}]}]},{"id":null,"name":"Container1","deployArtifacts":[{"id":null,"name":"MySQL","uuid":"4a16c8ec-edc3-40ca-9453-7822eacdaf14","artifactURL":"uuid/4a16c8ec-edc3-40ca-9453-7822eacdaf14","artifactPackageURL":"http://localhost:13000/baker/services/api/repo/packages/4a16c8ec-edc3-40ca-9453-7822eacdaf14/unknown","extensions":[{"name":"PORT","value":"3306"},{"name":"DBUSER","value":"admin"},{"name":"DBPASSWD","value":"changeme"},{"name":"DBNAME","value":"mydatabase"},{"name":"DBHOST","value":"localhost"}]}]}],"name":"AtestApp","version":"1.2","shortDescription":"a small description","longDescription":"a long description","categories":[{"id":12,"name":"eHealth","appscount":0,"bunscount":0,"productsCount":0},{"id":15,"name":"eLearning","appscount":0,"bunscount":0,"productsCount":0}]}
+	-----------------------------23719209031
+	Content-Disposition: form-data; name="prodIcon"; filename="_widgetIconEmpty.PNG"
+	Content-Type: image/png
 	
+	‰PNG
+
+
+
+Edit an Application
+
+	PUT http://localhost:13000/baker/services/api/repo/admin/apps/73
 	
+Content type multipart/form-data
+Payload:
 	
-	GET all registered Applications
-	Path("/apps")
-	Produces("application/json")
+	-----------------------------1377130454610
+	Content-Disposition: form-data; name="application"
+	
+	{"id":73,"owner":{"id":34,"organization":"dev","name":"dev","email":"dev@dev.gr","username":"dev","password":"53mJ7SF1jngzGyDkd/xVgg==","role":"ROLE_DEVELOPER","active":false,"currentSessionID":"214f663c-de06-418f-8e75-156d53fe5d13"},"uuid":"04307e99-8d24-4ca2-b75f-3e7df8558fc0","name":"AtestApp!","iconsrc":"http://localhost:13000/baker/services/api/repo/images/04307e99-8d24-4ca2-b75f-3e7df8558fc0/_widgetIconEmpty.PNG","shortDescription":"a small description","longDescription":"a long description","version":"1.2","packageLocation":null,"dateCreated":1421744477000,"dateUpdated":1421744477000,"categories":[{"id":12,"name":"eHealth","appscount":1,"bunscount":0,"productsCount":1},{"id":15,"name":"eLearning","appscount":1,"bunscount":0,"productsCount":1}],"extensions":[],"screenshots":"","containers":[{"id":26,"name":"Container0","deployArtifacts":[{"id":41,"uuid":"906c15ee-22f9-43ab-817b-f6df41f0320c","name":"Apache http server","artifactURL":"uuid/906c15ee-22f9-43ab-817b-f6df41f0320c","artifactPackageURL":"http://localhost:13000/baker/services/api/repo/packages/906c15ee-22f9-43ab-817b-f6df41f0320c/unknown","extensions":[{"id":158,"name":"ListenPort","value":"80"}]}]},{"id":27,"name":"Container1","deployArtifacts":[{"id":42,"uuid":"4a16c8ec-edc3-40ca-9453-7822eacdaf14","name":"MySQL","artifactURL":"uuid/4a16c8ec-edc3-40ca-9453-7822eacdaf14","artifactPackageURL":"http://localhost:13000/baker/services/api/repo/packages/4a16c8ec-edc3-40ca-9453-7822eacdaf14/unknown","extensions":[{"id":159,"name":"PORT","value":"3306"},{"id":160,"name":"DBUSER","value":"admin"},{"id":161,"name":"DBPASSWD","value":"changeme"},{"id":162,"name":"DBNAME","value":"mydatabase"},{"id":163,"name":"DBHOST","value":"localhost"}]}]}]}
+	-----------------------------1377130454610
+	Content-Disposition: form-data; name="prodIcon"
+	
+	undefined
+	-----------------------------1377130454610--
 		
-	GET application by ID
-	Path("/apps/{appid}") 
-	Produces("application/json")
-	
-	Response example:
-	{
-	   "category":{
-	      "appscount":2,
-	      "name":"IoT",
-	      "id":6
-	   },
-	   "version":"0.49.1",
-	   "shortDescription":"An example FISH application!!",
-	   "longDescription":"An example FISH application just for testing!!",
-	   "uuid":"9c29ff69-ec17-46c4-b238-65c8c84dbeec",
-	   "iconsrc":"http://localhost:13000/baker/services/api/repo/images/9c29ff69-ec17-46c4-b238-65c8c84dbeec/serviceico.PNG",
-	   "dateCreated":null,
-	   "dateUpdated":1412960201575,
-	   "name":"My First Application example",
-	   "id":15,
-	   "owner":{
-	      "role":"ROLE_BOSS",
-	      "organization":"FISH Organization",
-	      "username":"admin",
-	      "password":"TLnIqASP0CKUR3/LGkEZGg==",
-	      "email":"",
-	      "name":"Baker Administrator",
-	      "id":15
-	   }
-	}
-	
-	GET application by UUID
-	Path("/apps/uuid/{uuid}")
-	Produces("application/json")
-	
-	POST add a new Application with UserID as Owner
-	Path("/users/{userid}/apps/")
-	Consumes("multipart/form-data")
-	Multipart(value = "appname", type = "text/plain") 
-	Multipart(value = "shortDescription", type = "text/plain") 
-	Multipart(value = "longDescription", type = "text/plain") 
-	Multipart(value = "version", type = "text/plain") 
-	Multipart(value = "categoryid", type = "text/plain") 
-	Multipart(value = "uploadedAppIcon")
-	
-	
-	PUT appdate application by Application ID
-	Path("/apps/{aid}")
-	Consumes("multipart/form-data")
-	Multipart(value = "userid", type = "text/plain") 
-	Multipart(value = "appname", type = "text/plain") 
-	Multipart(value = "appid", type = "text/plain") 
-	Multipart(value = "appuuid", type = "text/plain") 
-	Multipart(value = "shortDescription", type = "text/plain") 
-	Multipart(value = "longDescription", type = "text/plain") 
-	Multipart(value = "version", type = "text/plain")
-	Multipart(value = "categoryid", type = "text/plain")
-	Multipart(value = "uploadedAppIcon")
-	
-	
-	DELETE Application by ID
-	Path("/apps/{appid}")
-	
-	
+		
 			</programlisting>
 		</informalexample>
 	</para>
 	
-	<para>
-	<ns:application>Categories</ns:application>
-	</para>
-	
-	<para> 
-	<informalexample>
-			<programlisting language="bash">	
-	
-	GET all categories
-	Path("/categories/")
-	Produces("application/json")
-	Response example
-	[
-	   {
-	      "appscount":0,
-	      "name":"Service",
-	      "id":2
-	   },
-	   {
-	      "appscount":3,
-	      "name":"Healthcare",
-	      "id":3
-	   },
-	   {
-	      "appscount":0,
-	      "name":"Mobile monitoring",
-	      "id":5
-	   },
-	   {
-	      "appscount":2,
-	      "name":"IoT",
-	      "id":6
-	   },
-	   {
-	      "appscount":1,
-	      "name":"Backend",
-	      "id":8
-	   }
-	]
 	
 	
-	GET a category by ID
-	Path("/categories/{catid}")
-	Produces("application/json")
 	
-	POST add a new category
-	Path("/categories/")
-	Produces("application/json")
-	Consumes("application/json")
-	
-	PUT update a category by ID
-	Path("/categories/{catid}")
-	Produces("application/json")
-	Consumes("application/json")
-		
-	DELETE a category by ID
-	Path("/categories/{catid}")
-			</programlisting>
-		</informalexample>
-	</para>
 	
 	<para>
-	<ns:application>Sessions</ns:application>
+	<ns:application>Registered Resources</ns:application>
 	</para>
 	
 	<para> 
 	<informalexample>
 			<programlisting language="bash">	
 			
+		Get all resources (os auth owner user. Admin sees all resources)
+			GET http://localhost:13000/baker/services/api/repo/admin/subscribedresources/
+		
+		Get a resource
+			GET http://localhost:13000/baker/services/api/repo/admin/subscribedresources/12
 			
-			
-	POST add a new user session
-	Path("/sessions/")
-	Produces("application/json")
-	Consumes("application/json")
+		Add a resource
+			POST http://localhost:13000/baker/services/api/repo/admin/subscribedresources/
+		example payload:
+			{"owner":{"id":34,"organization":"dev","name":"dev","email":"dev@dev.gr","username":"dev","password":"53mJ7SF1jngzGyDkd/xVgg==","role":"ROLE_DEVELOPER","active":false,"currentSessionID":"214f663c-de06-418f-8e75-156d53fe5d13"},"url":"192.168.1.2"}
+		
 	
-	{
-	   "username":"admin",
-	   "password":"changeme"
-	}
-	
-	Response: 
-	
-	{
-	   "username":"admin",
-	   "password":"",
-	   "bakerUser":{
-	      "role":"ROLE_BOSS",
-	      "organization":"FISH Organization",
-	      "username":"admin",
-	      "password":"TLnIqASP0CKUR3/LGkEZGg==",
-	      "email":"",
-	      "name":"Baker Administrator",
-	      "id":15
-	   }
-	}
-			</programlisting>
-		</informalexample>
-	</para>
-	
-	<para>
-	<ns:application>Subscribed Resources</ns:application>
-	</para>
-	
-	<para> 
-	<informalexample>
-			<programlisting language="bash">	
-			
-	GET all subscribed resources
-	Path("/subscribedresources/")
-	Produces("application/json")
-	
-	GET subscribed resource by ID
-	Path("/subscribedresources/{smId}")
-	Produces("application/json")
-	
-	{
-		"url":"www.subm.gr",
-		"id":1
-	}
-	
-	POST add a new Subscribed Resource
-	Path("/subscribedresources/")
-	Produces("application/json")
-	Consumes("application/json")
-	
-	PUT update an existing
-	Path("/subscribedresources/{smId}")
-	Produces("application/json")
-	Consumes("application/json")
-	
-	DELETE by subscribed resource ID
-	Path("/subscribedresources/{smId}")
-	Produces("application/json")
 	
 		</programlisting>
 		</informalexample>
 	</para>
+	
+	
+	<para>
+	<ns:application>Deployments</ns:application>
+	</para>
+	
+	<para> 
+	<informalexample>
+			<programlisting language="bash">	
+	
+Get a user requested deployment descriptor 
+
+	http://localhost:13000/baker/services/api/repo/admin/deployments/19
+
+Response
+			
+			
+	{
+	    "id": 19,
+	    "name": "ApacheMysql Deployment",
+	    "status": "QUEUED",
+	    "dateCreated": 1421682762000,
+	    "baseApplication": {
+	        "id": 68,
+	        "owner": {
+	            "id": 1,
+	            "organization": "",
+	            "name": "admina",
+	            "email": "admin@gma",
+	            "username": "admin",
+	            "password": "TLnIqASP0CKUR3/LGkEZGg==",
+	            "role": "ROLE_BOSS",
+	            "active": true,
+	            "currentSessionID": "87845aae-042f-44ab-85cb-d85e410c732b"
+	        },
+	        "uuid": "65d95d48-c30e-4a97-adde-aa3b3ede8791",
+	        "name": "ApacheMysql",
+	        "iconsrc": "http://localhost:13000/baker/services/api/repo/images/65d95d48-c30e-4a97-adde-aa3b3ede8791/lamp.png",
+	        "shortDescription": "Apache and Mysql installation",
+	        "longDescription": "Apache Mysql installation suitable for building dynamic web sites and web applications",
+	        "version": "1",
+	        "packageLocation": null,
+	        "dateCreated": 1421245904000,
+	        "dateUpdated": 1421510248000,
+	        "categories": [{
+	            "id": 7,
+	            "name": "Future Internet",
+	            "appscount": 0,
+	            "bunscount": 0,
+	            "productsCount": 0
+	        }, {
+	            "id": 2,
+	            "name": "Multimedia",
+	            "appscount": 0,
+	            "bunscount": 0,
+	            "productsCount": 0
+	        }, {
+	            "id": 9,
+	            "name": "Service",
+	            "appscount": 0,
+	            "bunscount": 0,
+	            "productsCount": 0
+	        }],
+	        "extensions": [],
+	        "screenshots": "",
+	        "containers": [{
+	            "id": 9,
+	            "name": "Container0",
+	            "deployArtifacts": [{
+	                "id": 13,
+	                "uuid": "906c15ee-22f9-43ab-817b-f6df41f0320c",
+	                "name": "Apache http server",
+	                "artifactURL": "uuid/906c15ee-22f9-43ab-817b-f6df41f0320c",
+	                "artifactPackageURL": "http://localhost:13000/baker/services/api/repo/packages/906c15ee-22f9-43ab-817b-f6df41f0320c/unknown",
+	                "extensions": [{
+	                    "id": 74,
+	                    "name": "ListenPort",
+	                    "value": "81"
+	                }]
+	            }, {
+	                "id": 15,
+	                "uuid": "4a16c8ec-edc3-40ca-9453-7822eacdaf14",
+	                "name": "MySQL",
+	                "artifactURL": "uuid/4a16c8ec-edc3-40ca-9453-7822eacdaf14",
+	                "artifactPackageURL": "http://localhost:13000/baker/services/api/repo/packages/4a16c8ec-edc3-40ca-9453-7822eacdaf14/unknown",
+	                "extensions": [{
+	                    "id": 81,
+	                    "name": "PORT",
+	                    "value": "3306"
+	                }, {
+	                    "id": 82,
+	                    "name": "DBUSER",
+	                    "value": "admin1"
+	                }, {
+	                    "id": 83,
+	                    "name": "DBPASSWD",
+	                    "value": "changeme1"
+	                }, {
+	                    "id": 84,
+	                    "name": "DBNAME",
+	                    "value": "mydatabase1"
+	                }, {
+	                    "id": 85,
+	                    "name": "DBHOST",
+	                    "value": "localhost"
+	                }]
+	            }]
+	        }]
+	    },
+	    "owner": {
+	        "id": 1,
+	        "organization": "",
+	        "name": "admina",
+	        "email": "admin@gma",
+	        "username": "admin",
+	        "password": "TLnIqASP0CKUR3/LGkEZGg==",
+	        "role": "ROLE_BOSS",
+	        "active": true,
+	        "currentSessionID": "87845aae-042f-44ab-85cb-d85e410c732b"
+	    },
+	    "deployContainers": [{
+	        "id": 24,
+	        "name": "Container0",
+	        "deployArtifacts": [{
+	            "id": 38,
+	            "uuid": "906c15ee-22f9-43ab-817b-f6df41f0320c",
+	            "name": "Apache http server",
+	            "artifactURL": "uuid/906c15ee-22f9-43ab-817b-f6df41f0320c",
+	            "artifactPackageURL": "http://localhost:13000/baker/services/api/repo/packages/906c15ee-22f9-43ab-817b-f6df41f0320c/unknown",
+	            "extensions": [{
+	                "id": 149,
+	                "name": "ListenPort",
+	                "value": "81"
+	            }]
+	        }, {
+	            "id": 39,
+	            "uuid": "4a16c8ec-edc3-40ca-9453-7822eacdaf14",
+	            "name": "MySQL",
+	            "artifactURL": "uuid/4a16c8ec-edc3-40ca-9453-7822eacdaf14",
+	            "artifactPackageURL": "http://localhost:13000/baker/services/api/repo/packages/4a16c8ec-edc3-40ca-9453-7822eacdaf14/unknown",
+	            "extensions": [{
+	                "id": 150,
+	                "name": "PORT",
+	                "value": "3306"
+	            }, {
+	                "id": 151,
+	                "name": "DBUSER",
+	                "value": "admin1"
+	            }, {
+	                "id": 152,
+	                "name": "DBPASSWD",
+	                "value": "changeme1"
+	            }, {
+	                "id": 153,
+	                "name": "DBNAME",
+	                "value": "mydatabase1"
+	            }, {
+	                "id": 154,
+	                "name": "DBHOST",
+	                "value": "localhost"
+	            }]
+	        }],
+	        "targetResource": {
+	            "id": 1,
+	            "active": null,
+	            "owner": {
+	                "id": 1,
+	                "organization": "",
+	                "name": "admina",
+	                "email": "admin@gma",
+	                "username": "admin",
+	                "password": "TLnIqASP0CKUR3/LGkEZGg==",
+	                "role": "ROLE_BOSS",
+	                "active": true,
+	                "currentSessionID": "87845aae-042f-44ab-85cb-d85e410c732b"
+	            },
+	            "url": "150.140.184.284"
+	        }
+	    }]
+	}
+
+
+			</programlisting>
+		</informalexample>
+	</para>
+	
 	
 	<para>
 	<ns:application>Client API</ns:application>

@@ -83,7 +83,7 @@ public class Product {
 	@ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }, fetch = FetchType.LAZY)
 	private List<Category> categories = new ArrayList<Category>();
 
-	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
+	@OneToMany(cascade = { CascadeType.ALL })
 	@JoinTable()
 	private List<ProductExtensionItem> extensions = new ArrayList<ProductExtensionItem>();
 	

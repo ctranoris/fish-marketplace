@@ -40,7 +40,7 @@ public class FIWARECloudAccess {
 
 	private static final transient Log logger = LogFactory.getLog(FIWARECloudAccess.class.getName());
 	
-	private static String KEYSTONE_AUTHURL = "http://cloud.lab.fi-ware.org:4731/v2.0";
+	private static String KEYSTONE_AUTHURL = "http://cloud.lab.fiware.org:4731/v2.0";
 	
 	
 	public static JaxRs20Connector getConnector(){

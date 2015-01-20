@@ -144,7 +144,7 @@ public class BakerRepositoryIT {
 		List<Object> providers = new ArrayList<Object>();
 		providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
 
-		WebClient client = WebClient.create(endpointUrl + "/services/api/repo/users/" + id, providers);
+		WebClient client = WebClient.create(endpointUrl + "/services/api/repo/admin/users/" + id, providers);
 		client.cookie(cookieJSESSIONID);
 		Response r = client.accept("application/json").type("application/json").delete();
 		assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
@@ -155,7 +155,7 @@ public class BakerRepositoryIT {
 		List<Object> providers = new ArrayList<Object>();
 		providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
 
-		WebClient client = WebClient.create(endpointUrl + "/services/api/repo/users/" + id, providers);
+		WebClient client = WebClient.create(endpointUrl + "/services/api/repo/admin/users/" + id, providers);
 		client.cookie(cookieJSESSIONID);
 		Response r = client.accept("application/json").type("application/json").put(bu);
 		assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
@@ -170,7 +170,7 @@ public class BakerRepositoryIT {
 		List<Object> providers = new ArrayList<Object>();
 		providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
 
-		WebClient client = WebClient.create(endpointUrl + "/services/api/repo/users/" + id, providers);
+		WebClient client = WebClient.create(endpointUrl + "/services/api/repo/admin/users/" + id, providers);
 		client.cookie(cookieJSESSIONID);
 		Response r = client.accept("application/json").type("application/json").get();
 		assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
@@ -187,13 +187,13 @@ public class BakerRepositoryIT {
 		providers.add(new org.codehaus.jackson.jaxrs.JacksonJsonProvider());
 		
 		//without session cookie first! SHould return 401 (UNAUTHORIZED)
-		WebClient client = WebClient.create(endpointUrl + "/services/api/repo/users", providers);
+		WebClient client = WebClient.create(endpointUrl + "/services/api/repo/admin/users", providers);
 		Response r = client.accept("application/json").type("application/json").post(bu);
 		assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), r.getStatus());
 		
 		//again with session cookie
 
-		client = WebClient.create(endpointUrl + "/services/api/repo/users", providers);
+		client = WebClient.create(endpointUrl + "/services/api/repo/admin/users", providers);
 		client.cookie(cookieJSESSIONID);
 		r = client.accept("application/json").type("application/json").post(bu);
 		assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
@@ -209,7 +209,7 @@ public class BakerRepositoryIT {
 		logger.info("Executing TEST = testGetUsers");
 
 		
-		Response r = execGETonURL(endpointUrl + "/services/api/repo/users", cookieJSESSIONID);
+		Response r = execGETonURL(endpointUrl + "/services/api/repo/admin/users", cookieJSESSIONID);
 		assertEquals(Response.Status.OK.getStatusCode(), r.getStatus());
 
 		String bakerAPIVersionListHeaders = (String) r.getHeaders().getFirst("X-Baker-API-Version");
