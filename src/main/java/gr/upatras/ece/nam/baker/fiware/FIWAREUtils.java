@@ -37,7 +37,7 @@ public class FIWAREUtils {
 		// get fi-ware user info
 
 		try {
-			WebClient fiwareService = WebClient.create("https://account.lab.fi-ware.org/user");
+			WebClient fiwareService = WebClient.create("https://account.lab.fiware.org/user");
 			fiwareService.replaceHeader("Authorization", authHeader);
 			fiwareService.replaceQueryParam("auth_token", accessToken.getTokenKey());
 
@@ -71,7 +71,7 @@ public class FIWAREUtils {
 			
 			MappingJsonFactory factory = new MappingJsonFactory();
 			
-			WebClient fiwareService = WebClient.create("https://account.lab.fi-ware.org/users/" + FIWAREUSerNickName + ".json");
+			WebClient fiwareService = WebClient.create("https://account.lab.fiware.org/users/" + FIWAREUSerNickName + ".json");
 			fiwareService.replaceHeader("Authorization", authHeader);
 			fiwareService.replaceQueryParam("auth_token", accessToken.getTokenKey());
 

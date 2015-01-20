@@ -516,7 +516,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		if (u != null) {
 			List<BunMetadata> buns;
 			
-			if (u.getRole().equals("ROLE_ADMIN")){			
+			if (u.getRole().equals("ROLE_BOSS")){			
 				buns = bakerRepositoryRef.getBuns(categoryid);
 			}else{
 				buns = bakerRepositoryRef.getBunsByUserID( (long) u.getId() );
@@ -537,6 +537,14 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@Path("/admin/buns/")
 	@Consumes("multipart/form-data")	
 	public Response addBunMetadata( List<Attachment> ats){
+		
+		BakerUser u =bakerRepositoryRef.getUserBySessionID( ws.getHttpServletRequest().getSession().getId() );		
+		
+		if (u == null){			
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("User not found in baker registry or not logged in ");
+			throw new WebApplicationException(builder.build());			
+		}
 		
 		BunMetadata bun = new BunMetadata();
 		
@@ -974,8 +982,23 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@Produces("application/json")
 	public Response getSubscribedResources() {
 		
+
+		BakerUser u =bakerRepositoryRef.getUserBySessionID( ws.getHttpServletRequest().getSession().getId() );
 		
-		return Response.ok().entity(bakerRepositoryRef.getSubscribedResourcesAsCollection()).build();
+		
+		if (u != null) {
+			
+			if ( u.getRole().equals("ROLE_BOSS")) {
+				return Response.ok().entity( bakerRepositoryRef.getSubscribedResourcesAsCollection()  ).build(); //return all
+			}else			
+				return Response.ok().entity( u.getSubscribedResources() ).build();
+			
+		} 
+		
+		ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+		builder.entity("User not found in baker registry or not logged in");
+		throw new WebApplicationException(builder.build());
+	
 	}
 
 	
@@ -984,20 +1007,28 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@Path("/admin/subscribedresources/{smId}")
 	@Produces("application/json")
 	public Response getSubscribedResourceById(@PathParam("smId") int smId) {
+		
+		BakerUser u =bakerRepositoryRef.getUserBySessionID( ws.getHttpServletRequest().getSession().getId() );			
+		
 		SubscribedResource sm = bakerRepositoryRef.getSubscribedResourceByID(smId);
 
-		if (sm != null) {
-			return Response.ok().entity(sm).build();
-		} else {
-			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
-			builder.entity("SubscribedResource" + smId + " not found in baker registry");
-			throw new WebApplicationException(builder.build());
-		}
+		if ( (sm != null) && ( u!=null) ) {
+			
+			if ( ( u.getRole().equals("ROLE_BOSS")) || ( sm.getOwner().getId() == u.getId() ) )			
+				return Response.ok().entity(sm).build();
+			
+			
+		} 
+		
+		ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+		builder.entity("SubscribedResource" + smId + " not found in baker registry");
+		throw new WebApplicationException(builder.build());
+		
 	}
 
 	
 	@POST
-	@Path("/subscribedresources/")
+	@Path("/admin/subscribedresources/")
 	@Produces("application/json")
 	@Consumes("application/json")
 	public Response addSubscribedResource(SubscribedResource sm) {
@@ -1026,19 +1057,28 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	public Response updateSubscribedResource(@PathParam("smId")int smId, SubscribedResource sm) {
 		logger.info("Received SubscribedResource for user: " + sm.getURL());
 
+		BakerUser u =bakerRepositoryRef.getUserBySessionID( ws.getHttpServletRequest().getSession().getId() );		
 
-		BakerUser u = bakerRepositoryRef.getUserByID(sm.getOwner().getId());
-		sm.setOwner(u);
+		BakerUser reattachedUser = bakerRepositoryRef.getUserByID(sm.getOwner().getId());
+		sm.setOwner(reattachedUser);
 		
-		SubscribedResource sr = bakerRepositoryRef.updateSubscribedResourceInfo(smId, sm);
 
 		if (u != null) {
-			return Response.ok().entity(u).build();
-		} else {
-			ResponseBuilder builder = Response.status(Status.INTERNAL_SERVER_ERROR);
-			builder.entity("Requested SubscribedResource with url=" + sr.getURL()+" cannot be updated");
-			throw new WebApplicationException(builder.build());
-		}
+		
+			if ( ( u.getRole().equals("ROLE_BOSS")) || ( sm.getOwner().getId() == u.getId() ) )	{
+
+				SubscribedResource sr = bakerRepositoryRef.updateSubscribedResourceInfo(smId, sm);
+				return Response.ok().entity(u).build();
+			}
+		
+		} 
+		
+		
+		
+		ResponseBuilder builder = Response.status(Status.INTERNAL_SERVER_ERROR);
+		builder.entity("Requested SubscribedResource with url=" + sm.getURL()+" cannot be updated");
+		throw new WebApplicationException(builder.build());
+		
 	}
 
 	@DELETE
@@ -1047,9 +1087,21 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	public Response deleteSubscribedResource(@PathParam("smId")int smId) {
 		logger.info("Received SubscribedResource for userid: " + smId);
 
-		bakerRepositoryRef.deleteSubscribedResource(smId);
+		BakerUser u =bakerRepositoryRef.getUserBySessionID( ws.getHttpServletRequest().getSession().getId() );	
 
-		return Response.ok().build();
+		SubscribedResource sm = bakerRepositoryRef.getSubscribedResourceByID(smId);
+		if (u != null) {
+			
+			if ( ( u.getRole().equals("ROLE_BOSS")) || ( sm.getOwner().getId() == u.getId() ) )	{
+				bakerRepositoryRef.deleteSubscribedResource(smId);
+				return Response.ok().build();
+				
+			}
+		}
+		
+		ResponseBuilder builder = Response.status(Status.INTERNAL_SERVER_ERROR);
+		builder.entity("Requested SubscribedResource with id=" + smId+" cannot be deleted");
+		throw new WebApplicationException(builder.build());
 	}
 	
 	//Applications related API
@@ -1144,9 +1196,16 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@POST
 	@Path("/admin/apps/")
 	@Consumes("multipart/form-data")
-	public Response addAppMetadata( List<Attachment> ats){
+	public Response addAppMetadata( List<Attachment> ats){		
 
-
+		BakerUser u =bakerRepositoryRef.getUserBySessionID( ws.getHttpServletRequest().getSession().getId() );		
+		
+		if (u == null){			
+			ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+			builder.entity("User not found in baker registry or not logged in ");
+			throw new WebApplicationException(builder.build());			
+		}
+		
 		ApplicationMetadata app = new ApplicationMetadata();
 		
 		try {

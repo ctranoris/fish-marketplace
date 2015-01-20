@@ -196,13 +196,13 @@
 	<bean id="fiwareServiceClient" class="org.apache.cxf.jaxrs.client.WebClient"
 		factory-method="create">
 		<constructor-arg type="java.lang.String"
-			value="http://account.lab.fi-ware.org/user" />
+			value="http://account.lab.fiware.org/user" />
 	</bean>
 
 
 
 	<bean id="atServiceClientFactory" class="org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean">
-		<property name="address" value="https://account.lab.fi-ware.org/oauth2/token" />
+		<property name="address" value="https://account.lab.fiware.org/oauth2/token" />
 		<property name="headers">
 			<map>
 				<entry key="Accept" value="application/x-www-form-urlencoded" />
@@ -214,7 +214,7 @@
 
 	<bean id="oAuthClientManagerBean" class="gr.upatras.ece.nam.baker.fiware.OAuthClientManager">
 		<property name="authorizationURI"
-			value="http://account.lab.fi-ware.org/oauth2/authorize" />
+			value="http://account.lab.fiware.org/oauth2/authorize" />
 		<property name="accessTokenService" ref="atServiceClient" />
 	</bean>
 

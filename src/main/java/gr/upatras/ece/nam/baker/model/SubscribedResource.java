@@ -37,6 +37,17 @@ public class SubscribedResource {
 	@Basic
 	private String URL = null;
 	
+	@Basic
+	private Boolean active;
+	
+	public Boolean getActive() {
+		return active;
+	}
+
+	public void setActive(Boolean active) {
+		this.active = active;
+	}
+
 	@ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }, fetch = FetchType.LAZY)
 	@JoinColumns({ @JoinColumn() })
 	private BakerUser owner = null;
