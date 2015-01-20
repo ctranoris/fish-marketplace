@@ -33,6 +33,11 @@ public class SubscribedResource {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id = 0;
+	
+
+	@Basic()
+	private String uuid = null;
+
 
 	@Basic
 	private String URL = null;
@@ -76,5 +81,14 @@ public class SubscribedResource {
 
 	public void setURL(String uRL) {
 		URL = uRL;
+	}
+	
+
+	public String getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
 	}
 }
