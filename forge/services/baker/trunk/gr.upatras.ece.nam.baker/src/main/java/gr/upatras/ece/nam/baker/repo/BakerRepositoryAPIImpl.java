@@ -1060,13 +1060,20 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		BakerUser u = sm.getOwner();		
 		u = bakerRepositoryRef.getUserByID(sm.getOwner().getId());
 		
-		if (u != null) {
-			sm.setOwner(u);
-			sm.setActive(false);
-			u.getSubscribedResources().add(sm);
-			u = bakerRepositoryRef.updateUserInfo( u.getId(), u);
+		if ( (u != null) && (sm.getUuid()!=null ) ) {
 			
-			return Response.ok().entity(sm).build();
+			SubscribedResource checkSM = bakerRepositoryRef.getSubscribedResourceByUUID(sm.getUuid() );
+			
+			if ( checkSM == null){
+				sm.setOwner(u);
+				sm.setActive(false);
+				u.getSubscribedResources().add(sm);
+				u = bakerRepositoryRef.updateUserInfo( u.getId(), u);
+				return Response.ok().entity(sm).build();
+			}else{
+				return Response.ok().entity(checkSM).build();
+			}
+				
 		} else {
 			ResponseBuilder builder = Response.status(Status.INTERNAL_SERVER_ERROR);
 			builder.entity("Requested SubscribedResource with rls=" + sm.getURL() + " cannot be registered under not found user");
