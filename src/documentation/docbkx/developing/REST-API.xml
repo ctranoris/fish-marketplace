@@ -317,6 +317,10 @@ Payload:
 	<informalexample>
 			<programlisting language="bash">	
 			
+		Add a resource	for an owner (anauthorized call) example
+			curl -v -H "Content-Type: application/json" -X POST --data '{ "uuid": "99997468-7f92-4fff-9d9a-53a77eb4b25f",  "owner": {  "id": 34,  "username": "dev"  },  "url": "10.10.10.1" } '  http://localhost:13000/baker/services/api/repo/registerresource	
+	
+	Admin resources:		
 		Get all resources (os auth owner user. Admin sees all resources)
 			GET http://localhost:13000/baker/services/api/repo/admin/subscribedresources/
 		
