@@ -59,8 +59,8 @@ public class BakerRepoTest {
 	@Before
 	public void deletePreviousobjectsDB() {
 
-		bakerJpaControllerTest.deleteAllProducts();
 		bakerJpaControllerTest.deleteAllUsers();
+		bakerJpaControllerTest.deleteAllProducts();
 		bakerJpaControllerTest.deleteAllSubscribedResources();
 		bakerJpaControllerTest.deleteAllCategories();
 
@@ -180,7 +180,7 @@ public class BakerRepoTest {
 		c2.setName("acat2");
 		
 		BakerUser bu = new BakerUser();
-		bu.setUsername("ausername");
+		bu.setUsername("ausernameWRA");
 
 		ApplicationMetadata appmeta = new ApplicationMetadata();
 		appmeta.setName("app");
@@ -219,14 +219,14 @@ public class BakerRepoTest {
 		bakerJpaControllerTest.updateBakerUser(bu);
 		bakerJpaControllerTest.getAllUsersPrinted();
 
-		BakerUser testbu = bakerJpaControllerTest.readBakerUserByUsername("ausername");
+		BakerUser testbu = bakerJpaControllerTest.readBakerUserByUsername("ausernameWRA");
 		assertEquals(2, testbu.getProducts().size());
 
 		ApplicationMetadata testApp = (ApplicationMetadata) bakerJpaControllerTest.readProductByUUID(uuid);
 		assertEquals("NewAppName", testApp.getName());
 		assertEquals(uuid, testApp.getUuid());
 		assertNotNull(testApp.getOwner());
-		assertEquals("ausername", testApp.getOwner().getUsername());
+		assertEquals("ausernameWRA", testApp.getOwner().getUsername());
 		bakerJpaControllerTest.getAllCategoriesPrinted();
 		assertEquals("acat1", testApp.getCategories().get(0).getName());
 
@@ -238,7 +238,7 @@ public class BakerRepoTest {
 		Category c = new Category();
 		c.setName("acat1");
 		BakerUser bu = new BakerUser();
-		bu.setUsername("ausername");
+		bu.setUsername("ausername123");
 		
 		//add a couple of buns
 		BunMetadata bmeta = new BunMetadata();
@@ -295,8 +295,10 @@ public class BakerRepoTest {
 		bakerJpaControllerTest.saveUser(bu);
 		
 
-		BakerUser testbu = bakerJpaControllerTest.readBakerUserByUsername("ausername") ;		
+		BakerUser testbu = bakerJpaControllerTest.readBakerUserByUsername("ausername123") ;		
 
+		assertEquals(1, testbu.getDeployments().size()  );
+		assertEquals(1, testbu.getDeployments().get(0).getDeployContainers().size()  );
 		assertEquals("myapp", testbu.getDeployments().get(0).getBaseApplication().getName() );
 		assertEquals("targetIP", testbu.getDeployments().get(0).getDeployContainers().get(0).getTargetResource().getURL()  );
 		

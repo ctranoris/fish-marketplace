@@ -15,6 +15,8 @@
 
 package gr.upatras.ece.nam.baker.model;
 
+import java.util.Date;
+
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -44,6 +46,10 @@ public class SubscribedResource {
 	
 	@Basic
 	private Boolean active;
+	
+
+	@Basic
+	private Date lastUpdate;
 	
 	public Boolean getActive() {
 		return active;
@@ -91,4 +97,13 @@ public class SubscribedResource {
 	public void setUuid(String uuid) {
 		this.uuid = uuid;
 	}
+
+	public Date getLastUpdate() {
+		return lastUpdate;
+	}
+
+	public void setLastUpdate(Date lastUpdate) {
+		this.lastUpdate = lastUpdate;
+	}
+
 }

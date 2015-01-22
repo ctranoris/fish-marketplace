@@ -600,6 +600,9 @@ public class BakerJpaController {
 		entityTransaction.commit();
 		
 	}
+	
+
+
 
 	public List<SubscribedResource> readSubscribedResources(int firstResult, int maxResults) {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();

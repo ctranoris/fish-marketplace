@@ -75,7 +75,7 @@ public class DeploymentDescriptor {
 	@JoinColumns({ @JoinColumn() })
 	private BakerUser owner = null;
 	
-	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
+	@OneToMany(cascade = { CascadeType.ALL })
 	@JoinTable()
 	private List<DeployContainer> deployContainers = new ArrayList<DeployContainer>();
 	
