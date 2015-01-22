@@ -15,6 +15,7 @@
 
 package gr.upatras.ece.nam.baker.model;
 
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -27,6 +28,9 @@ import javax.persistence.ManyToOne;
 public class DeployContainer extends Container{
 
 	
+	@Basic
+	private DeploymentDescriptorStatus masterDeploymentStatus;
+	
 	@ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }, fetch = FetchType.LAZY)
 	@JoinColumns({ @JoinColumn() })
 	private SubscribedResource targetResource;
@@ -37,6 +41,14 @@ public class DeployContainer extends Container{
 
 	public void setTargetResource(SubscribedResource targetResource) {
 		this.targetResource = targetResource;
+	}
+
+	public DeploymentDescriptorStatus getMasterDeploymentStatus() {
+		return masterDeploymentStatus;
+	}
+
+	public void setMasterDeploymentStatus(DeploymentDescriptorStatus masterDeploymentStatus) {
+		this.masterDeploymentStatus = masterDeploymentStatus;
 	}
 
 }

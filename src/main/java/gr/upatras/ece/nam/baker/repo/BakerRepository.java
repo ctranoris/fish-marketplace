@@ -288,7 +288,7 @@ public class BakerRepository {
 	}
 
 
-	public List<DeploymentDescriptor> getAllDeployments() {
+	public List<DeploymentDescriptor> getAllDeploymentDescriptors() {
 		List<DeploymentDescriptor> ls = bakerJpaController.readDeploymentDescriptors( 0, 100000);	
 		return ls;
 	}

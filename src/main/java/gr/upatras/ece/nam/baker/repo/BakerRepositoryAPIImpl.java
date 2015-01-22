@@ -1406,6 +1406,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 			// check if user exists in Baker database
 			BakerUser u = bakerRepositoryRef.getUserByUsername(fu.getNickName());
+
 			String roamPassword = UUID.randomUUID().toString(); // creating a temporary session password, to login
 			if (u == null) {
 				u = new BakerUser(); // create as new user
@@ -1416,12 +1417,14 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 				u.setOrganization("FI-WARE");
 				u.setRole("SERVICE_PLATFORM_PROVIDER");
 				u.setPassword(roamPassword);
+				u.setCurrentSessionID(ws.getHttpServletRequest().getSession().getId());
 				bakerRepositoryRef.addBakerUserToUsers(u);
 			} else {
 				u.setEmail(fu.getEmail());
 				u.setName(fu.getDisplayName());
 				u.setPassword(roamPassword);
 				u.setOrganization("FI-WARE");
+				u.setCurrentSessionID(ws.getHttpServletRequest().getSession().getId());
 				u = bakerRepositoryRef.updateUserInfo(u.getId(), u);
 			}
 
@@ -1545,7 +1548,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 			List<DeploymentDescriptor> deployments;
 
 			if (u.getRole().equals("ROLE_BOSS")) {
-				deployments = bakerRepositoryRef.getAllDeployments();
+				deployments = bakerRepositoryRef.getAllDeploymentDescriptors();
 			} else {
 				deployments = u.getDeployments();
 			}
@@ -1605,8 +1608,9 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	public Response deleteDeployment(@PathParam("id") int id) {
 		BakerUser u = bakerRepositoryRef.getUserBySessionID(ws.getHttpServletRequest().getSession().getId());
 
+		DeploymentDescriptor dep = bakerRepositoryRef.getDeploymentByID(id);
 		if (u != null) {
-			if (u.getRole().equals("ROLE_BOSS")) {
+			if  (  u.getRole().equals("ROLE_BOSS") ||  u.getId() == dep.getOwner().getId())    {
 				bakerRepositoryRef.deleteDeployment(id);
 				return Response.ok().build();
 			}
@@ -1648,24 +1652,24 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 		BakerUser u = bakerRepositoryRef.getUserBySessionID(ws.getHttpServletRequest().getSession().getId());
 
-		if ((u != null) && (u.getRole().equals("ROLE_BOSS"))) { // only admin can alter a deployment
+		if ((u != null) ) { 
 
-			// DeploymentDescriptor previousDeploymentDescriptor = bakerRepositoryRef.getDeploymentByID(id);
-			if (action.equals("AUTH"))
+			if (action.equals("AUTH") && (u.getRole().equals("ROLE_BOSS")) ) // only admin can alter a deployment
 				d.setStatus(DeploymentDescriptorStatus.QUEUED);
-			else if (action.equals("UNINSTALL"))
+			else if (action.equals("UNINSTALL")  &&  (u.getRole().equals("ROLE_BOSS") ||  u.getId() == d.getOwner().getId())  )
 				d.setStatus(DeploymentDescriptorStatus.UNINSTALLING);
-			else if (action.equals("DENY"))
+			else if (action.equals("DENY") && (u.getRole().equals("ROLE_BOSS")) )
 				d.setStatus(DeploymentDescriptorStatus.DENIED);
 
-			u = bakerRepositoryRef.getUserByID(u.getId());
-			d.setOwner(u); // reattach from the DB model
+			BakerUser deploymentOwner = bakerRepositoryRef.getUserByID(d.getOwner().getId() );
+			d.setOwner(deploymentOwner); // reattach from the DB model
 
 			ApplicationMetadata baseApplication = (ApplicationMetadata) bakerRepositoryRef.getProductByID(d.getBaseApplication().getId());
 			d.setBaseApplication(baseApplication); // reattach from the DB model
 
 			for (DeployContainer dc : d.getDeployContainers()) {
-				dc.getTargetResource().setOwner(u);// reattach from the DB model, in case missing from the request
+				
+				dc.getTargetResource().setOwner(deploymentOwner);// reattach from the DB model, in case missing from the request
 			}
 
 			DeploymentDescriptor deployment = bakerRepositoryRef.updateDeploymentDescriptor(d);
@@ -1676,7 +1680,7 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 
 		}
 
-		ResponseBuilder builder = Response.status(Status.NOT_FOUND);
+		ResponseBuilder builder = Response.status(Status.FORBIDDEN);
 		builder.entity("User not found in baker registry or not logged in as admin");
 		throw new WebApplicationException(builder.build());
 
@@ -1723,12 +1727,19 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 	@Produces("application/json")
 	public Response getDeployContainerByTargetResourceUUID(@PathParam("uuid") String uuid) {
 
-		List<DeploymentDescriptor> deployments = bakerRepositoryRef.getAllDeployments();
-		for (DeploymentDescriptor deploymentDescriptor : deployments)
-			if (deploymentDescriptor.getStatus().equals(DeploymentDescriptorStatus.QUEUED)) { //ONLY IF QUEUED can continue
+		SubscribedResource res = updateLastSeenResource(uuid);
+		if (res!=null)
+			logger.info("Received req for Deployent by client: " + res.getUuid() + ", URLs:" + res.getURL() + ", OwnerID:" + res.getOwner().getId());
+
+		List<DeploymentDescriptor> deployments = bakerRepositoryRef.getAllDeploymentDescriptors();
+		for (DeploymentDescriptor deploymentDescriptor : deployments) 
+			if ((deploymentDescriptor.getStatus()!= DeploymentDescriptorStatus.PENDING_ADMIN_AUTH )&&
+					(deploymentDescriptor.getStatus()!= DeploymentDescriptorStatus.DENIED )&&
+					(deploymentDescriptor.getStatus()!= DeploymentDescriptorStatus.UNINSTALLED )){
 				List<DeployContainer> dcs = deploymentDescriptor.getDeployContainers();
 				for (DeployContainer dc : dcs) {
-					if (dc.getTargetResource().getUuid().equals(uuid)) {
+					if ((dc.getTargetResource()!=null) && (dc.getTargetResource().getUuid().equals(uuid))) {						
+						dc.setMasterDeploymentStatus( deploymentDescriptor.getStatus() );
 						return Response.ok().entity(dc).build();
 					}
 				}
@@ -1739,45 +1750,101 @@ public class BakerRepositoryAPIImpl implements IBakerRepositoryAPI {
 		throw new WebApplicationException(builder.build());
 
 	}
-	
+
 	// /registerresource/deployments/target/uuid/"+ clientUUID+"/installedbunuuid/"+installedBunUUID+"/status/"+status"
-	
+
 	@PUT
-	@Path("/registerresource/deployments/target/uuid/{clientUUID}/installedbunuuid/{installedBunUUID}/status/{status}")
+	@Path("/registerresource/deployments/target/uuid/{clientUUID}/installedbunuuid/{installedBunUUID}/status/{status}/deployContainerid/{cid}")
 	@Consumes("application/json")
 	@Produces("application/json")
 	public Response updateDeployContainerTargetResourceStatus(@PathParam("clientUUID") String clientUUID,
-			@PathParam("installedBunUUID") String installedBunUUID,
-			@PathParam("status") String status) {
+			@PathParam("installedBunUUID") String installedBunUUID, @PathParam("status") String status,@PathParam("cid") Long deployContainerId) {
 
-		List<DeploymentDescriptor> deployments = bakerRepositoryRef.getAllDeployments();
-		for (DeploymentDescriptor deploymentDescriptor : deployments){ 
-				
-				List<DeployContainer> dcs = deploymentDescriptor.getDeployContainers();
-				for (DeployContainer dc : dcs) {
-					if (dc.getTargetResource().getUuid().equals(clientUUID)) {						
-						List<DeployArtifact> artifacts = dc.getDeployArtifacts();
-						for (DeployArtifact deployArtifact : artifacts) 
-							if (deployArtifact.getUuid().equals(installedBunUUID)){
-								deployArtifact.setStatus( InstalledBunStatus.valueOf(status) );								
-							}					
-						
-						
+		SubscribedResource res = updateLastSeenResource(clientUUID);
+		if (res!=null)
+			logger.info("Received ResourceStatus: " + status + ", for Deployent by client: " + res.getUuid() + ", URLs:" + res.getURL() 
+					+ ", OwnerID:"+ res.getOwner().getId()
+					+ ", installedBunUUID:"+ installedBunUUID);
 
-						deploymentDescriptor.setStatus(DeploymentDescriptorStatus.INSTALLED); //we must write here code to properly find the status!
-						
-						bakerRepositoryRef.updateDeploymentDescriptor(deploymentDescriptor);
-						return Response.status(Status.OK).build();						
-					}					
+		List<DeploymentDescriptor> deployments = bakerRepositoryRef.getAllDeploymentDescriptors();
+		for (DeploymentDescriptor deploymentDescriptor : deployments) {
+			List<DeployContainer> dcs = deploymentDescriptor.getDeployContainers();
+			for (DeployContainer dc : dcs) {
+				if ((deployContainerId == dc.getId()) && (dc.getTargetResource()!=null) && dc.getTargetResource().getUuid().equals(clientUUID)) {
+					List<DeployArtifact> artifacts = dc.getDeployArtifacts();
+					for (DeployArtifact deployArtifact : artifacts)
+						if (deployArtifact.getUuid().equals(installedBunUUID)) {
+							deployArtifact.setStatus(InstalledBunStatus.valueOf(status));
+							
+						}
+
+					deploymentDescriptor.setStatus( resolveStatus(deploymentDescriptor) ); // we must write here code to properly find the status!
+					bakerRepositoryRef.updateDeploymentDescriptor(deploymentDescriptor);
+					
+					return Response.status(Status.OK).build();
+				}else{
+					logger.info(" dc.getTargetResource()==null !! PROBLEM");
 				}
-				
-				
 			}
 
+		}
+
+		logger.info("Deploy Container for TargetResource not found");
 		ResponseBuilder builder = Response.status(Status.NOT_FOUND);
 		builder.entity("Deploy Container for TargetResource not found");
 		throw new WebApplicationException(builder.build());
 
+	}
+
+	private DeploymentDescriptorStatus resolveStatus(DeploymentDescriptor deploymentDescriptor) {
+
+		Boolean allInstalled = true;
+		Boolean allUnInstalled = true;
+		DeploymentDescriptorStatus status= deploymentDescriptor.getStatus();
+
+		List<DeployContainer> containers = deploymentDescriptor.getDeployContainers();
+		for (DeployContainer deployContainer : containers) {
+			List<DeployArtifact> artifacts = deployContainer.getDeployArtifacts();
+			for (DeployArtifact deployArtifact : artifacts) {
+				if (deployArtifact.getStatus()!=InstalledBunStatus.STARTED)
+					allInstalled= false;
+				if (deployArtifact.getStatus()!=InstalledBunStatus.UNINSTALLED)
+					allUnInstalled= false;
+
+				if ((deployArtifact.getStatus()==InstalledBunStatus.FAILED))
+					return DeploymentDescriptorStatus.FAILED;
+				if ((deployArtifact.getStatus()==InstalledBunStatus.UNINSTALLING))
+					return DeploymentDescriptorStatus.UNINSTALLING;
+				if ((deployArtifact.getStatus()==InstalledBunStatus.CONFIGURING)|| 
+						(deployArtifact.getStatus()==InstalledBunStatus.DOWNLOADING)|| 
+						(deployArtifact.getStatus()==InstalledBunStatus.DOWNLOADED)|| 
+						(deployArtifact.getStatus()==InstalledBunStatus.INSTALLING)|| 
+						(deployArtifact.getStatus()==InstalledBunStatus.INSTALLED)|| 
+						(deployArtifact.getStatus()==InstalledBunStatus.STARTING)
+						)
+					return DeploymentDescriptorStatus.INSTALLING;
+			}
+		}
+		
+		if (allInstalled) 
+			return DeploymentDescriptorStatus.INSTALLED;
+		else if (allUnInstalled) 
+			return DeploymentDescriptorStatus.UNINSTALLED;
+		else
+			return status;
+	}
+
+	private SubscribedResource updateLastSeenResource(String clientUUID) {
+
+		SubscribedResource res = bakerRepositoryRef.getSubscribedResourceByUUID(clientUUID);
+		if (res != null) {
+			res.setLastUpdate(new Date()); // each time Baker Client Polls marketplace, we update this Last seen of client
+			BakerUser reattachedUser = bakerRepositoryRef.getUserByID(res.getOwner().getId());
+			res.setOwner(reattachedUser);
+			bakerRepositoryRef.updateSubscribedResourceInfo(res.getId(), res);
+		}
+
+		return res;
 	}
 
 }

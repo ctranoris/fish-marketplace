@@ -61,16 +61,16 @@ public class BakerUser {
 	/**
 	 * 
 	 */
-	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
+	@OneToMany(cascade = { CascadeType.ALL })
 	@JoinTable()
 	private List<Product> products = new ArrayList<Product>();
 	
 
-	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
+	@OneToMany(cascade = { CascadeType.ALL })
 	@JoinTable()
 	private List<DeploymentDescriptor> deployments = new ArrayList<DeploymentDescriptor>();
 	
-	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
+	@OneToMany(cascade = { CascadeType.ALL })
 	@JoinTable()
 	private List<SubscribedResource> subscribedResources = new ArrayList<SubscribedResource>();
 	
