@@ -52,6 +52,18 @@ public class DeployArtifact {
 	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
 	@JoinTable()
 	private List<ProductExtensionItem> extensions = new ArrayList<ProductExtensionItem>();
+	
+
+	@Basic() 
+	private InstalledBunStatus status = InstalledBunStatus.INIT;
+
+	public InstalledBunStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(InstalledBunStatus status) {
+		this.status = status;
+	}
 
 	public long getId() {
 		return id;
