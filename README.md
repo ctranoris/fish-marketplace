@@ -6,6 +6,16 @@ More specifically, it addresses the objective for the realization of the highly 
 
 This service can also be used to access via OAuth2 FIWARE Lab resources (from https://account.lab.fiware.org)
 
+The FISH Marketplace and brokering service, is a RESTful backend service build in java. Currently it runs in the Jetty container and needs MySQL to persist data. Apache CXF is used to implement the RESTful interface and Apache SHIRO as the Authentication and Authorization framework.  A java implementation for openstack API is called woorea and it is used to access resources on FIWARE Lab.
+Main offered services are:
+-	management of users and their resources
+-	management of application
+-	management of buns
+-	management of the platform
+-	brokering, orchestrating and provisioning on target machines
+-	OAUTH2 login based to FIWARE Lab
+-	Automated provisioning of machines on top of FIWARE Lab
+
 
 Licenses
 --------
